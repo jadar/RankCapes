@@ -1,0 +1,4 @@
+RankCapesBukkit
+===============
+
+Plugin
