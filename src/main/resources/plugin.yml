@@ -1,0 +1,13 @@
+name: RankCapes
+version: alpha1
+depend: [Vault]
+description: Give capes to the different rank groups on your server!
+author: Jadar
+website: http://www.jadarstudios.com/
+database: true
+
+main: com.jadarstudios.rankcapes.bukkit.RankCapesBukkit
+
+commands:
+  mycape:
+    description: Finds sender's cape.

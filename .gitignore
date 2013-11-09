@@ -5,3 +5,5 @@ target/
 .settings/
 .project
 .classpath
+MANIFEST.MF
+RankCapes.jardesc
