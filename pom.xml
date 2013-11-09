@@ -7,15 +7,21 @@
 	<version>1.0-RELEASE</version>
 	<name>RankCapesBukkit</name>
 	<url>http://www.jadarstudios.com/</url>
-     
+
 	<repositories>
 		<!-- Bukkit can be found at the following repository -->
 		<repository>
 			<id>bukkit-repo</id>
 			<url>http://repo.bukkit.org/content/groups/public/</url>
 		</repository>
+
+		<!-- MCStats repository. -->
+		<repository>
+			<id>Plugin Metrics</id>
+			<url>http://repo.mcstats.org/content/repositories/public</url>
+		</repository>
 	</repositories>
-    
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -33,16 +39,20 @@
 			<groupId>net.sourceforge.argo</groupId>
 			<artifactId>argo</artifactId>
 			<version>3.7</version>
-			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mcstats.bukkit</groupId>
+			<artifactId>metrics-lite</artifactId>
+			<version>R6</version>
 		</dependency>
 	</dependencies>
-    
+
 	<scm>
 		<url>http://github.com/jadar/RankCapesBukkit/tree/master/</url>
 		<connection>scm:git:git://github.com/jadar/RankCapesBukkit.git</connection>
 		<developerConnection>scm:jadar:ssh://git@github.com/jadar/RankCapesBukkit.git</developerConnection>
 	</scm>
-    
+
 	<build>
 		<plugins>
 			<plugin>
@@ -55,18 +65,46 @@
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.3.1</version>
+				<executions>
+				    <execution>
+				        <phase>package</phase>
+				    </execution>
+				</executions>
+				<configuration>
+					<outputDirectory>F:\Development-FromShared\Java\Minecraft\RankCapes\test-server\plugins\</outputDirectory>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
-    
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-    
+
 	<ciManagement>
 		<system>jenkins</system>
 		<url>http://ci.jadarstudios.com/</url>
 	</ciManagement>
-    
+
 	<issueManagement>
 		<system>GitHub</system>
 		<url>http://github.com/jadar/RankCapesBukkit/issues</url>

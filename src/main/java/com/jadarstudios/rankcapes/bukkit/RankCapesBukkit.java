@@ -26,6 +26,7 @@ import javax.persistence.PersistenceException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.MetricsLite;
 
 import argo.jdom.JdomParser;
 import argo.jdom.JsonNode;
@@ -109,6 +110,10 @@ public class RankCapesBukkit extends JavaPlugin
         // sets up the config.
         setupConfig();
         
+        // sets up the plugin metrics/stats (MCStats.org)
+        setupMetrics();
+        
+        // sets up the metrics for MCStats.
         // registers the communication channels with bukkit.
         registerChannels();
         
@@ -158,6 +163,22 @@ public class RankCapesBukkit extends JavaPlugin
         
         capePackName = getConfig().getString("cape-pack");
         capeServerPort = getConfig().getInt("port");
+    }
+    
+    /**
+     * Sets up plugin metrics (MCStats.org)
+     */
+    private void setupMetrics()
+    {
+        try
+        {
+            MetricsLite metrics = new MetricsLite(this);
+            metrics.start();
+        }
+        catch(IOException e)
+        {
+            ;
+        }
     }
     
     private void setupDatabase()
