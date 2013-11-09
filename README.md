@@ -1,4 +1,4 @@
 RankCapesBukkit
 ===============
 
-Fun plugin for players!
+Fun plugin for players! Yay!
