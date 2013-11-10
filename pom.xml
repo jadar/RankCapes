@@ -53,12 +53,32 @@
 		<developerConnection>scm:jadar:ssh://git@github.com/jadar/RankCapesBukkit.git</developerConnection>
 	</scm>
 
+	<profiles>
+		<profile>
+			<id>eclipse</id>
+			<properties>
+				<!-- You may change this to whatever your test server is, just dont include 
+					this POM.xml in a pull request. -->
+				<myoutputdirectory>F:\Development-FromShared\Java\Minecraft\RankCapes\test-server\plugins\</myoutputdirectory>
+			</properties>
+		</profile>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<myoutputdirectory>target/</myoutputdirectory>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.1</version>
+ 				<version>2.5.1</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
@@ -70,34 +90,32 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.1</version>
-				<executions>
-				    <execution>
-				        <phase>package</phase>
-				    </execution>
-				</executions>
 				<configuration>
-					<outputDirectory>F:\Development-FromShared\Java\Minecraft\RankCapes\test-server\plugins\</outputDirectory>
+					<!-- <outputDirectory>${project.out.rankCapesBuildLocation}</outputDirectory> -->
+					<outputDirectory>${myoutputdirectory}</outputDirectory>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>1.4</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- Default myoutputdirectory -->
+		<!-- <myoutputdirectory>target/</myoutputdirectory> -->
 	</properties>
 
 	<ciManagement>
