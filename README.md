@@ -3,6 +3,9 @@ RankCapesBukkit
 
 Minecraft Bukkit plugin that goes along with a client mod that allows server owners to assign capes using permissions. 
 
+##Usage
+For full usage and setup, see [the wiki](http://github.com/jadar/RankCapesBukkit/wiki).
+
 ##Compilation
 To compile RankCapesBukkit.
 
