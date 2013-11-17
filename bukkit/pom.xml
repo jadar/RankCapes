@@ -4,7 +4,7 @@
 	<groupId>com.jadarstudios.rankcapes.bukkit</groupId>
 	<artifactId>RankCapesBukkit</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0-RELEASE</version>
+	<version>1.0-BETA</version>
 	<name>RankCapesBukkit</name>
 	<url>http://www.jadarstudios.com/</url>
 
