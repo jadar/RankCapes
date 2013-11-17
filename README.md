@@ -1,7 +1,7 @@
 RankCapes
 ===============
 
-Minecraft Bukkit plugin and client mod combo that goes along with a client mod that allows server owners to assign capes using permissions. 
+RankCapes is a Bukkit plugin and Minecraft client mod combo that allows server owners to give their players custom capes based on permissions. RankCapes is easy to setup and use. It supports regular, animated, and HD capes! 
 
 ##Usage
 For full usage and setup, see [the wiki](http://github.com/jadar/RankCapesBukkit/wiki).
