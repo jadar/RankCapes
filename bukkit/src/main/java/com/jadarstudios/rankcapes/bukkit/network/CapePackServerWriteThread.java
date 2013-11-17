@@ -101,22 +101,7 @@ public class CapePackServerWriteThread extends Thread
         }
         finally
         {
-            // finally close socket.
-            try
-            {
-                if (out != null)
-                {
-                    out.close();
-                }
-                if (socket != null)
-                {
-                    socket.close();
-                }
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            closeConnection();
         }
         
         // remove self from the main server thread.
@@ -198,6 +183,11 @@ public class CapePackServerWriteThread extends Thread
     {
         try
         {
+            if (out != null)
+            {
+                out.close();
+            }
+            
             if (socket != null)
             {
                 socket.close();
