@@ -1,3 +1,11 @@
+/**
+ * RankCapes Forge Mod
+ * 
+ * Copyright (c) 2013 Jacob Rhoda.
+ * Released under the MIT license
+ * http://github.com/jadar/RankCapes/blob/master/LICENSE
+ */
+
 package com.jadarstudios.rankcapes.forge.network;
 
 import java.io.DataInputStream;
@@ -63,11 +71,12 @@ public class CapePackClientReadThread implements Runnable
                         timeElapsed = System.currentTimeMillis() - startTime;
                         if (timeElapsed >= 10000)
                         {
-                            System.out.println("Transfor timed out.");
+                            RankCapesForge.log.severe("Cape Pack read timed out!");
                             continue;
                         }
                         
-                        // reads to the buffer and records the amount of bytes read.
+                        // reads to the buffer and records the amount of bytes
+                        // read.
                         bytesRead += in.read(buffer);
                     }
                     while (bytesRead != size);
@@ -82,7 +91,7 @@ public class CapePackClientReadThread implements Runnable
                     }
                     else
                     {
-                        modInstance.getLogger().severe("Cape Pack read failed.");
+                        RankCapesForge.log.severe("Cape Pack read failed!");
                     }
                     
                     timeElapsed = 0;
@@ -103,23 +112,8 @@ public class CapePackClientReadThread implements Runnable
         }
         finally
         {
-            try
-            {
-                if (in != null)
-                    in.close();
-                if (out != null)
-                    out.close();
-                if (socket != null)
-                    socket.close();
-                System.out.println("Socket Closed");
-            }
-            catch (IOException f)
-            {
-                f.printStackTrace();
-            }
+            closeConnection();
         }
-        
-        System.out.println("PACK DOWNLOAD THREAD DONE!");
     }
     
     /**
@@ -149,9 +143,13 @@ public class CapePackClientReadThread implements Runnable
         try
         {
             if (in != null)
+            {
                 in.close();
+            }
             if (out != null)
+            {
                 out.close();
+            }
             if (socket != null)
             {
                 socket.close();
@@ -165,7 +163,7 @@ public class CapePackClientReadThread implements Runnable
     
     public synchronized void stopThread()
     {
-        this.stop = true;
+        stop = true;
     }
     
 }

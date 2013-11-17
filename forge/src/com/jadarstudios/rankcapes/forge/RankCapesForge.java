@@ -1,3 +1,11 @@
+/**
+ * RankCapes Forge Mod
+ * 
+ * Copyright (c) 2013 Jacob Rhoda.
+ * Released under the MIT license
+ * http://github.com/jadar/RankCapes/blob/master/LICENSE
+ */
+
 package com.jadarstudios.rankcapes.forge;
 
 import java.util.ArrayList;
@@ -26,33 +34,27 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid = "rankcapesforge", name = "RankCapes", version = "alpha1")
-@NetworkMod(
-        clientSideRequired = false, 
-        serverSideRequired = false, 
-        channels = { "RankCapes" }, 
-        packetHandler = ClientPacketHandler.class, 
-        connectionHandler = NetworkEventListener.class)
+@Mod(modid = "rankcapesforge", name = "RankCapes", version = "1.0-BETA")
+@NetworkMod(clientSideRequired = false, serverSideRequired = false, channels = { "RankCapes" }, packetHandler = ClientPacketHandler.class, connectionHandler = NetworkEventListener.class)
 public class RankCapesForge
 {
     
     @Instance
     public static RankCapesForge instance;
     
-    private CapePackClientReadThread packDownload;
+    private CapePackClientReadThread packReadThread;
     
     private CapePack capePack = null;
     
     private final CapeHandler capeHandler;
     public List<String> availableCapes;
     
-    public Logger log;
+    public static final Logger log = Logger.getLogger("RankCapes");
     
     public RankCapesForge()
     {
         availableCapes = new ArrayList<String>();
         capeHandler = new CapeHandler();
-        log = Logger.getLogger("RankCapes");
     }
     
     @EventHandler
@@ -60,41 +62,36 @@ public class RankCapesForge
     {
         TickRegistry.registerTickHandler(capeHandler, Side.CLIENT);
         
-        KeyBinding[] key = {new KeyBinding("rankcapes.key.1", Keyboard.KEY_C)};
-        boolean[] repeat = {false};
+        KeyBinding[] key = { new KeyBinding("rankcapes.key.1", Keyboard.KEY_C) };
+        boolean[] repeat = { false };
         KeyBindingRegistry.registerKeyBinding(new CapeKeyHandler(key, repeat));
         
         LanguageRegistry.instance().addStringLocalization("rankcapes.key.1", "Change Cape");
     }
     
-    public void connectToServer(int port)
+    public void connectReadThread(int port)
     {
-        connectToServer(getCurrentServerAddress(), port);
-    }
-    
-    public String getCurrentServerAddress()
-    {
-        String address = Minecraft.getMinecraft().getNetHandler().getNetManager().getSocketAddress().toString();
-        return address.substring(0, address.lastIndexOf(':')).replace('/', ' ').trim();
+        connectReadThread(getCurrentServerAddress(), port);
     }
     
     /**
      * Called to connect to new server.
+     * 
      * @param serverAddress
      * @param port
      */
-    public void connectToServer(String serverAddress, int port)
+    public void connectReadThread(String serverAddress, int port)
     {
-        if(packDownload != null)
+        if (packReadThread != null)
         {
-            packDownload.stopThread();
+            packReadThread.stopThread();
         }
         
         // create new read object.
-        packDownload = new CapePackClientReadThread(serverAddress, port);
-
+        packReadThread = new CapePackClientReadThread(serverAddress, port);
+        
         // make thread out of it.
-        Thread t = new Thread(packDownload);
+        Thread t = new Thread(packReadThread);
         
         // makes it so java can exit without any problems from this thread.
         t.setDaemon(true);
@@ -103,45 +100,58 @@ public class RankCapesForge
         t.start();
     }
     
+    public CapeHandler getCapeHandler()
+    {
+        return capeHandler;
+    }
+    
+    public CapePackClientReadThread getReadThread()
+    {
+        return packReadThread;
+    }
+    
+    public CapePack getCapePack()
+    {
+        return capePack;
+    }
+    
+    public synchronized void setCapePack(CapePack pack)
+    {
+        capePack = pack;
+    }
+    
     public String getPlayersCapeName(String username)
     {
         return capeHandler.playerCapeNames.get(username);
     }
     
-    public CapeHandler getCapeHandler()
-    {
-        return this.capeHandler;
-    }
-    
-    public synchronized CapePack getCapePack()
-    {
-        return this.capePack;
-    }
-    
-    public synchronized void setCapePack(CapePack pack)
-    {
-        this.capePack = pack;
-    }
-    
+    /**
+     * Changes the player's cape client side.
+     * 
+     * @param capeName
+     *            cape name to change to.
+     */
     public void changePlayerCape(String capeName)
     {
-        capeHandler.playerCapeNames.put(Minecraft.getMinecraft().thePlayer.username, capeName);
-        capeHandler.capeChangeQue.add(Minecraft.getMinecraft().thePlayer.username);
+        if (availableCapes.contains(capeName))
+        {
+            capeHandler.playerCapeNames.put(Minecraft.getMinecraft().thePlayer.username, capeName);
+            capeHandler.capeChangeQue.add(Minecraft.getMinecraft().thePlayer.username);
+        }
     }
     
-    public CapePackClientReadThread getPackDownload()
-    {
-        return packDownload;
-    }
-
+    /**
+     * Removes the player's cape client side.
+     */
     public void removePlayerCape()
     {
         capeHandler.playerCapeNames.remove(Minecraft.getMinecraft().thePlayer.username);
         capeHandler.capeChangeQue.add(Minecraft.getMinecraft().thePlayer.username);
     }
     
-    public synchronized Logger getLogger()
+    public static String getCurrentServerAddress()
     {
-        return log;
+        String address = Minecraft.getMinecraft().getNetHandler().getNetManager().getSocketAddress().toString();
+        return address.substring(0, address.lastIndexOf(':')).replace('/', ' ').trim();
     }
 }

@@ -1,3 +1,11 @@
+/**
+ * RankCapes Forge Mod
+ * 
+ * Copyright (c) 2013 Jacob Rhoda.
+ * Released under the MIT license
+ * http://github.com/jadar/RankCapes/blob/master/LICENSE
+ */
+
 package com.jadarstudios.rankcapes.forge.handler;
 
 import java.util.ArrayList;
@@ -92,7 +100,7 @@ public class CapeHandler implements ITickHandler
             counter++;
             return;
         }
-
+        
         // player username with no control codes.
         String username = StringUtils.stripControlCodes(player.username);
         
@@ -138,7 +146,7 @@ public class CapeHandler implements ITickHandler
         capeChangeQue.remove(username);
         
         // if not on the server the cape pack is from, set back to normal cape.
-        if (!instance.getCurrentServerAddress().equals(instance.getCapePack().getServerAddress()))
+        if (!RankCapesForge.getCurrentServerAddress().equals(instance.getCapePack().getServerAddress()))
         {
             setDefaultPlayerCape(player);
         }
@@ -151,7 +159,7 @@ public class CapeHandler implements ITickHandler
     {
         if (debug)
         {
-            System.out.println("Changing the cape of: " + player.username);
+            RankCapesForge.log.info("Changing the cape of: " + player.username);
         }
         
         player.locationCape = cape.getCapeResource();

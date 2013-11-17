@@ -1,3 +1,11 @@
+/**
+ * RankCapes Forge Mod
+ * 
+ * Copyright (c) 2013 Jacob Rhoda.
+ * Released under the MIT license
+ * http://github.com/jadar/RankCapes/blob/master/LICENSE
+ */
+
 package com.jadarstudios.rankcapes.forge.cape;
 
 import java.awt.Graphics;
@@ -9,27 +17,29 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class CapeImageBufferDownload implements IImageBuffer {
-	
-	private int imageWidth;
-	private int imageHeight;
-	
-	@Override
-	public BufferedImage parseUserSkin(BufferedImage par1BufferedImage) {
-		if (par1BufferedImage == null) {
-			return null;
-		}
-		else {
-			this.imageWidth = (par1BufferedImage.getWidth((ImageObserver)null) <= 64) ? 64: (par1BufferedImage.getWidth((ImageObserver)null));
-			this.imageHeight = (par1BufferedImage.getHeight((ImageObserver)null) <= 32) ? 32: (par1BufferedImage.getHeight((ImageObserver)null));
-			
-			BufferedImage capeImage = new BufferedImage(this.imageWidth, this.imageHeight, 2);
-			
-			Graphics graphics = capeImage.getGraphics();
-			graphics.drawImage(par1BufferedImage, 0, 0, (ImageObserver)null);
-			graphics.dispose();
-			
-			return capeImage;
-		}
-	}
+public class CapeImageBufferDownload implements IImageBuffer
+{
+    
+    private int imageWidth;
+    private int imageHeight;
+    
+    @Override
+    public BufferedImage parseUserSkin(BufferedImage par1BufferedImage)
+    {
+        if (par1BufferedImage == null)
+            return null;
+        else
+        {
+            imageWidth = (par1BufferedImage.getWidth((ImageObserver) null) <= 64) ? 64 : (par1BufferedImage.getWidth((ImageObserver) null));
+            imageHeight = (par1BufferedImage.getHeight((ImageObserver) null) <= 32) ? 32 : (par1BufferedImage.getHeight((ImageObserver) null));
+            
+            BufferedImage capeImage = new BufferedImage(imageWidth, imageHeight, 2);
+            
+            Graphics graphics = capeImage.getGraphics();
+            graphics.drawImage(par1BufferedImage, 0, 0, (ImageObserver) null);
+            graphics.dispose();
+            
+            return capeImage;
+        }
+    }
 }

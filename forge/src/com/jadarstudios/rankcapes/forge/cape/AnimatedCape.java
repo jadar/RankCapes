@@ -1,3 +1,11 @@
+/**
+ * RankCapes Forge Mod
+ * 
+ * Copyright (c) 2013 Jacob Rhoda.
+ * Released under the MIT license
+ * http://github.com/jadar/RankCapes/blob/master/LICENSE
+ */
+
 package com.jadarstudios.rankcapes.forge.cape;
 
 import java.util.ArrayList;
@@ -5,6 +13,12 @@ import java.util.List;
 
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * This class implements Animated Capes. It keeps track of which frame it's on
+ * and contains all the other frames in the form of StaticCapes.
+ * 
+ * @author Jadar
+ */
 public class AnimatedCape implements ICape
 {
     
@@ -46,7 +60,7 @@ public class AnimatedCape implements ICape
     @Override
     public void loadTexture()
     {
-        this.getCurrentFrame().loadTexture();
+        getCurrentFrame().loadTexture();
     }
     
     public StaticCape getCurrentFrame()
@@ -67,21 +81,21 @@ public class AnimatedCape implements ICape
     
     public int getTotalFrames()
     {
-        return this.capeFrames.size();
+        return capeFrames.size();
     }
     
     public void setFramesPerSecond(int parFramesPerSecond)
     {
-        this.framesPerSecond = parFramesPerSecond;
+        framesPerSecond = parFramesPerSecond;
     }
     
     public void update(float deltaTime)
     {
         if (pause)
             return;
-
+        
         // time since update is one tick + time between tick.
-        timeSinceUpdate += 1 + deltaTime;   
+        timeSinceUpdate += 1 + deltaTime;
         
         if (timeSinceUpdate / 20 >= 1 / framesPerSecond)
         {
@@ -89,7 +103,7 @@ public class AnimatedCape implements ICape
             timeSinceUpdate = 0;
         }
         
-        if (currentFrame > getTotalFrames()-1)
+        if (currentFrame > getTotalFrames() - 1)
         {
             currentFrame = 0;
         }
@@ -98,6 +112,6 @@ public class AnimatedCape implements ICape
     @Override
     public String toString()
     {
-        return String.format("Animated cape with %s frames at %s FPS.", this.getTotalFrames(), this.framesPerSecond);
+        return String.format("Animated cape with %s frames at %s FPS.", getTotalFrames(), framesPerSecond);
     }
 }

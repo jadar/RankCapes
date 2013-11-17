@@ -1,3 +1,11 @@
+/**
+ * RankCapes Forge Mod
+ * 
+ * Copyright (c) 2013 Jacob Rhoda.
+ * Released under the MIT license
+ * http://github.com/jadar/RankCapes/blob/master/LICENSE
+ */
+
 package com.jadarstudios.rankcapes.forge.network;
 
 import java.io.BufferedReader;
@@ -29,15 +37,8 @@ import cpw.mods.fml.common.network.Player;
 public class ClientPacketHandler implements IPacketHandler
 {
     
-    public static final String[] RECIEVE_COMMANDS = {
-        "acknowledge",
-        "transmitPort",
-        "playerCapeUpdate",
-        "playerCapes",
-        "availableCapes",
-    };
-    
     private static ClientPacketHandler instance;
+    private static boolean debug = false;
     
     public ClientPacketHandler()
     {
@@ -52,77 +53,84 @@ public class ClientPacketHandler implements IPacketHandler
     @Override
     public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player)
     {
-        //       System.out.println(packet.channel);
-        
         String data = readByteArray(packet.data);
-        System.out.println("***" + data + "***");
         
-        if(!data.contains(":"))
+        if (debug)
         {
-            return;
+            RankCapesForge.log.info("Recieved Packet! Data: " + data);
         }
+        
+        if (!data.contains(":"))
+            return;
         
         // should have 2 entries, command:args
         String[] command = data.split(":");
         
-        // return if the command does not have args, or if the args are empty or null.
-        if(command.length < 2 ||
-                Strings.isNullOrEmpty(command[1]))
-        {
+        // return if the command does not have args, or if the args are empty or
+        // null.
+        if (command.length < 2 || Strings.isNullOrEmpty(command[1]))
             return;
-        }
         
-        
-        if(command[0].equals("transmitPort"))
+        if (command[0].equals("transmitPort"))
         {
-            if(StringUtils.isNumeric(command[1]))
-                RankCapesForge.instance.connectToServer(Integer.parseInt(command[1]));
+            if (StringUtils.isNumeric(command[1]))
+            {
+                RankCapesForge.instance.connectReadThread(Integer.parseInt(command[1]));
+            }
         }
-        else if(command[0].equals("playerCapeUpdate"))
+        else if (command[0].equals("playerCapeUpdate"))
         {
             handlePlayerCapeUpdate(command[1]);
         }
-        else if(command[0].equals("allPlayerCapes"))
+        else if (command[0].equals("allPlayerCapes"))
         {
             HashMap<String, String> t = parsePlayerCapes(command[1]);
             RankCapesForge.instance.getCapeHandler().playerCapeNames = t;
             RankCapesForge.instance.getCapeHandler().capeChangeQue.addAll(t.keySet());
         }
-        else if(command[0].equals("availableCapes"))
+        else if (command[0].equals("availableCapes"))
         {
             List<String> t = Arrays.asList(command[1].split(","));
             RankCapesForge.instance.availableCapes = t;
         }
-        else if(command[0].equals("removeCapeUpdate"))
+        else if (command[0].equals("removeCapeUpdate"))
         {
             RankCapesForge.instance.getCapeHandler().playerCapeNames.remove(command[1]);
             RankCapesForge.instance.getCapeHandler().capeChangeQue.add(command[1]);
-            System.out.println(command[1]);
         }
         
     }
     
     /**
      * Handles single player cape update.
-     * @param args from received command.
+     * 
+     * @param args
+     *            from received command.
      */
     private void handlePlayerCapeUpdate(String args)
     {
         String[] t = args.split(",");
-        if(t.length != 2)
+        if (t.length != 2)
             return;
         
         RankCapesForge.instance.getCapeHandler().playerCapeNames.put(t[0], t[1]);
         RankCapesForge.instance.getCapeHandler().capeChangeQue.add(t[0]);
     }
     
+    /**
+     * Parses a String to a HashMap of the player capes.
+     * 
+     * @param data
+     *            string of serialized hashmap
+     * @return deserialized hashmap
+     */
     public HashMap<String, String> parsePlayerCapes(String data)
     {
         HashMap<String, String> map = new HashMap<String, String>();
         
         String[] splitData = data.split(Pattern.quote("|"));
         
-        for(String playerData : splitData)
+        for (String playerData : splitData)
         {
             String[] splitPlayerData = playerData.split(",");
             map.put(splitPlayerData[0], splitPlayerData[1]);
@@ -131,6 +139,9 @@ public class ClientPacketHandler implements IPacketHandler
         return map;
     }
     
+    /**
+     * Requests the Cape Pack.
+     */
     public void sendRequestPacket()
     {
         Packet250CustomPayload packet = new Packet250CustomPayload();
@@ -141,6 +152,12 @@ public class ClientPacketHandler implements IPacketHandler
         PacketDispatcher.sendPacketToServer(packet);
     }
     
+    /**
+     * Sends packet to change the cape.
+     * 
+     * @param capeName
+     *            name of cape to change to.
+     */
     public void sendCapeChangePacket(String capeName)
     {
         Packet250CustomPayload packet = new Packet250CustomPayload();
@@ -151,6 +168,9 @@ public class ClientPacketHandler implements IPacketHandler
         PacketDispatcher.sendPacketToServer(packet);
     }
     
+    /**
+     * Sends packet to remove cape.
+     */
     public void sendCapeRemovePacket()
     {
         Packet250CustomPayload packet = new Packet250CustomPayload();
@@ -161,6 +181,13 @@ public class ClientPacketHandler implements IPacketHandler
         PacketDispatcher.sendPacketToServer(packet);
     }
     
+    /**
+     * Reads a byte aray to a String.
+     * 
+     * @param data
+     *            byte array to read
+     * @return string from bytes
+     */
     private static String readByteArray(byte[] data)
     {
         try
@@ -168,7 +195,9 @@ public class ClientPacketHandler implements IPacketHandler
             BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data)));
             String rtrn = "";
             while (br.ready())
+            {
                 rtrn += br.readLine();
+            }
             return rtrn;
         }
         catch (IOException e)

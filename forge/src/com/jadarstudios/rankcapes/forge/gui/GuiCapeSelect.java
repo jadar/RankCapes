@@ -1,3 +1,11 @@
+/**
+ * RankCapes Forge Mod
+ * 
+ * Copyright (c) 2013 Jacob Rhoda.
+ * Released under the MIT license
+ * http://github.com/jadar/RankCapes/blob/master/LICENSE
+ */
+
 package com.jadarstudios.rankcapes.forge.gui;
 
 import java.util.ArrayList;
@@ -17,7 +25,7 @@ import com.jadarstudios.rankcapes.forge.network.ClientPacketHandler;
 
 /**
  * This is the GUI for cape selection.
- *
+ * 
  * @author Jadar
  */
 public class GuiCapeSelect extends GuiScreen
@@ -34,7 +42,7 @@ public class GuiCapeSelect extends GuiScreen
     /**
      * The Minecraft instance.
      */
-    private static final Minecraft mc = Minecraft.getMinecraft();    
+    private static final Minecraft mc = Minecraft.getMinecraft();
     
     /**
      * The width of the GUI image.
@@ -99,7 +107,7 @@ public class GuiCapeSelect extends GuiScreen
         // assembles the pages.
         for (int pageNumber = 0, capeNumber = 0; pageNumber <= totalPages; pageNumber++)
         {
-            // make a page 
+            // make a page
             GuiButton[] buttonPage = new GuiButton[BUTTONS_PER_PAGE];
             
             // assembles a single page
@@ -115,16 +123,18 @@ public class GuiCapeSelect extends GuiScreen
                     buttonNumber++;
                 }
                 
-                // makes sure we wont go over the size of the availableCapes list.
+                // makes sure we wont go over the size of the availableCapes
+                // list.
                 if (capeNumber < availableCapes.size())
                 {
                     // gets the name of the cape.
                     String name = availableCapes.get(capeNumber);
-
+                    
                     // creates the positioned button.
                     GuiCapeButton button = new GuiCapeButton(capeNumber + 4, guiLeft + 6, guiTop + 8 + (BUTTON_HEIGHT + 6) * buttonNumber, 78, BUTTON_HEIGHT, name);
                     
-                    // sets button to selectedCapeButton if its name is the same as the player's cape.
+                    // sets button to selectedCapeButton if its name is the same
+                    // as the player's cape.
                     if (name.equals(playerCapeName))
                     {
                         selectedCapeButton.enabled = true;
@@ -146,8 +156,8 @@ public class GuiCapeSelect extends GuiScreen
         }
         
         // disables set button if no capes are available.
-        if(availableCapes.isEmpty())
-        {   
+        if (availableCapes.isEmpty())
+        {
             buttonSet.enabled = false;
         }
         
@@ -194,7 +204,7 @@ public class GuiCapeSelect extends GuiScreen
         GL11.glPopMatrix();
         
         // draws buttons.
-        if(buttonPages != null && buttonPages.size() > 0)
+        if (buttonPages != null && buttonPages.size() > 0)
         {
             GuiButton[] buttonPage = buttonPages.get(currentPage);
             
@@ -291,7 +301,7 @@ public class GuiCapeSelect extends GuiScreen
             // any cape button
             else if (button.id >= 3 && button instanceof GuiCapeButton)
             {
-                GuiCapeButton capeButton = (GuiCapeButton)button;
+                GuiCapeButton capeButton = (GuiCapeButton) button;
                 
                 String capeName = capeButton.capeName;
                 

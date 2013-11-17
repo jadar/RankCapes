@@ -1,11 +1,11 @@
 /**
- * RankCapesBukkit Plugin.
+ * RankCapes Bukkit Plugin.
  * 
  * Copyright (c) 2013 Jacob Rhoda.
  * Released under the MIT license
- * http://github.com/jadar/RankCapesBukkit/blob/master/LICENSE
+ * http://github.com/jadar/RankCapes/blob/master/LICENSE
  */
- 
+
 package com.jadarstudios.rankcapes.bukkit.network;
 
 import java.io.IOException;

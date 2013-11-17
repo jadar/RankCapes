@@ -1,3 +1,11 @@
+/**
+ * RankCapes Forge Mod
+ * 
+ * Copyright (c) 2013 Jacob Rhoda.
+ * Released under the MIT license
+ * http://github.com/jadar/RankCapes/blob/master/LICENSE
+ */
+
 package com.jadarstudios.rankcapes.forge.cape;
 
 import java.awt.image.BufferedImage;
@@ -7,6 +15,9 @@ import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.ResourceManager;
 import net.minecraft.util.ResourceLocation;
+
+import com.jadarstudios.rankcapes.forge.RankCapesForge;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -43,8 +54,10 @@ public class LoadCapeData extends ThreadDownloadImageData
      */
     public void loadTexture(ResourceManager par1ResourceManager) throws IOException
     {
-        if(debug)
-            System.out.println("***Load Cape Data!***");
+        if (debug)
+        {
+            RankCapesForge.log.info("Loading cape data!");
+        }
         
         // uses ImageBuffer to parse image.
         if (imageBuffer != null)

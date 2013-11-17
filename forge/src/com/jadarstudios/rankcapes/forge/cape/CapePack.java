@@ -1,3 +1,11 @@
+/**
+ * RankCapes Forge Mod
+ * 
+ * Copyright (c) 2013 Jacob Rhoda.
+ * Released under the MIT license
+ * http://github.com/jadar/RankCapes/blob/master/LICENSE
+ */
+
 package com.jadarstudios.rankcapes.forge.cape;
 
 import java.awt.image.BufferedImage;
@@ -24,6 +32,9 @@ import argo.jdom.JsonNode;
 import argo.jdom.JsonRootNode;
 import argo.jdom.JsonStringNode;
 import argo.saj.InvalidSyntaxException;
+
+import com.jadarstudios.rankcapes.forge.RankCapesForge;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -88,7 +99,6 @@ public class CapePack
                 String name = entry.getName();
                 if (name.endsWith(".png"))
                 {
-                    System.out.println(name);
                     // remove file extension from the name.
                     name = FilenameUtils.removeExtension(name);
                     
@@ -100,13 +110,19 @@ public class CapePack
                     // parses the pack metadata.
                     InputStreamReader streamReader = new InputStreamReader(zipInput);
                     while (streamReader.ready())
+                    {
                         metadata += (char) streamReader.read();
+                    }
                 }
             }
             if (!Strings.isNullOrEmpty(metadata))
+            {
                 parsePackMetadata(StringUtils.remove(metadata, (char) 65535));
+            }
             else
-                System.out.println("Metadata is missing!");
+            {
+                RankCapesForge.log.severe("Cape Pack metadata is missing!");
+            }
         }
         catch (IOException e)
         {
@@ -131,9 +147,13 @@ public class CapePack
                 JsonNode node = n.getValue();
                 
                 if (node.hasFields() && !node.hasElements())
+                {
                     parseAnimatedCapeNode(n.getKey(), node);
+                }
                 else if (node.hasText() && !node.hasElements())
+                {
                     parseStaticCapeNode(n.getKey(), node);
+                }
             }
         }
         catch (InvalidSyntaxException e)
@@ -160,13 +180,17 @@ public class CapePack
             for (JsonNode field : frames)
             {
                 if (field.hasElements() || field.hasFields())
+                {
                     continue;
-                // invalid node report!
+                    // invalid node report!
+                }
                 
                 String fileName = FilenameUtils.removeExtension(field.getText());
                 if (!Strings.isNullOrEmpty(fileName))
                     if (unprocessedCapes.containsKey(fileName))
+                    {
                         cape.addFrame(unprocessedCapes.get(fileName));
+                    }
                 
             }
             
@@ -218,12 +242,14 @@ public class CapePack
     
     /**
      * Gets a cape from the pack.
-     * @param capeName name of the cape
+     * 
+     * @param capeName
+     *            name of the cape
      * @return cape that the name is mapped to.
      */
     public ICape getCape(String capeName)
     {
-        return this.processedCapes.get(capeName);
+        return processedCapes.get(capeName);
     }
     
     /**
@@ -243,7 +269,9 @@ public class CapePack
     {
         System.out.println("\n\n\n");
         for (String s : processedCapes.keySet())
+        {
             System.out.println(String.format("Print Cape: %s", s));
+        }
         System.out.println("\n\n\n");
     }
 }

@@ -1,3 +1,11 @@
+/**
+ * RankCapes Forge Mod
+ * 
+ * Copyright (c) 2013 Jacob Rhoda.
+ * Released under the MIT license
+ * http://github.com/jadar/RankCapes/blob/master/LICENSE
+ */
+
 package com.jadarstudios.rankcapes.forge.cape;
 
 import net.minecraft.client.Minecraft;
@@ -31,9 +39,9 @@ public class StaticCape implements ICape
     @Override
     public void loadTexture()
     {
-        if(!this.loadedTexture)
+        if (!loadedTexture)
         {
-            this.loadedTexture = Minecraft.getMinecraft().getTextureManager().loadTexture(this.getCapeResource(), this.getCapeData());
+            loadedTexture = Minecraft.getMinecraft().getTextureManager().loadTexture(getCapeResource(), getCapeData());
         }
     }
     
