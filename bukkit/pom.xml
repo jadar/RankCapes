@@ -66,7 +66,7 @@
 			<id>jenkins</id>
 			<properties>
 				<myoutputfilename>${project.name}-${project.version}-jenkins-${env.BUILD_NUMBER}</myoutputfilename>
-				<myoutputdirectory>target/</myoutputdirectory>
+				<myoutputdirectory>${project.build.directory}/dist/</myoutputdirectory>
 			</properties>
 		</profile>
 		<profile>
@@ -75,7 +75,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<myoutputdirectory>target/</myoutputdirectory>
+				<myoutputdirectory>${project.build.directory}/dist/</myoutputdirectory>
 				<myoutputfilename>${project.name}-${project.version}</myoutputfilename>
 			</properties>
 		</profile>
@@ -100,7 +100,6 @@
 				<version>2.3.1</version>
 				<configuration>
 					<finalName>${myoutputfilename}</finalName>
-					<outputDirectory>${myoutputdirectory}</outputDirectory>
 				</configuration>
 			</plugin>
 
@@ -116,6 +115,9 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<outputDirectory>${myoutputdirectory}</outputDirectory>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
