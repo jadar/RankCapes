@@ -5,7 +5,7 @@
 	<artifactId>RankCapesBukkit</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0-BETA</version>
-	<name>RankCapesBukkit</name>
+	<name>RankCapes-bukkit</name>
 	<url>http://www.jadarstudios.com/</url>
 
 	<repositories>
@@ -63,6 +63,14 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>jenkins</id>
+			<properties>
+				<!-- You may change this to whatever your test server is, just dont include 
+					this POM.xml in a pull request. -->
+				<myoutputfilename>${project.name}-${project.version}-jenkins-${env.BUILD_NUMBER}</myoutputfilename>
+			</properties>
+		</profile>
+		<profile>
 			<id>default</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
@@ -91,6 +99,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.1</version>
 				<configuration>
+					
 					<outputDirectory>${myoutputdirectory}</outputDirectory>
 				</configuration>
 			</plugin>
