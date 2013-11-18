@@ -76,7 +76,7 @@
 			</activation>
 			<properties>
 				<myoutputdirectory>target/</myoutputdirectory>
-				<myoutputfilename>${project.name}-${project.version}.jar</myoutputfilename>
+				<myoutputfilename>${project.name}-${project.version}</myoutputfilename>
 			</properties>
 		</profile>
 	</profiles>
