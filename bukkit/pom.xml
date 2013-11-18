@@ -67,7 +67,7 @@
 			<properties>
 				<!-- You may change this to whatever your test server is, just dont include 
 					this POM.xml in a pull request. -->
-				<myoutputfilename>${project.name}-${project.version}-jenkins-${env.BUILD_NUMBER}</myoutputfilename>
+				<myoutputfilename>${project.name}-${project.version}-jenkins-${env.BUILD_NUMBER}.jar</myoutputfilename>
 			</properties>
 		</profile>
 		<profile>
@@ -77,6 +77,7 @@
 			</activation>
 			<properties>
 				<myoutputdirectory>target/</myoutputdirectory>
+				<myoutputfilename>${project.name}-${project.version}.jar</myoutputfilename>
 			</properties>
 		</profile>
 	</profiles>
@@ -99,7 +100,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.1</version>
 				<configuration>
-					
+					<finalName>${myoutputfilename}</finalName>
 					<outputDirectory>${myoutputdirectory}</outputDirectory>
 				</configuration>
 			</plugin>
