@@ -65,7 +65,7 @@
 		<profile>
 			<id>jenkins</id>
 			<properties>
-				<myoutputfilename>${project.name}-${project.version}-jenkins-${env.BUILD_NUMBER}.jar</myoutputfilename>
+				<myoutputfilename>${project.name}-${project.version}-jenkins-${env.BUILD_NUMBER}</myoutputfilename>
 				<myoutputdirectory>target/</myoutputdirectory>
 			</properties>
 		</profile>
