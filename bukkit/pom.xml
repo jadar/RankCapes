@@ -65,9 +65,8 @@
 		<profile>
 			<id>jenkins</id>
 			<properties>
-				<!-- You may change this to whatever your test server is, just dont include 
-					this POM.xml in a pull request. -->
 				<myoutputfilename>${project.name}-${project.version}-jenkins-${env.BUILD_NUMBER}.jar</myoutputfilename>
+				<myoutputdirectory>target/</myoutputdirectory>
 			</properties>
 		</profile>
 		<profile>
