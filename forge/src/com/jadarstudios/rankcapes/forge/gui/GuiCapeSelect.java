@@ -103,9 +103,9 @@ public class GuiCapeSelect extends GuiScreen
         
         // calculates the total pages.
         int totalPages = (int) Math.ceil(availableCapes.size() / (double) BUTTONS_PER_PAGE);
-        
+
         // assembles the pages.
-        for (int pageNumber = 0, capeNumber = 0; pageNumber <= totalPages; pageNumber++)
+        for (int pageNumber = 0, capeNumber = 0; pageNumber < totalPages; pageNumber++)
         {
             // make a page
             GuiButton[] buttonPage = new GuiButton[BUTTONS_PER_PAGE];
@@ -140,7 +140,7 @@ public class GuiCapeSelect extends GuiScreen
                         selectedCapeButton.enabled = true;
                         button.enabled = false;
                         selectedCapeButton = button;
-                        currentPage = pageNumber;
+                        gotoPage(pageNumber);
                     }
                     
                     // adds the button to the page.
@@ -275,28 +275,12 @@ public class GuiCapeSelect extends GuiScreen
             // previous button
             else if (button.id == 1)
             {
-                if (currentPage > 0)
-                {
-                    currentPage--;
-                    buttonNext.enabled = true;
-                    if (currentPage == 0)
-                    {
-                        button.enabled = false;
-                    }
-                }
+                gotoPage(currentPage - 1);
             }
             // next page
             else if (button.id == 2)
             {
-                if (currentPage < buttonPages.size() - 1)
-                {
-                    currentPage++;
-                    buttonPrevious.enabled = true;
-                    if (currentPage == buttonPages.size() - 1)
-                    {
-                        button.enabled = false;
-                    }
-                }
+                gotoPage(currentPage + 1);
             }
             // any cape button
             else if (button.id >= 3 && button instanceof GuiCapeButton)
@@ -332,4 +316,27 @@ public class GuiCapeSelect extends GuiScreen
         }
     }
     
+    public void gotoPage(int pageNumber)
+    {   
+        if(pageNumber >= 0 && pageNumber < buttonPages.size())
+        {
+            System.out.println(pageNumber);
+            currentPage = pageNumber;
+            if(pageNumber == 0)
+            {
+                buttonPrevious.enabled = false;
+                buttonNext.enabled = true;
+            }
+            else if(pageNumber == buttonPages.size()-1)
+            {
+                buttonPrevious.enabled = true;
+                buttonNext.enabled = false;
+            }
+            else
+            {
+                buttonPrevious.enabled = true;
+                buttonNext.enabled = true;
+            }
+        }
+    }
 }

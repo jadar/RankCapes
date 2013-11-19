@@ -22,7 +22,7 @@ public class CapePackClientReadThread implements Runnable
 {
     
     private static final RankCapesForge modInstance = RankCapesForge.instance;
-    
+
     private String serverAddress;
     private int serverPort;
     private Socket socket;
@@ -125,16 +125,16 @@ public class CapePackClientReadThread implements Runnable
     {
         try
         {
-            socket.getOutputStream().write(null);
+            socket.getOutputStream().write(0);
         }
         catch (IOException e)
         {
             return false;
         }
-        
+
         return true;
     }
-    
+
     /**
      * Closes the socket connection.
      */

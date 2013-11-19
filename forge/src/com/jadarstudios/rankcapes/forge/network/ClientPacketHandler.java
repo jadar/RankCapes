@@ -30,7 +30,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
 /**
- * Handles server packets.
+ * Handles packets.
  * 
  * @author Jadar
  */
@@ -38,7 +38,7 @@ public class ClientPacketHandler implements IPacketHandler
 {
     
     private static ClientPacketHandler instance;
-    private static boolean debug = false;
+    private static boolean debug = true;
     
     public ClientPacketHandler()
     {

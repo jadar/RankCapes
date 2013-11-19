@@ -120,7 +120,7 @@ public class CapePackServerListenThread extends Thread
                         {
                             username += (char) in.read();
                         }
-                        
+
                         // break, we're done here.
                         break;
                     }
