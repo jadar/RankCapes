@@ -100,6 +100,7 @@
 				<version>2.3.1</version>
 				<configuration>
 					<finalName>${myoutputfilename}</finalName>
+					<outputDirectory>${myoutputdirectory}</outputDirectory>
 				</configuration>
 			</plugin>
 
@@ -115,9 +116,6 @@
 						</goals>
 					</execution>
 				</executions>
-				<configuration>
-					<outputDirectory>${myoutputdirectory}</outputDirectory>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
