@@ -1,6 +1,6 @@
 /**
  * RankCapes Bukkit Plugin.
- * test
+ * 
  * Copyright (c) 2013 Jacob Rhoda.
  * Released under the MIT license
  * http://github.com/jadar/RankCapes/blob/master/LICENSE
