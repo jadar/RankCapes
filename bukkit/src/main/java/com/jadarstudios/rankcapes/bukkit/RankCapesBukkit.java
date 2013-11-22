@@ -7,7 +7,7 @@
  */
  
 package com.jadarstudios.rankcapes.bukkit;
-
+CHANGE
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
