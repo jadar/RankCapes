@@ -9,3 +9,4 @@ build/
 MANIFEST.MF
 RankCapes.jardesc
 .gradle
+eclipse/
