@@ -1,6 +1,0 @@
-apply plugin: 'java'
-apply plugin: 'eclipse'
-
-task hello << {
-    println 'hello world!'
-}

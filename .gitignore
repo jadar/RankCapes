@@ -1,5 +1,6 @@
 # Build and Release Folders
 target/
+build/
 
 # Other files and folders
 .settings/
@@ -7,3 +8,4 @@ target/
 .classpath
 MANIFEST.MF
 RankCapes.jardesc
+.gradle

@@ -316,6 +316,11 @@ public class GuiCapeSelect extends GuiScreen
         }
     }
     
+    /**
+     * Sets the page to the given integer if it is within the page ranges. 
+     * Also sets buttons to enabled or not. 
+     * @param pageNumber
+     */
     public void gotoPage(int pageNumber)
     {   
         if(pageNumber >= 0 && pageNumber < buttonPages.size())
