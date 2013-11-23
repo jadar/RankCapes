@@ -15,14 +15,14 @@ buildscript {
 // apply plugin to this project
 apply plugin: 'forge'
 
-// version and stuff
-version = "1.0-BETA"
-group= "com.jadarstudios.rankcapes.forge"
-archivesBaseName = "rankcapes"
-
 minecraft {
 	version = "1.6.4-9.11.1.964"
 }
+
+// version and stuff
+version = "1.0-BETA"
+group= "com.jadarstudios.rankcapes.forge"
+archivesBaseName = "RankCapes-client-forge-${minecraft.version}"
 
 processResources
 {

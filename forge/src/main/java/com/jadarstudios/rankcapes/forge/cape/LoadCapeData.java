@@ -9,7 +9,6 @@
 package com.jadarstudios.rankcapes.forge.cape;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.TextureUtil;
