@@ -22,7 +22,7 @@ minecraft {
 // version and stuff
 version = "1.0-BETA"
 group= "com.jadarstudios.rankcapes.forge"
-archivesBaseName = "RankCapes-client-forge-${minecraft.version}"
+archivesBaseName = "RankCapes-client-forge-${minecraft.version}-jenkins-${System.getenv().BUILD_NUMBER}"
 
 processResources
 {
