@@ -1,4 +1,4 @@
-// Gradle build script which uses the ForgeGradle plugin
+// Gradle build script which uses the ForgeGradle plugin.
 
 // add ForgeGradle plugin repo
 buildscript {
