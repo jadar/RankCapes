@@ -1,3 +1,4 @@
+// add ForgeGradle plugin repo
 buildscript {
     repositories {
         mavenCentral()
@@ -11,10 +12,12 @@ buildscript {
     }
 }
 
+// apply plugin to this project
 apply plugin: 'forge'
 
-version = "1.0"
-group= "com.jadarstudios.rankcapes.forge" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+// version and stuff
+version = "1.0-BETA"
+group= "com.jadarstudios.rankcapes.forge"
 archivesBaseName = "rankcapes"
 
 minecraft {

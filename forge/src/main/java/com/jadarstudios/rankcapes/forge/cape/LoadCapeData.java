@@ -52,7 +52,7 @@ public class LoadCapeData extends ThreadDownloadImageData
     /**
      * Parses the BufferedImage with its ImageBuffer and uploads it to the GPU.
      */
-    public void loadTexture(ResourceManager par1ResourceManager) throws IOException
+    public void loadTexture(ResourceManager par1ResourceManager)
     {
         if (debug)
         {
