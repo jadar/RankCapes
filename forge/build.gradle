@@ -15,6 +15,7 @@ buildscript {
 // apply plugin to this project
 apply plugin: 'forge'
 
+// minecraft properteis
 minecraft {
 	version = "1.6.4-9.11.1.964"
 }
@@ -24,6 +25,7 @@ version = "1.0-BETA"
 group= "com.jadarstudios.rankcapes.forge"
 archivesBaseName = "RankCapes-client-forge-${minecraft.version}"
 
+// jar naming
 jar
 {
     if(System.getenv().BUILD_NUMBER != null)
@@ -36,6 +38,7 @@ jar
     }
 }
 
+// fix mcmod.info and include resources
 processResources
 {
     // replace stuff in mcmod.info, nothing else
