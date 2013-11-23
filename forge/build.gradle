@@ -22,7 +22,19 @@ minecraft {
 // version and stuff
 version = "1.0-BETA"
 group= "com.jadarstudios.rankcapes.forge"
-archivesBaseName = "RankCapes-client-forge-${minecraft.version}-jenkins-${System.getenv().BUILD_NUMBER}"
+archivesBaseName = "RankCapes-client-forge-${minecraft.version}"
+
+jar
+{
+    if(System.getenv().BUILD_NUMBER != null)
+    {
+        classifier = "jenkins-${System.getenv().BUILD_NUMBER}"
+    }
+    else
+    {
+        classifier = "gradle"
+    }
+}
 
 processResources
 {
