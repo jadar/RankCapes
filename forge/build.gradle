@@ -41,7 +41,8 @@ jar
     }
 }
 
-import hudson.model.*
+import hudson.model.ParametersAction
+import hudson.model.StringParameterValue
 jenkinsSetVersion()
 {
     def pa = new ParametersAction([
