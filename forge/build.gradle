@@ -39,7 +39,7 @@ jar
     {
         classifier = "jenkins-${System.getenv().BUILD_NUMBER}"
         "/bin/bash export VERSION=${version}".execute()
-        "echo $VERSION".execute()
+        "echo \$VERSION".execute()
     }
     else
     {
