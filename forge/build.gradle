@@ -38,22 +38,12 @@ jar
     if(System.getenv().BUILD_NUMBER != null)
     {
         classifier = "jenkins-${System.getenv().BUILD_NUMBER}"
-        jenkinsSetVersion()
+        "VERSION=${version}".execute()
     }
     else
     {
         classifier = "gradle"
     }
-}
-
-import hudson.model.ParametersAction
-import hudson.model.StringParameterValue
-jenkinsSetVersion()
-{
-    def pa = new ParametersAction([
-        new StringParameterValue("GRADLE_VERSION", version)
-    ])
-    Thread.currentThread().executable.addAction(pa)
 }
 
 // fix mcmod.info and include resources
