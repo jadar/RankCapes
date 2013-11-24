@@ -9,8 +9,8 @@ buildscript {
             url = "http://files.minecraftforge.net/maven"
         }
         maven {
-            name = "jenkins"
-            url = "http://repo.jenkins-ci.org/releases/org/jenkins-ci/jenkins/1.33/"
+            name = "jenkins-releases"
+            url = "http://repo.jenkins-ci.org/releases/"
         }
     }
     dependencies {
