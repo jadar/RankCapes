@@ -15,7 +15,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.0-SNAPSHOT'
-        classpath group: 'org.jenkins.ci', name: 'jenkins', version: '1.33'
+        classpath group: 'org.jenkins-ci', name: 'jenkins', version: '1.33'
     }
 }
 
