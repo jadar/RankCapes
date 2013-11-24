@@ -41,10 +41,9 @@ jar
     }
 }
 
+import hudson.model.*
 jenkinsSetVersion()
 {
-    import hudson.model.*
-    
     def pa = new ParametersAction([
         new StringParameterValue("GRADLE_VERSION", version)
     ])
