@@ -8,48 +8,131 @@
 
 package com.jadarstudios.rankcapes.forge.network;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Pattern;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 
-import joptsimple.internal.Strings;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet250CustomPayload;
+import java.util.EnumMap;
 
-import org.apache.commons.lang3.StringUtils;
-
+import com.jadarstudios.rankcapes.forge.ModProperties;
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
 
-import cpw.mods.fml.common.network.IPacketHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.Packet;
+import net.minecraft.world.World;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.network.FMLEmbeddedChannel;
+import cpw.mods.fml.common.network.FMLIndexedMessageToMessageCodec;
+import cpw.mods.fml.common.network.FMLOutboundHandler;
+import cpw.mods.fml.common.network.FMLOutboundHandler.OutboundTarget;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.internal.FMLProxyPacket;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
-/**
- * Handles packets.
- * 
- * @author Jadar
- */
-public class ClientPacketHandler implements IPacketHandler
+public class ClientPacketHandler
 {
+    private static ClientPacketHandler INSTANCE = new ClientPacketHandler();
     
-    private static ClientPacketHandler instance;
-    private static boolean debug = true;
+    private EnumMap<Side, FMLEmbeddedChannel> channels;
     
-    public ClientPacketHandler()
+    private ClientPacketHandler()
     {
-        instance = this;
+        this.channels = NetworkRegistry.INSTANCE.newChannel(ModProperties.MOD_ID, new ChannelCodec());
+        
+        if (FMLCommonHandler.instance().getSide() == Side.CLIENT)
+            this.addClientHandler();
     }
     
     public static ClientPacketHandler getInstance()
     {
-        return instance;
+        return INSTANCE;
+        
     }
     
+    @SideOnly(Side.CLIENT)
+    private void addClientHandler()
+    {
+        FMLEmbeddedChannel clientChannel = this.channels.get(Side.CLIENT);
+        
+        String codec = clientChannel.findChannelHandlerNameForType(ChannelCodec.class);
+        clientChannel.pipeline().addAfter(codec, ModProperties.MOD_ID, new ChannelHandler());
+    }
+    
+    /**
+     * Wrapper method for {@link FMLEmbeddedChannel#generatePacketFrom(Object)}.
+     * Must have a codec in place to transform it for it to return anything.
+     * 
+     * @param msg
+     *            object to generate from
+     * @param side
+     *            channel to side being sent to
+     * @return created packet
+     */
+    public Packet generatePacketFrom(PacketBase msg, Side side)
+    {
+        return this.channels.get(side).generatePacketFrom(msg);
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public void sendPacketToServer(Packet packet)
+    {
+        this.sendPacketToTarget(packet, FMLOutboundHandler.OutboundTarget.TOSERVER);
+    }
+    
+    public void sendPacketToPlayer(Packet packet, EntityPlayer player)
+    {
+        this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
+        this.sendPacketToTarget(packet, FMLOutboundHandler.OutboundTarget.PLAYER);
+    }
+    
+    public void sendPacketToAllPlayers(Packet packet, EntityPlayer player)
+    {
+        this.sendPacketToTarget(packet, FMLOutboundHandler.OutboundTarget.ALL);
+    }
+    
+    protected void sendPacketToTarget(Packet packet, OutboundTarget target)
+    {
+        this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(target);
+        this.channels.get(Side.SERVER).writeOutbound(packet);
+    }
+    
+    private static class ChannelCodec extends FMLIndexedMessageToMessageCodec<PacketBase>
+    {
+        
+        public ChannelCodec()
+        {
+            for (PacketType type : PacketType.values())
+                this.addDiscriminator(type.ordinal(), type.packetClass);
+        }
+        
+        @Override
+        public void encodeInto(ChannelHandlerContext ctx, PacketBase msg, ByteBuf target) throws Exception
+        {
+            msg.write(target);
+        }
+        
+        @Override
+        public void decodeInto(ChannelHandlerContext ctx, ByteBuf source, PacketBase msg)
+        {
+            msg.read(source);
+            
+        }
+    }
+    
+    @SideOnly(Side.CLIENT)
+    private static class ChannelHandler extends SimpleChannelInboundHandler<FMLProxyPacket>
+    {
+        
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, FMLProxyPacket packet) throws Exception
+        {
+            System.out.println("Got packet!");
+        }
+    }
+
+    /*
     @Override
     public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player)
     {
@@ -100,7 +183,7 @@ public class ClientPacketHandler implements IPacketHandler
         }
         
     }
-    
+    /*
     /**
      * Handles single player cape update.
      * 

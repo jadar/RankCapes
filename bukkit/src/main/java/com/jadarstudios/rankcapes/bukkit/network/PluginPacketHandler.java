@@ -121,10 +121,10 @@ public class PluginPacketHandler implements PluginMessageListener
     }
     
     /**
-     * Called when "changeCape" is recieved from the client.
+     * Called when "changeCape" is received from the client.
      * 
      * @param message
-     *            the full message recieved.
+     *            the full message received.
      * @param player
      *            the player to update.
      */

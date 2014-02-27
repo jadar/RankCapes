@@ -35,7 +35,8 @@ public class PlayerEventHandler implements Listener
      */
     public void onRegisterChannel(PlayerRegisterChannelEvent event)
     {
-        if (event.getChannel().equals("RankCapes"))
+        plugin.getLogger().info(event.getChannel());
+        if (event.getChannel().equals(RankCapesBukkit.PLUGIN_CHANNEL))
         {
             plugin.getPacketHandler().handlePlugnChannelRegister(event);
         }

@@ -8,22 +8,18 @@
 
 package com.jadarstudios.rankcapes.forge.handler;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-
-import joptsimple.internal.Strings;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.util.StringUtils;
+import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.common.MinecraftForge;
 
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
 import com.jadarstudios.rankcapes.forge.cape.AnimatedCape;
 import com.jadarstudios.rankcapes.forge.cape.ICape;
+import com.jadarstudios.rankcapes.forge.cape.PlayerCapeProperties;
+import com.jadarstudios.rankcapes.forge.cape.StaticCape;
+import com.jadarstudios.rankcapes.forge.event.EventPlayerCapeChange;
 
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -36,162 +32,59 @@ import cpw.mods.fml.relauncher.SideOnly;
  * 
  * @author Jadar
  */
-public class CapeHandler implements ITickHandler
+public class CapeHandler
 {
-    // the minecraft instance.
-    private static final Minecraft mc = Minecraft.getMinecraft();
-    
     // used to print debug code.
     private boolean debug = false;
     
-    // counter to count through player list.
-    private int counter = 0;
-    
-    // player cape names. player is the key, cape is the mapped value.
-    public HashMap<String, String> playerCapeNames;
-    
-    // current player capes for switching.
-    public HashMap<String, ICape> currentPlayerCapes;
-    public List<String> capeChangeQue;
-    
     public CapeHandler()
     {
-        currentPlayerCapes = new HashMap<String, ICape>();
-        capeChangeQue = new ArrayList<String>();
-        playerCapeNames = new HashMap<String, String>();
     }
     
-    @Override
-    public void tickStart(EnumSet<TickType> type, Object... tickData)
+//    @SubscribeEvent
+//    public void changePlayerCapeEvent(EventPlayerCapeChange event)
+//    {
+//        this.setPlayerCape(event.cape, (AbstractClientPlayer)event.entityPlayer);
+//    }
+    
+    @SubscribeEvent
+    public void renderPlayerEvent(RenderPlayerEvent.Specials.Pre event)
     {
-        // mod instance.
-        RankCapesForge instance = RankCapesForge.instance;
-        
-        // if no cape pack, return.
-        if (instance.getCapePack() == null)
-            return;
-        
-        // if no world, return.
-        if (mc.theWorld == null)
-            return;
-        
-        @SuppressWarnings("unchecked")
-        // list of players in the world.
-        List<AbstractClientPlayer> players = mc.theWorld.playerEntities;
-        
-        // if no players, return.
-        if (players == null)
-            return;
-        else if (players.size() <= 0)
-            return;
-        
-        // resets counter for looping player list.
-        if (counter >= players.size())
-        {
-            counter = 0;
-        }
-        
-        // player to work on.
-        AbstractClientPlayer player = players.get(counter);
-        
-        // if player is null, increment and return.
-        if (player == null)
-        {
-            counter++;
-            return;
-        }
-        
-        // player username with no control codes.
-        String username = StringUtils.stripControlCodes(player.username);
-        
-        // player cape name
-        String capeName = instance.getPlayersCapeName(username);
-        
-        // if no rank, increment and return.
-        if (Strings.isNullOrEmpty(capeName))
-        {
-            if (capeChangeQue.contains(username))
-            {
-                setDefaultPlayerCape(player);
-                capeChangeQue.remove(username);
-            }
-            
-            counter++;
-            return;
-        }
+        AbstractClientPlayer player = (AbstractClientPlayer) event.entityPlayer;
         
         // cape from current player.
-        ICape cape = currentPlayerCapes.get(username);
+        //ICape cape = currentPlayerCapes.get(player.getCommandSenderName());
+        PlayerCapeProperties properties = (PlayerCapeProperties) player.getExtendedProperties(PlayerCapeProperties.IDENTIFIER);
+        ICape cape = properties.getCape();
         
-        if (cape == null || capeChangeQue.contains(username))
+        
+        if(cape instanceof AnimatedCape)
         {
-            cape = instance.getCapePack().getCape(capeName);
-            
-            // if cape still null, increment and return.
-            if (cape == null)
-            {
-                counter++;
-                return;
-            }
-            // change cape in map.
-            currentPlayerCapes.put(username, cape);
+            ((AnimatedCape) cape).update();
             setPlayerCape(cape, player);
         }
-        else if (cape instanceof AnimatedCape)
-        {
-            ((AnimatedCape) cape).update(mc.timer.elapsedPartialTicks);
-            setPlayerCape(cape, player);
-        }
-        
-        capeChangeQue.remove(username);
-        
-        // if not on the server the cape pack is from, set back to normal cape.
-        if (!RankCapesForge.getCurrentServerAddress().equals(instance.getCapePack().getServerAddress()))
-        {
-            setDefaultPlayerCape(player);
-        }
-        
-        // increment counter.
-        counter++;
     }
     
-    private void setPlayerCape(ICape cape, AbstractClientPlayer player)
+    public void setPlayerCape(ICape cape, AbstractClientPlayer player)
     {
+        MinecraftForge.EVENT_BUS.post(new EventPlayerCapeChange(cape, player));
+        
         if (debug)
         {
-            RankCapesForge.log.info("Changing the cape of: " + player.username);
+            RankCapesForge.log.info("Changing the cape of: " + player.getCommandSenderName());
         }
         
-        player.locationCape = cape.getCapeResource();
-        player.downloadImageCape = cape.getCapeData();
-        cape.loadTexture();
+        // loads its texture to the player's resource location, setting the cape.
+        cape.loadTexture(player);
         
-        String username = StringUtils.stripControlCodes(player.username);
-        currentPlayerCapes.put(username, cape);
+        PlayerCapeProperties properties = (PlayerCapeProperties) player.getExtendedProperties(PlayerCapeProperties.IDENTIFIER);
+        properties.setCape(cape);
     }
     
-    private void setDefaultPlayerCape(AbstractClientPlayer player)
+    public void resetPlayerCape(AbstractClientPlayer player)
     {
-        player.locationCape = AbstractClientPlayer.getLocationCape(player.username);
-        player.downloadImageCape = AbstractClientPlayer.getDownloadImageCape(player.locationCape, player.username);
-    }
-    
-    @Override
-    public void tickEnd(EnumSet<TickType> type, Object... tickData)
-    {
-        ;
-    }
-    
-    @Override
-    public EnumSet<TickType> ticks()
-    {
-        return EnumSet.of(TickType.CLIENT);
-    }
-    
-    @Override
-    public String getLabel()
-    {
-        return "RankCapes Cape Handler (tick handler)";
+        StaticCape defaultCape = new StaticCape("DEFAULT", player.getTextureCape());
+        setPlayerCape(defaultCape, player);
     }
     
 }

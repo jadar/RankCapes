@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -22,17 +22,11 @@ import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
 
 import joptsimple.internal.Strings;
-import net.minecraft.util.ResourceLocation;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import argo.jdom.JdomParser;
-import argo.jdom.JsonNode;
-import argo.jdom.JsonRootNode;
-import argo.jdom.JsonStringNode;
-import argo.saj.InvalidSyntaxException;
-
+import com.google.gson.Gson;
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
 
 import cpw.mods.fml.relauncher.Side;
@@ -51,7 +45,7 @@ public class CapePack
     /**
      * JSON Parser.
      */
-    private static JdomParser parser = new JdomParser();
+    private static Gson parser = new Gson();
     
     /**
      * The server address that this cape pack belongs to.
@@ -121,7 +115,7 @@ public class CapePack
             }
             else
             {
-                RankCapesForge.log.severe("Cape Pack metadata is missing!");
+                RankCapesForge.log.warn("Cape Pack metadata is missing!");
             }
         }
         catch (IOException e)
@@ -135,28 +129,32 @@ public class CapePack
      * 
      * @param metadata
      */
+    @SuppressWarnings("rawtypes")
     private void parsePackMetadata(String metadata)
     {
         try
         {
-            JsonRootNode root = parser.parse(metadata);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> groups = parser.fromJson(metadata, Map.class);
             
             // loops through every entry in the base of the JSON file.
-            for (Entry<JsonStringNode, JsonNode> n : root.getFields().entrySet())
+            for (Entry<String, Object> n : groups.entrySet())
             {
-                JsonNode node = n.getValue();
-                
-                if (node.hasFields() && !node.hasElements())
+                String name = n.getKey();
+                Object value = n.getValue();
+
+                if (value instanceof Map)
                 {
-                    parseAnimatedCapeNode(n.getKey(), node);
+                    
+                    parseAnimatedCapeNode(name, (Map)value);
                 }
-                else if (node.hasText() && !node.hasElements())
+                else if (value instanceof String)
                 {
-                    parseStaticCapeNode(n.getKey(), node);
+                    parseStaticCapeNode(name, (String)value);
                 }
             }
         }
-        catch (InvalidSyntaxException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -168,33 +166,33 @@ public class CapePack
      * @param nodeName
      * @param node
      */
-    private void parseAnimatedCapeNode(JsonStringNode nodeName, JsonNode node)
+    private void parseAnimatedCapeNode(String name, @SuppressWarnings("rawtypes") Map node)
     {
-        String rankName = nodeName.getStringValue();
-        int fps = Integer.parseInt(node.getNode("fps").getNumberValue());
-        List<JsonNode> frames = node.getArrayNode("frames");
-        if (frames != null)
-        {
-            AnimatedCape cape = new AnimatedCape(fps);
+        Object framesObj = node.get("frames");
+        Object fpsObj = node.get("fps");
+        
+        if(framesObj instanceof String[] && fpsObj instanceof Integer)
+        { 
+            String[] frames = (String[])framesObj;
+            int fps = (Integer)fpsObj;
             
-            for (JsonNode field : frames)
+            AnimatedCape cape = new AnimatedCape(name, fps);
+            
+            for (String frame : frames)
             {
-                if (field.hasElements() || field.hasFields())
-                {
-                    continue;
-                    // invalid node report!
-                }
-                
-                String fileName = FilenameUtils.removeExtension(field.getText());
+                String fileName = FilenameUtils.removeExtension(frame);
                 if (!Strings.isNullOrEmpty(fileName))
+                {
                     if (unprocessedCapes.containsKey(fileName))
+                
                     {
                         cape.addFrame(unprocessedCapes.get(fileName));
                     }
-                
+            
+                }
             }
             
-            processedCapes.put(rankName, cape);
+            processedCapes.put(name, cape);
         }
     }
     
@@ -206,13 +204,13 @@ public class CapePack
      * @param node
      *            the JSON node.
      */
-    private void parseStaticCapeNode(JsonStringNode nodeKey, JsonNode node)
+    private void parseStaticCapeNode(String name, String capeFile)
     {
-        String rankName = nodeKey.getStringValue();
-        String fileName = FilenameUtils.removeExtension(node.getStringValue());
+        String rankName = name;
+        String fileName = FilenameUtils.removeExtension(capeFile);
         if (unprocessedCapes.containsKey(fileName))
         {
-            StaticCape cape = unprocessedCapes.get(fileName);
+            StaticCape cape = unprocessedCapes.get(fileName).setName(rankName);
             processedCapes.put(rankName, cape);
         }
     }
@@ -231,13 +229,11 @@ public class CapePack
     {
         // removes extension just in case.
         name = FilenameUtils.removeExtension(name).trim();
-        
-        ResourceLocation location = new ResourceLocation("RankCapes/" + name);
-        
+
         BufferedImage image = ImageIO.read(imageInput);
-        LoadCapeData loadImageData = new LoadCapeData(image, location);
+        BufferedImageTexture loadImageData = new BufferedImageTexture(image);
         
-        return new StaticCape(location, loadImageData);
+        return new StaticCape(name, loadImageData);
     }
     
     /**

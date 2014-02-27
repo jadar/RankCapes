@@ -9,40 +9,46 @@
 package com.jadarstudios.rankcapes.forge.cape;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.texture.ITextureObject;
 
 public class StaticCape implements ICape
 {
     
-    private boolean loadedTexture = false;
-    private LoadCapeData capeData;
-    private ResourceLocation capeLocation;
+    protected ITextureObject capeData;
+    protected String name;
     
-    public StaticCape(ResourceLocation parCapeLocation, LoadCapeData parCapeData)
+    public StaticCape(String name, ITextureObject parCapeData)
     {
         capeData = parCapeData;
-        capeLocation = parCapeLocation;
     }
     
     @Override
-    public LoadCapeData getCapeData()
+    public ITextureObject getCapeTexture()
     {
         return capeData;
     }
+
     
     @Override
-    public ResourceLocation getCapeResource()
+    public void loadTexture(AbstractClientPlayer player)
     {
-        return capeLocation;
+//        if (!loadedTexture)
+//        {
+           // loadedTexture = 
+        Minecraft.getMinecraft().getTextureManager().loadTexture(player.getLocationCape(), getCapeTexture());
+//        }
     }
-    
+
     @Override
-    public void loadTexture()
+    public String getName()
     {
-        if (!loadedTexture)
-        {
-            loadedTexture = Minecraft.getMinecraft().getTextureManager().loadTexture(getCapeResource(), getCapeData());
-        }
+        return this.name;
     }
     
+    public StaticCape setName(String name)
+    {
+        this.name = name;
+        return this;
+    }
 }

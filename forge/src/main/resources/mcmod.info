@@ -1,6 +1,6 @@
 [
 {
-    "modid": "rankcapes-client-forge",
+    "modid": "rankcapes",
     "name": "RankCapes",
     "description": "This mod lets you see and change your cape on RankCapes equipped servers!",
     "version": "${version}",
@@ -10,6 +10,6 @@
     "authors": ["Jadar"],
     "credits": "Capes implemented by Mojang. Cape changing and everything else in this mod written by Jadar.",
     "logoFile": "",
-    "dependencies": "Forge"
+    "dependencies": ["Forge"]
 }
 ]

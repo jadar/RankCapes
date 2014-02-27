@@ -11,7 +11,6 @@ package com.jadarstudios.rankcapes.forge.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -21,7 +20,11 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
+import com.jadarstudios.rankcapes.forge.cape.ICape;
+import com.jadarstudios.rankcapes.forge.cape.PlayerCapeProperties;
 import com.jadarstudios.rankcapes.forge.network.ClientPacketHandler;
+
+import cpw.mods.fml.common.registry.LanguageRegistry;
 
 /**
  * This is the GUI for cape selection.
@@ -71,7 +74,7 @@ public class GuiCapeSelect extends GuiScreen
     /**
      * The cape the player had before GUI opening.
      */
-    private String playerCapeName = "";
+    private ICape playerCape;
     
     private GuiCapeButton selectedCapeButton = null;
     private int currentPage = 0;
@@ -91,12 +94,12 @@ public class GuiCapeSelect extends GuiScreen
         guiTop = (height - ySize) / 2;
         
         // create normal buttons.
-        buttonSet = new GuiButton(0, guiLeft + 31, guiTop + 138, 30, 20, "Set");
+        buttonSet = new GuiButton(0, guiLeft + 31, guiTop + 138, 30, 20, LanguageRegistry.instance().getStringLocalization("rankcapes.button.set"));
         buttonPrevious = new GuiButton(1, guiLeft + 7, guiTop + 138, 21, 20, "<-");
         buttonNext = new GuiButton(2, guiLeft + 65, guiTop + 138, 21, 20, "->");
         
         // gets the current player cape name and sets it in the instance.
-        playerCapeName = RankCapesForge.instance.getPlayersCapeName(mc.thePlayer.username);
+        playerCape = ((PlayerCapeProperties) mc.thePlayer.getExtendedProperties(PlayerCapeProperties.IDENTIFIER)).getCape();
         
         // gets the available capes.
         List<String> availableCapes = RankCapesForge.instance.availableCapes;
@@ -135,7 +138,7 @@ public class GuiCapeSelect extends GuiScreen
                     
                     // sets button to selectedCapeButton if its name is the same
                     // as the player's cape.
-                    if (name.equals(playerCapeName))
+                    if (name.equals(playerCape.getName()))
                     {
                         selectedCapeButton.enabled = true;
                         button.enabled = false;
@@ -198,7 +201,7 @@ public class GuiCapeSelect extends GuiScreen
             GL11.glRotatef(180, 0, 1, 0);
             
             // draw player
-            GuiInventory.func_110423_a(-77, -5, 50, mouseX - (guiLeft + 127), (guiTop + 32) - mouseY, mc.thePlayer);
+            GuiInventory.func_147046_a(-77, -5, 50, mouseX - (guiLeft + 127), (guiTop + 32) - mouseY, mc.thePlayer);
         }
         // end
         GL11.glPopMatrix();
@@ -238,8 +241,8 @@ public class GuiCapeSelect extends GuiScreen
                 
                 if (guibutton.mousePressed(mc, x, y))
                 {
-                    selectedButton = guibutton;
-                    mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
+                    //selectedButton = guibutton;
+                    //mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
                     actionPerformed(guibutton);
                 }
             }
@@ -292,13 +295,15 @@ public class GuiCapeSelect extends GuiScreen
                 capeButton.enabled = false;
                 selectedCapeButton.enabled = true;
                 
+                RankCapesForge mod = RankCapesForge.instance;
+                
                 if (button.id != 3)
                 {
-                    RankCapesForge.instance.changePlayerCape(capeName);
+                    mod.getCapeHandler().setPlayerCape(mod.getCapePack().getCape(capeName), mc.thePlayer);
                 }
                 else
                 {
-                    RankCapesForge.instance.removePlayerCape();
+                    mod.getCapeHandler().resetPlayerCape(mc.thePlayer);
                 }
                 
                 selectedCapeButton = capeButton;
@@ -310,9 +315,9 @@ public class GuiCapeSelect extends GuiScreen
     public void onGuiClosed()
     {
         // sets player cape back to what is was before.
-        if (!Strings.isNullOrEmpty(playerCapeName))
+        if (playerCape != null)
         {
-            RankCapesForge.instance.changePlayerCape(playerCapeName);
+            RankCapesForge.instance.getCapeHandler().setPlayerCape(playerCape, mc.thePlayer);
         }
     }
     

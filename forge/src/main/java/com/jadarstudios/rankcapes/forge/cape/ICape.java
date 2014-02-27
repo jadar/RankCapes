@@ -8,15 +8,14 @@
 
 package com.jadarstudios.rankcapes.forge.cape;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.texture.ITextureObject;
 
 public interface ICape
 {
     
-    LoadCapeData getCapeData();
+    ITextureObject getCapeTexture();
     
-    ResourceLocation getCapeResource();
-    
-    void loadTexture();
-    
+    void loadTexture(AbstractClientPlayer player);
+    String getName();
 }

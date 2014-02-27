@@ -5,7 +5,7 @@
  * Released under the MIT license
  * http://github.com/jadar/RankCapes/blob/master/LICENSE
  */
- 
+
 package com.jadarstudios.rankcapes.bukkit;
 
 import java.io.ByteArrayInputStream;
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -26,13 +25,9 @@ import javax.persistence.PersistenceException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.mcstats.MetricsLite;
-
-import argo.jdom.JdomParser;
-import argo.jdom.JsonNode;
-import argo.jdom.JsonRootNode;
-import argo.jdom.JsonStringNode;
-import argo.saj.InvalidSyntaxException;
 
 import com.jadarstudios.rankcapes.bukkit.command.MyCapeCommand;
 import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
@@ -50,12 +45,7 @@ public class RankCapesBukkit extends JavaPlugin
     /**
      * The channel to use to exchange messages with the client.
      */
-    public static final String PLUGIN_CHANNEL = "RankCapes";
-    
-    /**
-     * The JSON parser instance.
-     */
-    private static JdomParser parser = new JdomParser();
+    public static final String PLUGIN_CHANNEL = "rankcapes";
     
     /**
      * Used to log messages.
@@ -83,7 +73,7 @@ public class RankCapesBukkit extends JavaPlugin
     private CapePackServerListenThread listenThread;
     
     /**
-     * plugin's packet handler instancel
+     * plugin's packet handler instance
      */
     private PluginPacketHandler packetHandler;
     
@@ -113,7 +103,6 @@ public class RankCapesBukkit extends JavaPlugin
         // sets up the plugin metrics/stats (MCStats.org)
         setupMetrics();
         
-        // sets up the metrics for MCStats.
         // registers the communication channels with bukkit.
         registerChannels();
         
@@ -176,6 +165,10 @@ public class RankCapesBukkit extends JavaPlugin
             metrics.start();
         }
         catch(IOException e)
+        {
+            ;
+        }
+        catch(NoClassDefFoundError e)
         {
             ;
         }
@@ -342,21 +335,23 @@ public class RankCapesBukkit extends JavaPlugin
     {
         try
         {
-            JsonRootNode root = parser.parse(new InputStreamReader(input));
+            //JsonRootNode root = parser.parse(new InputStreamReader(input));
+            
+            Object root = JSONValue.parse(new InputStreamReader(input));
+            JSONObject object = (JSONObject)root;
+           
             
             // loops through every entry in the base of the JSON file.
-            for (Entry<JsonStringNode, JsonNode> n : root.getFields().entrySet())
+            for (Object key : object.keySet())
             {
-                String cape = n.getKey().getStringValue();
-                availableCapes.add(cape);
+                if(key instanceof String)
+                {
+                    String cape = (String)key;
+                    availableCapes.add(cape);
+                }
             }
         }
-        catch (InvalidSyntaxException e)
-        {
-            e.printStackTrace();
-            return false;
-        }
-        catch (IOException e)
+        catch (Exception e)
         {
             e.printStackTrace();
             return false;

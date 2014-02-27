@@ -11,7 +11,9 @@ package com.jadarstudios.rankcapes.forge.cape;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.texture.ITextureObject;
 
 /**
  * This class implements Animated Capes. It keeps track of which frame it's on
@@ -28,39 +30,36 @@ public class AnimatedCape implements ICape
     int currentFrame = 0;
     
     // elapsed time in ticks.
-    float elapsedTime = 0;
+    long elapsedTime = 0;
     // time since update in ticks.
-    float timeSinceUpdate = 0;
+    long lastElapsedTime = 0;
     
     boolean pause = false;
     
-    public AnimatedCape()
+    protected String name;
+    
+    public AnimatedCape(String name)
     {
         capeFrames = new ArrayList<StaticCape>();
+        this.name = name;
     }
     
-    public AnimatedCape(int parFramesPerSecond)
+    public AnimatedCape(String name, int parFramesPerSecond)
     {
-        this();
+        this(name);
         framesPerSecond = parFramesPerSecond;
     }
     
     @Override
-    public LoadCapeData getCapeData()
+    public ITextureObject getCapeTexture()
     {
-        return getCurrentFrame().getCapeData();
+        return getCurrentFrame().getCapeTexture();
     }
     
     @Override
-    public ResourceLocation getCapeResource()
+    public void loadTexture(AbstractClientPlayer player)
     {
-        return getCurrentFrame().getCapeResource();
-    }
-    
-    @Override
-    public void loadTexture()
-    {
-        getCurrentFrame().loadTexture();
+        getCurrentFrame().loadTexture(player);
     }
     
     public StaticCape getCurrentFrame()
@@ -84,25 +83,38 @@ public class AnimatedCape implements ICape
         return capeFrames.size();
     }
     
-    public void setFramesPerSecond(int parFramesPerSecond)
+    public void setFPS(int parFramesPerSecond)
     {
         framesPerSecond = parFramesPerSecond;
     }
     
-    public void update(float deltaTime)
+    public int getFPS()
+    {
+        return framesPerSecond;
+    }
+    
+    @Override
+    public String getName()
+    {
+        return this.name;
+    }
+    
+    public void update()
     {
         if (pause)
             return;
         
-        // time since update is one tick + time between tick.
-        timeSinceUpdate += 1 + deltaTime;
+        this.elapsedTime = Minecraft.getSystemTime();
         
-        if (timeSinceUpdate / 20 >= 1 / framesPerSecond)
+        // time since update is one tick + time between tick.
+        long delta = elapsedTime - lastElapsedTime;
+        
+        if (delta >= 1 / framesPerSecond)
         {
             currentFrame++;
-            timeSinceUpdate = 0;
+            lastElapsedTime = elapsedTime;
         }
-        
+
         if (currentFrame > getTotalFrames() - 1)
         {
             currentFrame = 0;
