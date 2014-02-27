@@ -40,15 +40,6 @@ public class PlayerEventHandler
     }
     
     @SubscribeEvent
-    public void onServerChannelRegister(CustomPacketRegistrationEvent<NetHandlerPlayServer> event)
-    {
-        for(String channel : event.registrations)
-        {
-            System.out.println("Channel Registered: "+ channel);
-        }
-    }
-    
-    @SubscribeEvent
     public void onClientChannelRegister(CustomPacketRegistrationEvent<NetHandlerPlayClient> event)
     {
         for(String channel : event.registrations)

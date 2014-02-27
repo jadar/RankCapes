@@ -23,6 +23,7 @@ import com.jadarstudios.rankcapes.forge.handler.KeyEventHandler;
 import com.jadarstudios.rankcapes.forge.handler.PlayerEventHandler;
 import com.jadarstudios.rankcapes.forge.network.CapePackClientReadThread;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -55,7 +56,7 @@ public class RankCapesForge
     {
         
         MinecraftForge.EVENT_BUS.register(new KeyEventHandler());
-        MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
+        FMLCommonHandler.instance().bus().register(new PlayerEventHandler());
         MinecraftForge.EVENT_BUS.register(capeHandler);
     }
     
