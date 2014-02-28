@@ -14,13 +14,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.EnumMap;
 
-import com.jadarstudios.rankcapes.forge.ModProperties;
-import com.jadarstudios.rankcapes.forge.RankCapesForge;
-
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
-import net.minecraft.world.World;
+
+import com.jadarstudios.rankcapes.forge.ModProperties;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.FMLEmbeddedChannel;
 import cpw.mods.fml.common.network.FMLIndexedMessageToMessageCodec;
@@ -190,7 +188,7 @@ public class ClientPacketHandler
      * @param args
      *            from received command.
      */
-    private void handlePlayerCapeUpdate(String args)
+/*    private void handlePlayerCapeUpdate(String args)
     {
         String[] t = args.split(",");
         if (t.length != 2)
@@ -199,14 +197,14 @@ public class ClientPacketHandler
         RankCapesForge.instance.getCapeHandler().playerCapeNames.put(t[0], t[1]);
         RankCapesForge.instance.getCapeHandler().capeChangeQue.add(t[0]);
     }
-    
+    */
     /**
      * Parses a String to a HashMap of the player capes.
      * 
      * @param data
      *            string of serialized hashmap
      * @return deserialized hashmap
-     */
+     *//*
     public HashMap<String, String> parsePlayerCapes(String data)
     {
         HashMap<String, String> map = new HashMap<String, String>();
@@ -224,7 +222,7 @@ public class ClientPacketHandler
     
     /**
      * Requests the Cape Pack.
-     */
+     *//*
     public void sendRequestPacket()
     {
         Packet250CustomPayload packet = new Packet250CustomPayload();
@@ -233,14 +231,14 @@ public class ClientPacketHandler
         packet.length = packet.data.length;
         
         PacketDispatcher.sendPacketToServer(packet);
-    }
+    }*/
     
     /**
      * Sends packet to change the cape.
      * 
      * @param capeName
      *            name of cape to change to.
-     */
+     *//*
     public void sendCapeChangePacket(String capeName)
     {
         Packet250CustomPayload packet = new Packet250CustomPayload();
@@ -249,11 +247,11 @@ public class ClientPacketHandler
         packet.length = packet.data.length;
         
         PacketDispatcher.sendPacketToServer(packet);
-    }
+    }*/
     
     /**
      * Sends packet to remove cape.
-     */
+     *//*
     public void sendCapeRemovePacket()
     {
         Packet250CustomPayload packet = new Packet250CustomPayload();
@@ -262,7 +260,7 @@ public class ClientPacketHandler
         packet.length = packet.data.length;
         
         PacketDispatcher.sendPacketToServer(packet);
-    }
+    }*/
     
     /**
      * Reads a byte aray to a String.
@@ -270,7 +268,7 @@ public class ClientPacketHandler
      * @param data
      *            byte array to read
      * @return string from bytes
-     */
+     *//*
     private static String readByteArray(byte[] data)
     {
         try
@@ -288,5 +286,5 @@ public class ClientPacketHandler
             e.printStackTrace();
             return null;
         }
-    }
+    }*/
 }

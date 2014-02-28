@@ -271,8 +271,11 @@ public class RankCapesBukkit extends JavaPlugin
      */
     public void onDisable()
     {
-        listenThread.stopAllThreads();
-        listenThread.stopThread();
+        if(listenThread != null)
+        {
+        	listenThread.stopAllThreads();
+        	listenThread.stopThread();
+        }
     }
     
     /**

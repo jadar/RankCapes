@@ -187,7 +187,7 @@ public class PluginPacketHandler implements PluginMessageListener
         String message = "transmitPort:" + plugin.getCapeServerPort();
         
         // send message to player.
-        player.sendPluginMessage(plugin, "RankCapes", message.getBytes());
+        player.sendPluginMessage(plugin, RankCapesBukkit.PLUGIN_CHANNEL, message.getBytes());
     }
     
     /**

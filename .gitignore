@@ -6,6 +6,7 @@ build/
 .settings/
 .project
 .classpath
+.metadata
 MANIFEST.MF
 RankCapes.jardesc
 .gradle

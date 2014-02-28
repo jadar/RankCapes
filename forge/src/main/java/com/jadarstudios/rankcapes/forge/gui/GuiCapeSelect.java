@@ -262,12 +262,12 @@ public class GuiCapeSelect extends GuiScreen
                 // remove cape if selected button is default.
                 if (selectedCapeButton.id == 3)
                 {
-                    ClientPacketHandler.getInstance().sendCapeRemovePacket();
+                    //TODO: reimplement ClientPacketHandler.getInstance().sendCapeRemovePacket();
                 }
                 // else send packet to server that we want to change.
                 else
                 {
-                    ClientPacketHandler.getInstance().sendCapeChangePacket(selectedCapeButton.capeName);
+                    //TODO: reimplement ClientPacketHandler.getInstance().sendCapeChangePacket(selectedCapeButton.capeName);
                 }
                 
                 // close the GUI
