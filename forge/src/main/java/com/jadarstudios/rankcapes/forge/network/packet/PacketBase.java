@@ -1,9 +1,11 @@
-package com.jadarstudios.rankcapes.forge.network;
+package com.jadarstudios.rankcapes.forge.network.packet;
 
 import io.netty.buffer.ByteBuf;
 
 public abstract class PacketBase
 {
+    
+    public PacketBase() {}
     
     public abstract void write(ByteBuf data);
     

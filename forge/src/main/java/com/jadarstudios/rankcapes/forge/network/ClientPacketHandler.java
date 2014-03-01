@@ -14,18 +14,20 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.EnumMap;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
 
 import com.jadarstudios.rankcapes.forge.ModProperties;
+import com.jadarstudios.rankcapes.forge.RankCapesForge;
+import com.jadarstudios.rankcapes.forge.network.packet.PacketBase;
+import com.jadarstudios.rankcapes.forge.network.packet.S0PacketPlayerCapesUpdate;
+import com.jadarstudios.rankcapes.forge.network.packet.S1PacketCapePack;
+import com.jadarstudios.rankcapes.forge.network.packet.S2PacketAvailableCapes;
+import com.jadarstudios.rankcapes.forge.network.packet.S3PacketTest;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.FMLEmbeddedChannel;
 import cpw.mods.fml.common.network.FMLIndexedMessageToMessageCodec;
-import cpw.mods.fml.common.network.FMLOutboundHandler;
-import cpw.mods.fml.common.network.FMLOutboundHandler.OutboundTarget;
 import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -37,16 +39,10 @@ public class ClientPacketHandler
     
     private ClientPacketHandler()
     {
-        this.channels = NetworkRegistry.INSTANCE.newChannel(ModProperties.MOD_ID, new ChannelCodec());
+        this.channels = NetworkRegistry.INSTANCE.newChannel(ModProperties.NETWORK_CHANNEL, new ChannelCodec());
         
         if (FMLCommonHandler.instance().getSide() == Side.CLIENT)
             this.addClientHandler();
-    }
-    
-    public static ClientPacketHandler getInstance()
-    {
-        return INSTANCE;
-        
     }
     
     @SideOnly(Side.CLIENT)
@@ -55,7 +51,12 @@ public class ClientPacketHandler
         FMLEmbeddedChannel clientChannel = this.channels.get(Side.CLIENT);
         
         String codec = clientChannel.findChannelHandlerNameForType(ChannelCodec.class);
-        clientChannel.pipeline().addAfter(codec, ModProperties.MOD_ID, new ChannelHandler());
+        clientChannel.pipeline().addAfter(codec, ModProperties.NETWORK_CHANNEL, new ChannelHandler());
+    }
+    
+    public static ClientPacketHandler instance()
+    {
+        return INSTANCE;   
     }
     
     /**
@@ -76,24 +77,37 @@ public class ClientPacketHandler
     @SideOnly(Side.CLIENT)
     public void sendPacketToServer(Packet packet)
     {
-        this.sendPacketToTarget(packet, FMLOutboundHandler.OutboundTarget.TOSERVER);
+        this.channels.get(Side.CLIENT).writeOutbound(packet);
     }
     
-    public void sendPacketToPlayer(Packet packet, EntityPlayer player)
+    @SideOnly(Side.CLIENT)
+    private static class ChannelHandler extends SimpleChannelInboundHandler<PacketBase>
     {
-        this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
-        this.sendPacketToTarget(packet, FMLOutboundHandler.OutboundTarget.PLAYER);
-    }
-    
-    public void sendPacketToAllPlayers(Packet packet, EntityPlayer player)
-    {
-        this.sendPacketToTarget(packet, FMLOutboundHandler.OutboundTarget.ALL);
-    }
-    
-    protected void sendPacketToTarget(Packet packet, OutboundTarget target)
-    {
-        this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(target);
-        this.channels.get(Side.SERVER).writeOutbound(packet);
+        
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, PacketBase packet) throws Exception
+        {
+            RankCapesForge.log.info("Got packet! Type: " + packet.getClass().getSimpleName());
+            
+            if(packet instanceof S0PacketPlayerCapesUpdate)
+            {
+                
+            }
+            else if(packet instanceof S1PacketCapePack)
+            {
+                
+            }
+            else if(packet instanceof S2PacketAvailableCapes)
+            {
+                
+            }
+            else if(packet instanceof S3PacketTest)
+            {
+                S3PacketTest test = (S3PacketTest)packet;
+                RankCapesForge.log.info(String.format("Test from server. Payload: %s", test.payload));
+            }
+            
+        }
     }
     
     private static class ChannelCodec extends FMLIndexedMessageToMessageCodec<PacketBase>
@@ -102,7 +116,7 @@ public class ClientPacketHandler
         public ChannelCodec()
         {
             for (PacketType type : PacketType.values())
-                this.addDiscriminator(type.ordinal(), type.packetClass);
+                this.addDiscriminator(type.ordinal(), type.getPacketClass());
         }
         
         @Override
@@ -116,17 +130,6 @@ public class ClientPacketHandler
         {
             msg.read(source);
             
-        }
-    }
-    
-    @SideOnly(Side.CLIENT)
-    private static class ChannelHandler extends SimpleChannelInboundHandler<FMLProxyPacket>
-    {
-        
-        @Override
-        protected void channelRead0(ChannelHandlerContext ctx, FMLProxyPacket packet) throws Exception
-        {
-            System.out.println("Got packet!");
         }
     }
 

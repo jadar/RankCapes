@@ -55,10 +55,14 @@ public class CapeHandler
         // cape from current player.
         //ICape cape = currentPlayerCapes.get(player.getCommandSenderName());
         PlayerCapeProperties properties = (PlayerCapeProperties) player.getExtendedProperties(PlayerCapeProperties.IDENTIFIER);
+        if(properties == null)
+        {
+        	return;
+        }
+        
         ICape cape = properties.getCape();
         
-        
-        if(cape instanceof AnimatedCape)
+        if(cape != null && cape instanceof AnimatedCape)
         {
             ((AnimatedCape) cape).update();
             setPlayerCape(cape, player);

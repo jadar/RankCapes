@@ -29,6 +29,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mcstats.MetricsLite;
 
+import com.jadarstudios.rankcapes.bukkit.command.CommandTestPacket;
 import com.jadarstudios.rankcapes.bukkit.command.MyCapeCommand;
 import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
 import com.jadarstudios.rankcapes.bukkit.network.CapePackServerListenThread;
@@ -42,6 +43,8 @@ import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
  */
 public class RankCapesBukkit extends JavaPlugin
 {
+    
+    private static RankCapesBukkit INSTANCE;
     /**
      * The channel to use to exchange messages with the client.
      */
@@ -88,6 +91,8 @@ public class RankCapesBukkit extends JavaPlugin
      */
     public void onEnable()
     {
+        INSTANCE = this;
+        
         // initializes the availableCapes list.
         availableCapes = new ArrayList<String>();
         
@@ -111,6 +116,7 @@ public class RankCapesBukkit extends JavaPlugin
         
         // sets up test command.
         getCommand("mycape").setExecutor(new MyCapeCommand(this));
+        getCommand("testpacket").setExecutor(new CommandTestPacket(this));
         
         // loads cape pack into the capePack fild.
         setupCapePack();
@@ -247,7 +253,7 @@ public class RankCapesBukkit extends JavaPlugin
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, PLUGIN_CHANNEL);
         
         // declare new packet handler
-        packetHandler = new PluginPacketHandler(this);
+        packetHandler = PluginPacketHandler.instance();
         
         // incoming channel.
         Bukkit.getMessenger().registerIncomingPluginChannel(this, PLUGIN_CHANNEL, packetHandler);
@@ -396,16 +402,6 @@ public class RankCapesBukkit extends JavaPlugin
     }
     
     /**
-     * Gets the packet handler instance.
-     * 
-     * @return packet handler instance.
-     */
-    public PluginPacketHandler getPacketHandler()
-    {
-        return packetHandler;
-    }
-    
-    /**
      * Gets the CapePackServerListenThread instance.
      * 
      * @return CapePackServerListenThread instance.
@@ -423,5 +419,10 @@ public class RankCapesBukkit extends JavaPlugin
     public int getCapeServerPort()
     {
         return capeServerPort;
+    }
+    
+    public static RankCapesBukkit instance()
+    {
+        return INSTANCE;
     }
 }

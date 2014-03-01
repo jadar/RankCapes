@@ -10,3 +10,5 @@ main: com.jadarstudios.rankcapes.bukkit.RankCapesBukkit
 commands:
   mycape:
     description: Finds sender's cape.
+  testpacket:
+    description: Sends a test packet to sender's client.

@@ -14,6 +14,8 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRegisterChannelEvent;
 
+import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
+
 /**
  * Used to detect when players do things.
  * 
@@ -38,7 +40,7 @@ public class PlayerEventHandler implements Listener
         plugin.getLogger().info(event.getChannel());
         if (event.getChannel().equals(RankCapesBukkit.PLUGIN_CHANNEL))
         {
-            plugin.getPacketHandler().handlePlugnChannelRegister(event);
+            PluginPacketHandler.instance().handlePlugnChannelRegister(event);
         }
     }
     
@@ -48,7 +50,7 @@ public class PlayerEventHandler implements Listener
      */
     public void onPlayerLogout(PlayerQuitEvent event)
     {
-        plugin.getPacketHandler().removeServingPlayer(event.getPlayer());
+        PluginPacketHandler.instance().removeServingPlayer(event.getPlayer());
     }
     
     @EventHandler
@@ -57,6 +59,6 @@ public class PlayerEventHandler implements Listener
      */
     public void changeWorld(PlayerChangedWorldEvent event)
     {
-        plugin.getPacketHandler().changeWorld(event);
+        PluginPacketHandler.instance().changeWorld(event);
     }
 }

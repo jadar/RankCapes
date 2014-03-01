@@ -21,7 +21,6 @@ import com.jadarstudios.rankcapes.forge.cape.CapePack;
 import com.jadarstudios.rankcapes.forge.handler.CapeHandler;
 import com.jadarstudios.rankcapes.forge.handler.KeyEventHandler;
 import com.jadarstudios.rankcapes.forge.handler.PlayerEventHandler;
-import com.jadarstudios.rankcapes.forge.network.CapePackClientReadThread;
 import com.jadarstudios.rankcapes.forge.network.ClientPacketHandler;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -36,9 +35,7 @@ public class RankCapesForge
     
     @Instance
     public static RankCapesForge instance;
-    
-    private CapePackClientReadThread packReadThread;
-    
+      
     private CapePack capePack = null;
     
     private final CapeHandler capeHandler;
@@ -59,51 +56,12 @@ public class RankCapesForge
         MinecraftForge.EVENT_BUS.register(new KeyEventHandler());
         FMLCommonHandler.instance().bus().register(new PlayerEventHandler());
         MinecraftForge.EVENT_BUS.register(capeHandler);
-        ClientPacketHandler.getInstance();
-    }
-    
-    @Deprecated
-    public void connectReadThread(int port)
-    {
-        connectReadThread(getCurrentServerAddress(), port);
-    }
-    
-    /**
-     * Called to connect to new server.
-     * 
-     * @param serverAddress
-     * @param port
-     */
-    @Deprecated
-    public void connectReadThread(String serverAddress, int port)
-    {
-        if (packReadThread != null)
-        {
-            packReadThread.stopThread();
-        }
-        
-        // create new read object.
-        packReadThread = new CapePackClientReadThread(serverAddress, port);
-        
-        // make thread out of it.
-        Thread t = new Thread(packReadThread);
-        
-        // makes it so java can exit without any problems from this thread.
-        t.setDaemon(true);
-        
-        t.setName("RankCapes - Cape Pack Read Thread");
-        t.start();
+        ClientPacketHandler.instance();
     }
     
     public CapeHandler getCapeHandler()
     {
         return capeHandler;
-    }
-    
-    @Deprecated
-    public CapePackClientReadThread getReadThread()
-    {
-        return packReadThread;
     }
     
     public CapePack getCapePack()

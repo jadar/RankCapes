@@ -1,11 +1,4 @@
-package com.jadarstudios.rankcapes.forge.network;
-
-import com.jadarstudios.rankcapes.forge.network.packet.C4PacketUpdateCape;
-import com.jadarstudios.rankcapes.forge.network.packet.PacketBase;
-import com.jadarstudios.rankcapes.forge.network.packet.S0PacketPlayerCapesUpdate;
-import com.jadarstudios.rankcapes.forge.network.packet.S1PacketCapePack;
-import com.jadarstudios.rankcapes.forge.network.packet.S2PacketAvailableCapes;
-import com.jadarstudios.rankcapes.forge.network.packet.S3PacketTest;
+package com.jadarstudios.rankcapes.bukkit.network.packet;
 
 public enum PacketType
 {
