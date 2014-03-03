@@ -1,9 +1,10 @@
 package com.jadarstudios.rankcapes.forge.event;
 
-import com.jadarstudios.rankcapes.forge.cape.ICape;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+
+import com.jadarstudios.rankcapes.forge.cape.ICape;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

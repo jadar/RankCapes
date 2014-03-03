@@ -29,6 +29,6 @@ public class GuiCapeButton extends GuiButton
     {
         super(id, posX, posY, w, h, capeName);
         this.capeName = capeName;
-        displayString = Character.toUpperCase(capeName.charAt(0)) + capeName.substring(1);
+        this.displayString = Character.toUpperCase(capeName.charAt(0)) + capeName.substring(1);
     }
 }

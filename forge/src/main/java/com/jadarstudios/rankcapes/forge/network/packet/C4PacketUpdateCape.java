@@ -15,6 +15,7 @@ public class C4PacketUpdateCape extends PacketClient
     
     /**
      * Creates the packet with {@link Type#UPDATE} as the update type.
+     * 
      * @param cape
      */
     public C4PacketUpdateCape(String cape)
@@ -31,13 +32,13 @@ public class C4PacketUpdateCape extends PacketClient
     @Override
     public void write(ByteBuf data)
     {
-        writeString(cape, data);
+        data.writeByte(this.updateType.ordinal());
+        this.writeString(this.cape, data);
     }
     
     public static enum Type
     {
-        UPDATE,
-        REMOVE;
+        UPDATE, REMOVE;
     }
     
 }

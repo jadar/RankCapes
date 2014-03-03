@@ -21,44 +21,38 @@ import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
  * 
  * @author Jadar
  */
-public class PlayerEventHandler implements Listener
+public enum PlayerEventHandler implements Listener
 {
+    INSTANCE;
     
-    private final RankCapesBukkit plugin;
+    private static final RankCapesBukkit plugin = RankCapesBukkit.instance();
     
-    public PlayerEventHandler(RankCapesBukkit parPlugin)
-    {
-        plugin = parPlugin;
-    }
-    
-    @EventHandler
     /**
      * Called when a player logs in.
      */
+    @EventHandler
     public void onRegisterChannel(PlayerRegisterChannelEvent event)
     {
         plugin.getLogger().info(event.getChannel());
         if (event.getChannel().equals(RankCapesBukkit.PLUGIN_CHANNEL))
-        {
-            PluginPacketHandler.instance().handlePlugnChannelRegister(event);
-        }
+            PluginPacketHandler.INSTANCE.handlePlugnChannelRegister(event);
     }
     
-    @EventHandler
     /**
      * Called when a player logs out.
      */
+    @EventHandler
     public void onPlayerLogout(PlayerQuitEvent event)
     {
-        PluginPacketHandler.instance().removeServingPlayer(event.getPlayer());
+        PluginPacketHandler.INSTANCE.removeServingPlayer(event.getPlayer());
     }
     
-    @EventHandler
     /**
      * Called when a player changes worlds.
      */
+    @EventHandler
     public void changeWorld(PlayerChangedWorldEvent event)
     {
-        PluginPacketHandler.instance().changeWorld(event);
+        PluginPacketHandler.INSTANCE.changeWorld(event);
     }
 }

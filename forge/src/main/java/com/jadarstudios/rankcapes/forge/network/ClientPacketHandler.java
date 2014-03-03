@@ -13,11 +13,18 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.EnumMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.network.Packet;
 
 import com.jadarstudios.rankcapes.forge.ModProperties;
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
+import com.jadarstudios.rankcapes.forge.cape.CapePack;
+import com.jadarstudios.rankcapes.forge.cape.ICape;
+import com.jadarstudios.rankcapes.forge.handler.CapeHandler;
 import com.jadarstudios.rankcapes.forge.network.packet.PacketBase;
 import com.jadarstudios.rankcapes.forge.network.packet.S0PacketPlayerCapesUpdate;
 import com.jadarstudios.rankcapes.forge.network.packet.S1PacketCapePack;
@@ -36,6 +43,7 @@ public class ClientPacketHandler
     private static ClientPacketHandler INSTANCE = new ClientPacketHandler();
     
     private EnumMap<Side, FMLEmbeddedChannel> channels;
+    private CapePackAssembler packAssembler;
     
     private ClientPacketHandler()
     {
@@ -56,7 +64,7 @@ public class ClientPacketHandler
     
     public static ClientPacketHandler instance()
     {
-        return INSTANCE;   
+        return INSTANCE;
     }
     
     /**
@@ -89,24 +97,24 @@ public class ClientPacketHandler
         {
             RankCapesForge.log.info("Got packet! Type: " + packet.getClass().getSimpleName());
             
-            if(packet instanceof S0PacketPlayerCapesUpdate)
+            try
             {
+                ClientPacketHandler handler = ClientPacketHandler.instance();
                 
+                if (packet instanceof S0PacketPlayerCapesUpdate)
+                    handler.handleS0PacketPlayerCapesUpdate((S0PacketPlayerCapesUpdate) packet);
+                else if (packet instanceof S1PacketCapePack)
+                    handler.handleS1PacketCapePack((S1PacketCapePack) packet);
+                else if (packet instanceof S2PacketAvailableCapes)
+                    handler.handleS2PacketAvailableCapes((S2PacketAvailableCapes) packet);
+                else if (packet instanceof S3PacketTest)
+                    handler.handleS3PacketTest((S3PacketTest) packet);
             }
-            else if(packet instanceof S1PacketCapePack)
+            catch (Exception e)
             {
-                
+                RankCapesForge.log.error(String.format("Error while handling packet %s!", packet.getClass().getSimpleName()));
+                e.printStackTrace();
             }
-            else if(packet instanceof S2PacketAvailableCapes)
-            {
-                
-            }
-            else if(packet instanceof S3PacketTest)
-            {
-                S3PacketTest test = (S3PacketTest)packet;
-                RankCapesForge.log.info(String.format("Test from server. Payload: %s", test.payload));
-            }
-            
         }
     }
     
@@ -132,162 +140,106 @@ public class ClientPacketHandler
             
         }
     }
-
-    /*
-    @Override
-    public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player)
+    
+    private void handleS0PacketPlayerCapesUpdate(S0PacketPlayerCapesUpdate packet)
     {
-        String data = readByteArray(packet.data);
-        
-        if (debug)
+        CapePack capePack = RankCapesForge.instance.getCapePack();
+        if (capePack == null)
         {
-            RankCapesForge.log.info("Recieved Packet! Data: " + data);
+            RankCapesForge.log.warn("Can't update cape because no cape pack.");
+            return;
         }
         
-        if (!data.contains(":"))
-            return;
-        
-        // should have 2 entries, command:args
-        String[] command = data.split(":");
-        
-        // return if the command does not have args, or if the args are empty or
-        // null.
-        if (command.length < 2 || Strings.isNullOrEmpty(command[1]))
-            return;
-        
-        if (command[0].equals("transmitPort"))
+        Map<String, String> changedCapes = packet.getPlayers();
+        for (Entry<String, String> entry : changedCapes.entrySet())
         {
-            if (StringUtils.isNumeric(command[1]))
+            RankCapesForge.log.info(String.format("Changed cape. Player: %s Cape: %s", entry.getKey(), entry.getValue()));
+            
+            AbstractClientPlayer player = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(entry.getKey());
+            
+            switch (packet.type)
             {
-                RankCapesForge.instance.connectReadThread(Integer.parseInt(command[1]));
+                case UPDATE:
+                {
+                    ICape cape = capePack.getCape(entry.getValue());
+                    CapeHandler.instance().setPlayerCape(cape, player);
+                    break;
+                }
+                case REMOVE:
+                {
+                    CapeHandler.instance().resetPlayerCape(player);
+                    break;
+                }
             }
         }
-        else if (command[0].equals("playerCapeUpdate"))
-        {
-            handlePlayerCapeUpdate(command[1]);
-        }
-        else if (command[0].equals("allPlayerCapes"))
-        {
-            HashMap<String, String> t = parsePlayerCapes(command[1]);
-            RankCapesForge.instance.getCapeHandler().playerCapeNames = t;
-            RankCapesForge.instance.getCapeHandler().capeChangeQue.addAll(t.keySet());
-        }
-        else if (command[0].equals("availableCapes"))
-        {
-            List<String> t = Arrays.asList(command[1].split(","));
-            RankCapesForge.instance.availableCapes = t;
-        }
-        else if (command[0].equals("removeCapeUpdate"))
-        {
-            RankCapesForge.instance.getCapeHandler().playerCapeNames.remove(command[1]);
-            RankCapesForge.instance.getCapeHandler().capeChangeQue.add(command[1]);
-        }
-        
     }
-    /*
-    /**
-     * Handles single player cape update.
-     * 
-     * @param args
-     *            from received command.
-     */
-/*    private void handlePlayerCapeUpdate(String args)
+    
+    private void handleS1PacketCapePack(S1PacketCapePack packet)
     {
-        String[] t = args.split(",");
-        if (t.length != 2)
+        if (this.packAssembler == null || this.packAssembler.fullSize != packet.packSize)
+            this.packAssembler = new CapePackAssembler(packet.packSize);
+        
+        boolean flag = this.packAssembler.addChunk(packet);
+        if (!flag)
+        {
+            RankCapesForge.log.warn("Pack Assembler Failed!");
+            this.packAssembler = null;
             return;
-        
-        RankCapesForge.instance.getCapeHandler().playerCapeNames.put(t[0], t[1]);
-        RankCapesForge.instance.getCapeHandler().capeChangeQue.add(t[0]);
-    }
-    */
-    /**
-     * Parses a String to a HashMap of the player capes.
-     * 
-     * @param data
-     *            string of serialized hashmap
-     * @return deserialized hashmap
-     *//*
-    public HashMap<String, String> parsePlayerCapes(String data)
-    {
-        HashMap<String, String> map = new HashMap<String, String>();
-        
-        String[] splitData = data.split(Pattern.quote("|"));
-        
-        for (String playerData : splitData)
-        {
-            String[] splitPlayerData = playerData.split(",");
-            map.put(splitPlayerData[0], splitPlayerData[1]);
         }
         
-        return map;
+        if (this.packAssembler.getFullPack() != null)
+        {
+            CapePack capePack = new CapePack(this.packAssembler.getFullPack());
+            RankCapesForge.instance.setCapePack(capePack);
+            
+            // deallocate so we can receive new pack later
+            this.packAssembler = null;
+        }
     }
     
-    /**
-     * Requests the Cape Pack.
-     *//*
-    public void sendRequestPacket()
+    private void handleS2PacketAvailableCapes(S2PacketAvailableCapes packet)
     {
-        Packet250CustomPayload packet = new Packet250CustomPayload();
-        packet.channel = "RankCapes";
-        packet.data = "REQUEST-PACK".getBytes();
-        packet.length = packet.data.length;
-        
-        PacketDispatcher.sendPacketToServer(packet);
-    }*/
+        RankCapesForge.instance.availableCapes = packet.getCapes();
+    }
     
-    /**
-     * Sends packet to change the cape.
-     * 
-     * @param capeName
-     *            name of cape to change to.
-     *//*
-    public void sendCapeChangePacket(String capeName)
+    private void handleS3PacketTest(S3PacketTest packet)
     {
-        Packet250CustomPayload packet = new Packet250CustomPayload();
-        packet.channel = "RankCapes";
-        packet.data = ("changeCape:" + capeName).getBytes();
-        packet.length = packet.data.length;
+        RankCapesForge.log.info(String.format("Test from server. Payload: %s", packet.payload));
         
-        PacketDispatcher.sendPacketToServer(packet);
-    }*/
+        packet.payload += " back at ya";
+        
+        ClientPacketHandler handler = ClientPacketHandler.instance();
+        
+        handler.sendPacketToServer(handler.generatePacketFrom(packet, Side.SERVER));
+    }
+    
+    // /**
+    // * Sends packet to change the cape.
+    // *
+    // * @param capeName
+    // * name of cape to change to.
+    // */
+    // public void sendCapeChangePacket(String capeName)
+    // {
+    // Packet250CustomPayload packet = new Packet250CustomPayload();
+    // packet.channel = "RankCapes";
+    // packet.data = ("changeCape:" + capeName).getBytes();
+    // packet.length = packet.data.length;
+    //
+    // PacketDispatcher.sendPacketToServer(packet);
+    // }
     
     /**
      * Sends packet to remove cape.
-     *//*
-    public void sendCapeRemovePacket()
-    {
-        Packet250CustomPayload packet = new Packet250CustomPayload();
-        packet.channel = "RankCapes";
-        packet.data = ("removeCape").getBytes();
-        packet.length = packet.data.length;
-        
-        PacketDispatcher.sendPacketToServer(packet);
-    }*/
-    
-    /**
-     * Reads a byte aray to a String.
-     * 
-     * @param data
-     *            byte array to read
-     * @return string from bytes
-     *//*
-    private static String readByteArray(byte[] data)
-    {
-        try
-        {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data)));
-            String rtrn = "";
-            while (br.ready())
-            {
-                rtrn += br.readLine();
-            }
-            return rtrn;
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-    }*/
+     */
+    /*
+     * public void sendCapeRemovePacket()
+     * {
+     * Packet250CustomPayload packet = new Packet250CustomPayload();
+     * packet.channel = "RankCapes";
+     * packet.data = ("removeCape").getBytes();
+     * packet.length = packet.data.length;
+     * PacketDispatcher.sendPacketToServer(packet);
+     * }
+     */
 }

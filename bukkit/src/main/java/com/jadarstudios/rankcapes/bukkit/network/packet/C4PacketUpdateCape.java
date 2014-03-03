@@ -1,6 +1,6 @@
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
-import io.netty.buffer.ByteBuf;
+import java.nio.ByteBuffer;
 
 /**
  * This packet is sent to the server to tell it
@@ -13,8 +13,13 @@ public class C4PacketUpdateCape extends PacketClient
     public Type updateType;
     public String cape;
     
+    public C4PacketUpdateCape()
+    {
+    }
+    
     /**
      * Creates the packet with {@link Type#UPDATE} as the update type.
+     * 
      * @param cape
      */
     public C4PacketUpdateCape(String cape)
@@ -29,15 +34,17 @@ public class C4PacketUpdateCape extends PacketClient
     }
     
     @Override
-    public void write(ByteBuf data)
+    public void read(ByteBuffer data)
     {
-        writeString(cape, data);
+        byte typeOrdinal = data.get();
+        this.updateType = Type.values()[typeOrdinal];
+        
+        this.cape = readString(data);
     }
     
     public static enum Type
     {
-        UPDATE,
-        REMOVE;
+        UPDATE, REMOVE;
     }
     
 }

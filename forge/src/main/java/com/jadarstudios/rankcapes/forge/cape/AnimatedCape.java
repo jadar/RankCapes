@@ -8,12 +8,12 @@
 
 package com.jadarstudios.rankcapes.forge.cape;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.texture.ITextureObject;
 
 /**
  * This class implements Animated Capes. It keeps track of which frame it's on
@@ -40,57 +40,57 @@ public class AnimatedCape implements ICape
     
     public AnimatedCape(String name)
     {
-        capeFrames = new ArrayList<StaticCape>();
+        this.capeFrames = new ArrayList<StaticCape>();
         this.name = name;
     }
     
     public AnimatedCape(String name, int parFramesPerSecond)
     {
         this(name);
-        framesPerSecond = parFramesPerSecond;
+        this.framesPerSecond = parFramesPerSecond;
     }
     
     @Override
-    public ITextureObject getCapeTexture()
+    public BufferedImage getCapeTexture()
     {
-        return getCurrentFrame().getCapeTexture();
+        return this.getCurrentFrame().getCapeTexture();
     }
     
     @Override
     public void loadTexture(AbstractClientPlayer player)
     {
-        getCurrentFrame().loadTexture(player);
+        this.getCurrentFrame().loadTexture(player);
     }
     
     public StaticCape getCurrentFrame()
     {
-        return capeFrames.get(currentFrame);
+        return this.capeFrames.get(this.currentFrame);
     }
     
     public int addFrame(StaticCape frame)
     {
-        capeFrames.add(frame);
-        return capeFrames.size();
+        this.capeFrames.add(frame);
+        return this.capeFrames.size();
     }
     
     public void addFrame(StaticCape frame, int position)
     {
-        capeFrames.add(position, frame);
+        this.capeFrames.add(position, frame);
     }
     
     public int getTotalFrames()
     {
-        return capeFrames.size();
+        return this.capeFrames.size();
     }
     
     public void setFPS(int parFramesPerSecond)
     {
-        framesPerSecond = parFramesPerSecond;
+        this.framesPerSecond = parFramesPerSecond;
     }
     
     public int getFPS()
     {
-        return framesPerSecond;
+        return this.framesPerSecond;
     }
     
     @Override
@@ -99,31 +99,34 @@ public class AnimatedCape implements ICape
         return this.name;
     }
     
-    public void update()
+    public boolean update()
     {
-        if (pause)
-            return;
+        if (this.pause)
+            return false;
+        
+        boolean flag = false;
         
         this.elapsedTime = Minecraft.getSystemTime();
         
         // time since update is one tick + time between tick.
-        long delta = elapsedTime - lastElapsedTime;
+        long delta = this.elapsedTime - this.lastElapsedTime;
         
-        if (delta >= 1 / framesPerSecond)
+        if (delta >= this.framesPerSecond * 1000)
         {
-            currentFrame++;
-            lastElapsedTime = elapsedTime;
+            flag = true;
+            this.currentFrame++;
+            this.lastElapsedTime = this.elapsedTime;
         }
-
-        if (currentFrame > getTotalFrames() - 1)
-        {
-            currentFrame = 0;
-        }
+        
+        if (this.currentFrame > this.getTotalFrames() - 1)
+            this.currentFrame = 0;
+        
+        return flag;
     }
     
     @Override
     public String toString()
     {
-        return String.format("Animated cape with %s frames at %s FPS.", getTotalFrames(), framesPerSecond);
+        return String.format("Animated cape with %s frames at %s FPS.", this.getTotalFrames(), this.framesPerSecond);
     }
 }

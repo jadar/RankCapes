@@ -1,44 +1,70 @@
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
-import io.netty.buffer.ByteBuf;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.json.simple.JSONValue;
 
-import com.google.gson.Gson;
-import com.jadarstudios.rankcapes.forge.RankCapesForge;
+import com.jadarstudios.rankcapes.bukkit.RankCapesBukkit;
+import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
 
 public class S0PacketPlayerCapesUpdate extends PacketServer
 {
     public Type type;
-    protected String players;
+    public Map<String, String> playersMap;
+    
+    public S0PacketPlayerCapesUpdate(Type type)
+    {
+        this.type = type;
+    }
+    
+    public S0PacketPlayerCapesUpdate(Map<String, String> players)
+    {
+        this.type = Type.UPDATE;
+        this.playersMap = players;
+    }
     
     @Override
-    public void read(ByteBuf data)
+    public void write(ByteBuffer data)
     {
         try
         {
-            byte typeByte = data.readByte();
-            this.type = Type.values()[typeByte];
+            data.put((byte) this.type.ordinal());
             
-            this.players = readString(data);
+            String players = JSONValue.toJSONString(this.playersMap);
+            writeString(players, data);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            RankCapesForge.log.error("Exception while reading PacketCapeUpdate packet.");
+            RankCapesBukkit.log.severe("Exception while writing PacketCapeUpdate packet.");
             e.printStackTrace();
         }
     }
     
-    public List<String> getPlayers()
+    public S0PacketPlayerCapesUpdate addPlayer(PlayerCape cape)
     {
-        return (new Gson()).fromJson(this.players, ArrayList.class);  
+        return this.addPlayer(cape.getPlayerName(), cape.getCapeName());
+    }
+    
+    public S0PacketPlayerCapesUpdate addPlayer(String player, String cape)
+    {
+        if (this.playersMap == null)
+            this.playersMap = new HashMap<String, String>();
+        
+        this.playersMap.put(player, cape);
+        
+        return this;
+    }
+    
+    @Override
+    public int getSize()
+    {
+        return Byte.SIZE + JSONValue.toJSONString(this.playersMap).getBytes().length;
     }
     
     public static enum Type
     {
-        UPDATE,
-        REMOVE;
+        UPDATE, REMOVE;
     }
-    
 }

@@ -45,12 +45,12 @@ public class PlayerCape
     
     public int getId()
     {
-        return id;
+        return this.id;
     }
     
     public String getPlayerName()
     {
-        return playerName;
+        return this.playerName;
     }
     
     public void setPlayerName(String playerName)
@@ -60,21 +60,21 @@ public class PlayerCape
     
     public Player getPlayer()
     {
-        return Bukkit.getServer().getPlayer(playerName);
+        return Bukkit.getServer().getPlayer(this.playerName);
     }
     
     public void setPlayer(Player player)
     {
-        playerName = player.getName();
+        this.playerName = player.getName();
     }
     
     public void setCapeName(String parName)
     {
-        capeName = parName;
+        this.capeName = parName;
     }
     
     public String getCapeName()
     {
-        return capeName;
+        return this.capeName;
     }
 }

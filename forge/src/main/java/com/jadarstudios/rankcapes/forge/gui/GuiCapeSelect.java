@@ -22,9 +22,15 @@ import org.lwjgl.opengl.GL11;
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
 import com.jadarstudios.rankcapes.forge.cape.ICape;
 import com.jadarstudios.rankcapes.forge.cape.PlayerCapeProperties;
+import com.jadarstudios.rankcapes.forge.handler.CapeHandler;
+import com.jadarstudios.rankcapes.forge.handler.KeyEventHandler;
 import com.jadarstudios.rankcapes.forge.network.ClientPacketHandler;
+import com.jadarstudios.rankcapes.forge.network.packet.C4PacketUpdateCape;
+import com.jadarstudios.rankcapes.forge.network.packet.C4PacketUpdateCape.Type;
 
+import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 /**
  * This is the GUI for cape selection.
@@ -86,27 +92,27 @@ public class GuiCapeSelect extends GuiScreen
     public void initGui()
     {
         // clears the lists.
-        buttonList.clear();
-        buttonPages.clear();
+        this.buttonList.clear();
+        this.buttonPages.clear();
         
         // calculates the left and top.
-        guiLeft = (width - xSize) / 2;
-        guiTop = (height - ySize) / 2;
+        this.guiLeft = (this.width - xSize) / 2;
+        this.guiTop = (this.height - ySize) / 2;
         
         // create normal buttons.
-        buttonSet = new GuiButton(0, guiLeft + 31, guiTop + 138, 30, 20, LanguageRegistry.instance().getStringLocalization("rankcapes.button.set"));
-        buttonPrevious = new GuiButton(1, guiLeft + 7, guiTop + 138, 21, 20, "<-");
-        buttonNext = new GuiButton(2, guiLeft + 65, guiTop + 138, 21, 20, "->");
+        this.buttonSet = new GuiButton(0, this.guiLeft + 31, this.guiTop + 138, 30, 20, LanguageRegistry.instance().getStringLocalization("rankcapes.button.set"));
+        this.buttonPrevious = new GuiButton(1, this.guiLeft + 7, this.guiTop + 138, 21, 20, "<-");
+        this.buttonNext = new GuiButton(2, this.guiLeft + 65, this.guiTop + 138, 21, 20, "->");
         
         // gets the current player cape name and sets it in the instance.
-        playerCape = ((PlayerCapeProperties) mc.thePlayer.getExtendedProperties(PlayerCapeProperties.IDENTIFIER)).getCape();
+        this.playerCape = ((PlayerCapeProperties) mc.thePlayer.getExtendedProperties(PlayerCapeProperties.IDENTIFIER)).getCape();
         
         // gets the available capes.
         List<String> availableCapes = RankCapesForge.instance.availableCapes;
         
         // calculates the total pages.
         int totalPages = (int) Math.ceil(availableCapes.size() / (double) BUTTONS_PER_PAGE);
-
+        
         // assembles the pages.
         for (int pageNumber = 0, capeNumber = 0; pageNumber < totalPages; pageNumber++)
         {
@@ -119,10 +125,10 @@ public class GuiCapeSelect extends GuiScreen
                 // for making a default or no cape button.
                 if (pageNumber == 0 && buttonNumber == 0)
                 {
-                    GuiCapeButton noCape = new GuiCapeButton(3, guiLeft + 6, guiTop + 8, 78, BUTTON_HEIGHT, "default");
+                    GuiCapeButton noCape = new GuiCapeButton(3, this.guiLeft + 6, this.guiTop + 8, 78, BUTTON_HEIGHT, "default");
                     noCape.enabled = false;
                     buttonPage[buttonNumber] = noCape;
-                    selectedCapeButton = noCape;
+                    this.selectedCapeButton = noCape;
                     buttonNumber++;
                 }
                 
@@ -134,16 +140,16 @@ public class GuiCapeSelect extends GuiScreen
                     String name = availableCapes.get(capeNumber);
                     
                     // creates the positioned button.
-                    GuiCapeButton button = new GuiCapeButton(capeNumber + 4, guiLeft + 6, guiTop + 8 + (BUTTON_HEIGHT + 6) * buttonNumber, 78, BUTTON_HEIGHT, name);
+                    GuiCapeButton button = new GuiCapeButton(capeNumber + 4, this.guiLeft + 6, this.guiTop + 8 + (BUTTON_HEIGHT + 6) * buttonNumber, 78, BUTTON_HEIGHT, name);
                     
                     // sets button to selectedCapeButton if its name is the same
                     // as the player's cape.
-                    if (name.equals(playerCape.getName()))
+                    if (this.playerCape != null && name.equals(this.playerCape.getName()))
                     {
-                        selectedCapeButton.enabled = true;
+                        this.selectedCapeButton.enabled = true;
                         button.enabled = false;
-                        selectedCapeButton = button;
-                        gotoPage(pageNumber);
+                        this.selectedCapeButton = button;
+                        this.gotoPage(pageNumber);
                     }
                     
                     // adds the button to the page.
@@ -155,32 +161,30 @@ public class GuiCapeSelect extends GuiScreen
             }
             
             // add page to list.
-            buttonPages.add(buttonPage);
+            this.buttonPages.add(buttonPage);
         }
         
         // disables set button if no capes are available.
         if (availableCapes.isEmpty())
-        {
-            buttonSet.enabled = false;
-        }
+            this.buttonSet.enabled = false;
         
         // disables next and previous buttons if there are no pages to go to.
         if (totalPages <= 1)
         {
-            buttonNext.enabled = false;
-            buttonPrevious.enabled = false;
+            this.buttonNext.enabled = false;
+            this.buttonPrevious.enabled = false;
         }
         
-        buttonList.add(buttonSet);
-        buttonList.add(buttonNext);
-        buttonList.add(buttonPrevious);
+        this.buttonList.add(this.buttonSet);
+        this.buttonList.add(this.buttonNext);
+        this.buttonList.add(this.buttonPrevious);
     }
     
     @Override
     public void drawScreen(int mouseX, int mouseY, float delta)
     {
         // draws the black background
-        drawDefaultBackground();
+        this.drawDefaultBackground();
         
         // reset color
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -189,35 +193,31 @@ public class GuiCapeSelect extends GuiScreen
         mc.getTextureManager().bindTexture(background);
         
         // draw GUI texture
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, 176, 166);
+        this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, 176, 166);
         
         // new GL matrix
         GL11.glPushMatrix();
         {
             // move matrix into position
-            GL11.glTranslatef(guiLeft + 51, guiTop + 114, 130);
+            GL11.glTranslatef(this.guiLeft + 51, this.guiTop + 114, 130);
             
             // rotate matrix
             GL11.glRotatef(180, 0, 1, 0);
             
             // draw player
-            GuiInventory.func_147046_a(-77, -5, 50, mouseX - (guiLeft + 127), (guiTop + 32) - mouseY, mc.thePlayer);
+            GuiInventory.func_147046_a(-77, -5, 50, mouseX - (this.guiLeft + 127), this.guiTop + 32 - mouseY, mc.thePlayer);
         }
         // end
         GL11.glPopMatrix();
         
         // draws buttons.
-        if (buttonPages != null && buttonPages.size() > 0)
+        if (this.buttonPages != null && this.buttonPages.size() > 0)
         {
-            GuiButton[] buttonPage = buttonPages.get(currentPage);
+            GuiButton[] buttonPage = this.buttonPages.get(this.currentPage);
             
             for (GuiButton bttn : buttonPage)
-            {
                 if (bttn != null)
-                {
                     bttn.drawButton(mc, mouseX, mouseY);
-                }
-            }
         }
         
         // super call.
@@ -229,24 +229,23 @@ public class GuiCapeSelect extends GuiScreen
     {
         // update cape page buttons.
         if (button == 0)
-        {
-            GuiButton[] capeButtons = buttonPages.get(currentPage);
-            
-            for (GuiButton guibutton : capeButtons)
+            if (this.buttonPages != null && this.buttonPages.size() > 0)
             {
-                if (guibutton == null)
-                {
-                    continue;
-                }
+                GuiButton[] capeButtons = this.buttonPages.get(this.currentPage);
                 
-                if (guibutton.mousePressed(mc, x, y))
+                for (GuiButton guibutton : capeButtons)
                 {
-                    //selectedButton = guibutton;
-                    //mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
-                    actionPerformed(guibutton);
+                    if (guibutton == null)
+                        continue;
+                    
+                    if (guibutton.mousePressed(mc, x, y))
+                    {
+                        // selectedButton = guibutton;
+                        guibutton.func_146113_a(mc.getSoundHandler());
+                        this.actionPerformed(guibutton);
+                    }
                 }
             }
-        }
         
         super.mouseClicked(x, y, button);
     }
@@ -255,19 +254,20 @@ public class GuiCapeSelect extends GuiScreen
     protected void actionPerformed(GuiButton button)
     {
         if (button.enabled)
-        {
             // set cape
             if (button.id == 0)
             {
                 // remove cape if selected button is default.
-                if (selectedCapeButton.id == 3)
+                if (this.selectedCapeButton.id == 3)
                 {
-                    //TODO: reimplement ClientPacketHandler.getInstance().sendCapeRemovePacket();
+                    C4PacketUpdateCape packet = new C4PacketUpdateCape(Type.REMOVE, "");
+                    ClientPacketHandler.instance().sendPacketToServer(ClientPacketHandler.instance().generatePacketFrom(packet, Side.SERVER));
                 }
                 // else send packet to server that we want to change.
                 else
                 {
-                    //TODO: reimplement ClientPacketHandler.getInstance().sendCapeChangePacket(selectedCapeButton.capeName);
+                    C4PacketUpdateCape packet = new C4PacketUpdateCape(this.selectedCapeButton.capeName);
+                    ClientPacketHandler.instance().sendPacketToServer(ClientPacketHandler.instance().generatePacketFrom(packet, Side.SERVER));
                 }
                 
                 // close the GUI
@@ -277,75 +277,71 @@ public class GuiCapeSelect extends GuiScreen
             }
             // previous button
             else if (button.id == 1)
-            {
-                gotoPage(currentPage - 1);
-            }
-            // next page
+                this.gotoPage(this.currentPage - 1);
             else if (button.id == 2)
-            {
-                gotoPage(currentPage + 1);
-            }
-            // any cape button
-            else if (button.id >= 3 && button instanceof GuiCapeButton)
+                this.gotoPage(this.currentPage + 1);
+            else if (button instanceof GuiCapeButton)
             {
                 GuiCapeButton capeButton = (GuiCapeButton) button;
-                
                 String capeName = capeButton.capeName;
                 
                 capeButton.enabled = false;
-                selectedCapeButton.enabled = true;
+                this.selectedCapeButton.enabled = true;
                 
                 RankCapesForge mod = RankCapesForge.instance;
                 
                 if (button.id != 3)
                 {
-                    mod.getCapeHandler().setPlayerCape(mod.getCapePack().getCape(capeName), mc.thePlayer);
+                    ICape cape = mod.getCapePack().getCape(capeName);
+                    CapeHandler.instance().setPlayerCape(cape, mc.thePlayer);
                 }
                 else
-                {
-                    mod.getCapeHandler().resetPlayerCape(mc.thePlayer);
-                }
+                    CapeHandler.instance().resetPlayerCape(mc.thePlayer);
                 
-                selectedCapeButton = capeButton;
+                this.selectedCapeButton = capeButton;
             }
-        }
     }
     
     @Override
     public void onGuiClosed()
     {
         // sets player cape back to what is was before.
-        if (playerCape != null)
-        {
-            RankCapesForge.instance.getCapeHandler().setPlayerCape(playerCape, mc.thePlayer);
-        }
+        if (this.playerCape != null)
+            CapeHandler.instance().setPlayerCape(this.playerCape, mc.thePlayer);
+    }
+    
+    @Override
+    public void keyTyped(char keyChar, int key)
+    {
+        KeyEventHandler.INSTANCE.key(new KeyInputEvent());
     }
     
     /**
-     * Sets the page to the given integer if it is within the page ranges. 
-     * Also sets buttons to enabled or not. 
+     * Sets the page to the given integer if it is within the page ranges.
+     * Also sets buttons to enabled or not.
+     * 
      * @param pageNumber
      */
     public void gotoPage(int pageNumber)
-    {   
-        if(pageNumber >= 0 && pageNumber < buttonPages.size())
+    {
+        if (pageNumber >= 0 && pageNumber < this.buttonPages.size())
         {
             System.out.println(pageNumber);
-            currentPage = pageNumber;
-            if(pageNumber == 0)
+            this.currentPage = pageNumber;
+            if (pageNumber == 0)
             {
-                buttonPrevious.enabled = false;
-                buttonNext.enabled = true;
+                this.buttonPrevious.enabled = false;
+                this.buttonNext.enabled = true;
             }
-            else if(pageNumber == buttonPages.size()-1)
+            else if (pageNumber == this.buttonPages.size() - 1)
             {
-                buttonPrevious.enabled = true;
-                buttonNext.enabled = false;
+                this.buttonPrevious.enabled = true;
+                this.buttonNext.enabled = false;
             }
             else
             {
-                buttonPrevious.enabled = true;
-                buttonNext.enabled = true;
+                this.buttonPrevious.enabled = true;
+                this.buttonNext.enabled = true;
             }
         }
     }

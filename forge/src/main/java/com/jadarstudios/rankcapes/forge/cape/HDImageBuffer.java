@@ -24,19 +24,19 @@ public class HDImageBuffer implements IImageBuffer
     private int imageHeight;
     
     @Override
-    public BufferedImage parseUserSkin(BufferedImage par1BufferedImage)
+    public BufferedImage parseUserSkin(BufferedImage image)
     {
-        if (par1BufferedImage == null)
+        if (image == null)
             return null;
         else
         {
-            imageWidth = (par1BufferedImage.getWidth((ImageObserver) null) <= 64) ? 64 : (par1BufferedImage.getWidth((ImageObserver) null));
-            imageHeight = (par1BufferedImage.getHeight((ImageObserver) null) <= 32) ? 32 : (par1BufferedImage.getHeight((ImageObserver) null));
+            this.imageWidth = image.getWidth() <= 64 ? 64 : image.getWidth();
+            this.imageHeight = image.getHeight() <= 32 ? 32 : image.getHeight();
             
-            BufferedImage capeImage = new BufferedImage(imageWidth, imageHeight, 2);
+            BufferedImage capeImage = new BufferedImage(this.imageWidth, this.imageHeight, 2);
             
             Graphics graphics = capeImage.getGraphics();
-            graphics.drawImage(par1BufferedImage, 0, 0, (ImageObserver) null);
+            graphics.drawImage(image, 0, 0, (ImageObserver) null);
             graphics.dispose();
             
             return capeImage;

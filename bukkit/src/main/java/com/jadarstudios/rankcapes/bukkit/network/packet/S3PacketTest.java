@@ -1,13 +1,15 @@
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
-import io.netty.buffer.ByteBuf;
+import java.nio.ByteBuffer;
 
 public class S3PacketTest extends PacketBase
 {
-
+    
     public String payload = "";
     
-    public S3PacketTest() {}
+    public S3PacketTest()
+    {
+    }
     
     public S3PacketTest(String payload)
     {
@@ -15,14 +17,21 @@ public class S3PacketTest extends PacketBase
     }
     
     @Override
-    public void write(ByteBuf data)
+    public void write(ByteBuffer data)
     {
-        this.writeString(payload, data);
+        writeString(this.payload, data);
     }
     
     @Override
-    public void read(ByteBuf data)
+    public void read(ByteBuffer data)
     {
-        this.payload = this.readString(data);
+        this.payload = readString(data);
+    }
+    
+    @Override
+    public int getSize()
+    {
+        byte[] stringBytes = this.payload.getBytes();
+        return stringBytes.length + Integer.bitCount(stringBytes.length);
     }
 }

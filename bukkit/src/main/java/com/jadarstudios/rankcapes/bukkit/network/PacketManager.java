@@ -3,78 +3,72 @@ package com.jadarstudios.rankcapes.bukkit.network;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
-import com.jadarstudios.rankcapes.bukkit.network.packet.IPacket;
+import com.jadarstudios.rankcapes.bukkit.network.packet.PacketBase;
 import com.jadarstudios.rankcapes.bukkit.network.packet.PacketType;
 
-public class PacketManager
+public enum PacketManager
 {
-    private static PacketManager INSTANCE;
+    INSTANCE;
     
-    private HashMap<Class<? extends IPacket>, Byte> discriminators;
-    private HashMap<Byte, Class<? extends IPacket>> classes;
+    private HashMap<Class<? extends PacketBase>, Byte> discriminators;
+    private HashMap<Byte, Class<? extends PacketBase>> classes;
     
-    public PacketManager()
+    private PacketManager()
     {
-        discriminators = new HashMap<Class<? extends IPacket>, Byte>();
-        classes = new HashMap<Byte, Class<? extends IPacket>>();
-
-        initDiscriminators();
-    }
-
-    public static PacketManager instance()
-    {
-        if(INSTANCE == null)
-        {
-            INSTANCE = new PacketManager();
-        }
+        this.discriminators = new HashMap<Class<? extends PacketBase>, Byte>();
+        this.classes = new HashMap<Byte, Class<? extends PacketBase>>();
         
-        return INSTANCE;
+        this.initDiscriminators();
     }
     
     private void initDiscriminators()
     {
-        for(PacketType type : PacketType.values())
+        for (PacketType type : PacketType.values())
+            this.addDiscriminator((byte) type.ordinal(), type.getPacketClass());
+    }
+    
+    public void addDiscriminator(byte discriminator, Class<? extends PacketBase> clazz)
+    {
+        if (!this.discriminators.containsKey(this.discriminators) && !this.classes.containsKey(this.discriminators))
         {
-            addDiscriminator((byte)type.ordinal(), type.getPacketClass());
+            this.discriminators.put(clazz, discriminator);
+            this.classes.put(discriminator, clazz);
         }
     }
     
-    public void addDiscriminator(byte discriminator, Class<? extends IPacket> clazz)
+    public byte getDiscriminator(Class<? extends PacketBase> clazz)
     {
-        if(!discriminators.containsKey(discriminators) && !classes.containsKey(discriminators))
-        {
-            discriminators.put(clazz, discriminator);
-            classes.put(discriminator, clazz);
-        }
+        return this.discriminators.get(clazz);
     }
     
-    public byte getDiscriminator(Class<? extends IPacket> clazz)
+    public Class<? extends PacketBase> getDiscriminatorClass(byte discriminator)
     {
-        return discriminators.get(clazz);
+        return this.classes.get(discriminator);
     }
     
-    public Class<? extends IPacket> getDiscriminatorClass(byte discriminator)
-    {
-        return classes.get(discriminator);
-    }
-    
-    public IPacket getPacketFromBytes(byte[] bytes) throws Exception 
+    public PacketBase getPacketFromBytes(byte[] bytes) throws Exception
     {
         ByteBuffer data = ByteBuffer.wrap(bytes);
         byte discriminator = data.get();
         
-        Class<? extends IPacket> packetClass = this.getDiscriminatorClass(discriminator);
-        IPacket packet = packetClass.newInstance();
+        Class<? extends PacketBase> packetClass = this.getDiscriminatorClass(discriminator);
+        PacketBase packet = packetClass.newInstance();
         
         packet.read(data);
         
         return packet;
     }
     
-    public byte[] getBytesFromPacket(IPacket packet) throws Exception
+    public byte[] getBytesFromPacket(PacketBase packet) throws Exception
     {
-        ByteBuffer buffer = ByteBuffer.allocate(packet.getSize());
-        buffer.put(getDiscriminator(packet.getClass()));
+        byte discriminator = this.getDiscriminator(packet.getClass());
+        
+        ByteBuffer buffer = ByteBuffer.allocate(packet.getSize() + Byte.SIZE);
+        
+        // RankCapesBukkit.log.info(String.format("Packet %s of size %s",
+        // packet.getClass().getSimpleName(), buffer.limit()));
+        
+        buffer.put(discriminator);
         packet.write(buffer);
         
         return buffer.array();

@@ -14,10 +14,11 @@ import cpw.mods.fml.common.network.FMLNetworkEvent.CustomPacketRegistrationEvent
  * This class listens for network events. Connection opening, connection
  * received, successfully logged in, etc.
  * 
- * @author Jadar
+ * @author Jadarz
  */
-public class PlayerEventHandler
+public enum PlayerEventHandler
 {
+    INSTANCE;
     
     @SubscribeEvent
     public void onEntityConstruct(EntityConstructing event)
@@ -29,9 +30,7 @@ public class PlayerEventHandler
     @SubscribeEvent
     public void onClientChannelRegister(CustomPacketRegistrationEvent<NetHandlerPlayClient> event)
     {
-        for(String channel : event.registrations)
-        {
-            System.out.println("Channel Registered: "+ channel);
-        }
+        for (String channel : event.registrations)
+            System.out.println("Channel Registered: " + channel);
     }
 }

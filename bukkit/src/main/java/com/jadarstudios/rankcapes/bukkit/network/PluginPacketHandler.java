@@ -9,83 +9,74 @@
 package com.jadarstudios.rankcapes.bukkit.network;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerRegisterChannelEvent;
+import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import com.jadarstudios.rankcapes.bukkit.RankCapesBukkit;
 import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
-import com.jadarstudios.rankcapes.bukkit.network.packet.IPacket;
+import com.jadarstudios.rankcapes.bukkit.network.packet.C4PacketUpdateCape;
 import com.jadarstudios.rankcapes.bukkit.network.packet.PacketBase;
+import com.jadarstudios.rankcapes.bukkit.network.packet.S0PacketPlayerCapesUpdate;
+import com.jadarstudios.rankcapes.bukkit.network.packet.S0PacketPlayerCapesUpdate.Type;
+import com.jadarstudios.rankcapes.bukkit.network.packet.S1PacketCapePack;
+import com.jadarstudios.rankcapes.bukkit.network.packet.S2PacketAvailableCapes;
+import com.jadarstudios.rankcapes.bukkit.network.packet.S3PacketTest;
 
 /**
  * Handles packets sent on the plugin message channel.
  * 
  * @author Jadar
  */
-public class PluginPacketHandler implements PluginMessageListener
+public enum PluginPacketHandler implements PluginMessageListener
 {
-    /**
-     * The instance of the RankCapes plugin.
-     */
-    private final RankCapesBukkit plugin;
+    INSTANCE;
     
-    /**
-     * The plays this class serves/updates.
-     */
+    private static final RankCapesBukkit plugin = RankCapesBukkit.instance();
+    
     private final List<Player> playersServing;
     
-    private static PluginPacketHandler INSTANCE;
-    
-    /**
-     * 
-     * @param parPlugin
-     *            instance of RankCapes.
-     */
-    public PluginPacketHandler()
+    private PluginPacketHandler()
     {
-        plugin = RankCapesBukkit.instance();
-        playersServing = new ArrayList<Player>();
-    }
-    
-    public static PluginPacketHandler instance()
-    {
-        if(INSTANCE == null)
-        {
-            INSTANCE = new PluginPacketHandler();
-        }
-        
-        return INSTANCE;
+        this.playersServing = new ArrayList<Player>();
     }
     
     @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] bytes)
     {
-        IPacket packet;
+        PacketBase packet;
         try
         {
-            packet = PacketManager.instance().getPacketFromBytes(bytes);
-            
+            packet = PacketManager.INSTANCE.getPacketFromBytes(bytes);
             
             // handle cape change
-            if (packet instanceof PacketCapeUpdate)
+            if (packet instanceof C4PacketUpdateCape)
             {
-                handleCapeChage(packet, player);
+                C4PacketUpdateCape updatePacket = (C4PacketUpdateCape) packet;
+                
+                switch (updatePacket.updateType)
+                {
+                    case UPDATE:
+                    {
+                        this.handleCapeChage((C4PacketUpdateCape) packet, player);
+                        break;
+                    }
+                    case REMOVE:
+                    {
+                        this.handleCapeRemoval(player);
+                        break;
+                    }
+                }
             }
-            //        // handler remove cape
-            //        else if (message.startsWith("removeCape"))
-            //        {
-            //            handleCapeRemoval(player);
-            //        }
-            //        // unknown command.
-            //        else
-            //        {
-            //            RankCapesBukkit.log.warning("Player " + player.getName() + "sent an unknown packet. Either he has a newer version or he is a hacker.");
-            //        }
+            else if (packet instanceof S3PacketTest)
+                RankCapesBukkit.log.info(String.format("Test packet from CLIENT: %s with PAYLOAD: %s", player.getName(), ((S3PacketTest) packet).payload));
+            
         }
         catch (Exception e)
         {
@@ -109,22 +100,21 @@ public class PluginPacketHandler implements PluginMessageListener
         
         // get player and add to serving list.
         Player player = event.getPlayer();
-        playersServing.add(player);
+        this.playersServing.add(player);
         
-        PacketCommand packet = new PacketCommand((byte)1);
-        sendPacketToPlayer(player, packet);
+        S3PacketTest packet = new S3PacketTest("Hello there!");
+        this.sendPacketToPlayer(player, packet);
         
-        plugin.log.info("Sent test packet with command: " + packet.command);
+        RankCapesBukkit.log.info("Sent test packet with payload: " + packet.payload);
         
-        //        // send cape server port, so player will connect.
-        //        sendCapeServerPort(player);
-        //        // send all player's capes.
-        //        sendAllPlayerCapes(player);
-        //        // send capes the player has permissions to.
-        //        sendAvailableCapes(player);
-        //        
-        //        // update the other players that there is a new one.
-        //        sendCapeUpdateToClients(player);
+        this.sendCapePack(player);
+        // send all player's capes.
+        this.sendAllPlayerCapes(player);
+        // send capes the player has permissions to.
+        this.sendAvailableCapes(player);
+        //
+        // // update the other players that there is a new one.
+        // sendCapeUpdateToClients(player);
     }
     
     /**
@@ -138,54 +128,72 @@ public class PluginPacketHandler implements PluginMessageListener
         // player that changed world
         Player player = event.getPlayer();
         
-        sendCapeRemovalUpdateToClients(player, event.getFrom());
+        S0PacketPlayerCapesUpdate packetRemove = new S0PacketPlayerCapesUpdate(Type.REMOVE).addPlayer(player.getName(), "");
+        this.sendPacketToWorld(event.getFrom(), packetRemove);
         
         // send all player capes. only sends in same world.
-        sendAllPlayerCapes(player);
+        this.sendAllPlayerCapes(player);
         
         // updates players in the world that there is a new player.
-        sendCapeUpdateToClients(player);
+        this.sendCapeUpdates(player, Type.UPDATE);
     }
     
-    /**
-     * Called when "changeCape" is received from the client.
-     * 
-     * @param packet
-     *            the full message received.
-     * @param player
-     *            the player to update.
-     */
-    private void handleCapeChage(IPacket packet, Player player)
+    public void sendCapePack(Player player)
     {
-        //        // gets cape name by splitting the string. format is command:capename.
-        //        String[] data = packet.split(":");
-        //        
-        //        // checks if the player has the permission to use the cape it wants to.
-        //        if (player.hasPermission("rankcapes.cape.use." + data[1]))
-        //        {
-        //            // player cape from database.
-        //            PlayerCape cape = plugin.getPlayerCape(player);
-        //            
-        //            // if null, make a new one
-        //            if (cape == null)
-        //            {
-        //                cape = new PlayerCape();
-        //                cape.setPlayer(player);
-        //            }
-        //            
-        //            // set cape
-        //            cape.setCapeName(data[1]);
-        //            
-        //            // save the cape in the database.
-        //            plugin.getDatabase().save(cape);
-        //            
-        //            // sends update to clients, including the updated player.
-        //            sendCapeUpdateToClients(player);
-        //        }
-        //        else
-        //        {
-        //            RankCapesBukkit.log.warning("Player" + player.getName() + " tried to set a cape that he does not have access to! ");
-        //        }
+        byte[] pack = plugin.getPack();
+        
+        // chunks the array if necessary.
+        if (pack.length >= Messenger.MAX_MESSAGE_SIZE)
+        {
+            // the chunk size is the max message size minus the size of the 3 bytes used by the
+            // packet.
+            int chunkSize = Messenger.MAX_MESSAGE_SIZE - Byte.SIZE * 3;
+            
+            for (int pos = 0; pos < pack.length; pos += chunkSize)
+            {
+                // makes sure we don't get an overflow exception
+                int toPos = pos + chunkSize > pack.length ? pack.length : pos + chunkSize;
+                byte[] chunk = Arrays.copyOfRange(pack, pos, toPos);
+                
+                S1PacketCapePack packet = new S1PacketCapePack(pack.length, chunk);
+                this.sendPacketToPlayer(player, packet);
+            }
+        }
+        else
+        {
+            S1PacketCapePack packet = new S1PacketCapePack(pack.length, pack);
+            this.sendPacketToPlayer(player, packet);
+        }
+    }
+    
+    private void handleCapeChage(C4PacketUpdateCape packet, Player player)
+    {
+        String capeName = packet.cape;
+        
+        // checks if the player has the permission to use the cape it wants to.
+        if (player.hasPermission("rankcapes.cape.use." + capeName))
+        {
+            // player cape from database.
+            PlayerCape cape = plugin.getPlayerCape(player);
+            
+            // if null, make a new one
+            if (cape == null)
+            {
+                cape = new PlayerCape();
+                cape.setPlayer(player);
+            }
+            
+            // set cape
+            cape.setCapeName(capeName);
+            
+            // save the cape in the database.
+            plugin.getDatabase().save(cape);
+            
+            // sends update to clients, including the updated player.
+            this.sendCapeUpdates(player, Type.UPDATE);
+        }
+        else
+            RankCapesBukkit.log.warning("Player" + player.getName() + " tried to set a cape that he does not have access to! ");
     }
     
     /**
@@ -200,102 +208,34 @@ public class PluginPacketHandler implements PluginMessageListener
         plugin.getDatabase().delete(plugin.getDatabase().find(PlayerCape.class).where().ieq("playerName", player.getName()).findUnique());
         
         // sends update to clients, including the updated player.
-        sendCapeRemovalUpdateToClients(player);
+        this.sendCapeUpdates(player, Type.REMOVE);
     }
     
     /**
-     * Sends the cape pack server port to the given player.
-     * 
-     * @param player
-     *            the player to send the port to.
-     */
-    private void sendCapeServerPort(Player player)
-    {
-        String message = "transmitPort:" + plugin.getCapeServerPort();
-        
-        // send message to player.
-        player.sendPluginMessage(plugin, RankCapesBukkit.PLUGIN_CHANNEL, message.getBytes());
-    }
-    
-    /**
-     * Sends cape removal update to clients in the specified world.
-     * 
-     * @param updatedPlayer
-     *            the player whose cape was removed.
-     * @param playerWorld
-     *            the world in which players are to be updated.
-     */
-    public void sendCapeRemovalUpdateToClients(Player updatedPlayer, World world)
-    {
-        // message to send
-        String message = String.format("removeCapeUpdate:%s", updatedPlayer.getName());
-        // loop through the players this plugin is serving.
-        for (Player iteratorPlayer : playersServing)
-        {
-            // player is the same world as the
-            if (world.getPlayers().contains(iteratorPlayer))
-            {
-                // send message to player
-                iteratorPlayer.sendPluginMessage(plugin, RankCapesBukkit.PLUGIN_CHANNEL, message.getBytes());
-            }
-        }
-    }
-    
-    /**
-     * Sends cape removal update to clients in the same world as the updated
-     * player.
-     * 
-     * @param updatedPlayer
-     *            the player whose cape was removed.
-     */
-    public void sendCapeRemovalUpdateToClients(Player updatedPlayer)
-    {
-        this.sendCapeRemovalUpdateToClients(updatedPlayer, updatedPlayer.getWorld());
-    }
-    
-    /**
-     * Sends an update to all the players in the same world as the updated
-     * player.
+     * Sends a cape update of the given player to the world the player is in.
      * 
      * @param updatedPlayer
      */
-    public void sendCapeUpdateToClients(Player updatedPlayer)
+    public void sendCapeUpdates(Player updated, Type type)
     {
         // player cape entry form database.
-        PlayerCape cape = plugin.getPlayerCape(updatedPlayer);
+        PlayerCape cape = plugin.getPlayerCape(updated);
         
         // if its null then no use updating.
-        if (cape == null)
+        if (cape == null && type == Type.UPDATE)
             return;
         
-        String message = String.format("playerCapeUpdate:%s,%s", updatedPlayer.getName(), cape.getCapeName());
+        S0PacketPlayerCapesUpdate packet = new S0PacketPlayerCapesUpdate(type);
+        packet.addPlayer(cape);
         
-        // loop through the players this plugin is serving.
-        for (Player iteratorPlayer : playersServing)
-        {
-            // if iteratorPlayer is in the same world as updatedPlayer
-            if (updatedPlayer.getWorld().getPlayers().contains(iteratorPlayer))
-            {
-                // send message to player
-                iteratorPlayer.sendPluginMessage(plugin, RankCapesBukkit.PLUGIN_CHANNEL, message.getBytes());
-            }
-        }
+        this.sendPacketToWorld(updated.getWorld(), packet);
     }
     
-    /**
-     * Sends all the current capes belonging to players in the given player's
-     * world, to the given player.
-     * 
-     * @param player
-     *            to send to
-     */
     public void sendAllPlayerCapes(Player player)
     {
-        String message = "allPlayerCapes:";
+        S0PacketPlayerCapesUpdate packet = new S0PacketPlayerCapesUpdate(Type.UPDATE);
         
-        // loop through the players this plugin is serving.
-        for (Player iteratorPlayer : playersServing)
-        {
+        for (Player iteratorPlayer : this.playersServing)
             // if iteratorPlayer is in the same world as updatedPlayer
             if (player.getWorld().getPlayers().contains(iteratorPlayer))
             {
@@ -304,14 +244,10 @@ public class PluginPacketHandler implements PluginMessageListener
                 
                 // if not null then add it to the list.
                 if (cape != null)
-                {
-                    message += String.format("%s,%s|", iteratorPlayer.getName(), cape.getCapeName());
-                }
+                    packet.addPlayer(cape);
             }
-        }
         
-        // send message to player.
-        player.sendPluginMessage(plugin, RankCapesBukkit.PLUGIN_CHANNEL, message.getBytes());
+        this.sendPacketToPlayer(player, packet);
     }
     
     /**
@@ -321,19 +257,12 @@ public class PluginPacketHandler implements PluginMessageListener
      */
     public void sendAvailableCapes(Player player)
     {
-        String message = "availableCapes:";
-        
         // available capes to player.
-        List<String> capes = getAvailableCapes(player);
-        
-        // make list into comma separated string.
-        for (String cape : capes)
-        {
-            message += String.format("%s,", cape);
-        }
+        List<String> capes = this.getAvailableCapes(player);
+        S2PacketAvailableCapes packet = new S2PacketAvailableCapes(capes);
         
         // send message to player
-        player.sendPluginMessage(plugin, RankCapesBukkit.PLUGIN_CHANNEL, message.getBytes());
+        this.sendPacketToPlayer(player, packet);
     }
     
     /**
@@ -349,13 +278,9 @@ public class PluginPacketHandler implements PluginMessageListener
         
         // loop through all available capes.
         for (String cape : plugin.getAvailableCapes())
-        {
             // find if player has the permission node to use that cape.
             if (player.hasPermission("rankcapes.cape.use." + cape))
-            {
                 capes.add(cape);
-            }
-        }
         
         return capes;
     }
@@ -369,23 +294,38 @@ public class PluginPacketHandler implements PluginMessageListener
      */
     public void removeServingPlayer(Player player)
     {
-        playersServing.remove(player);
+        this.playersServing.remove(player);
     }
     
     public void sendPacketToPlayer(Player player, PacketBase packet)
     {
         try
         {
-            PacketManager packetManager = PacketManager.instance();
+            PacketManager packetManager = PacketManager.INSTANCE;
             byte[] bytes = packetManager.getBytesFromPacket(packet);
             
             player.sendPluginMessage(plugin, RankCapesBukkit.PLUGIN_CHANNEL, bytes);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             RankCapesBukkit.log.severe(String.format("Exception while writing and sending %s packet to player %s", packet.getClass().getSimpleName(), player.getName()));
             e.printStackTrace();
         }
     }
     
+    public void sendPacketToWorld(World world, PacketBase packet)
+    {
+        try
+        {
+            PacketManager packetManager = PacketManager.INSTANCE;
+            byte[] bytes = packetManager.getBytesFromPacket(packet);
+            
+            world.sendPluginMessage(plugin, RankCapesBukkit.PLUGIN_CHANNEL, bytes);
+        }
+        catch (Exception e)
+        {
+            RankCapesBukkit.log.severe(String.format("Exception while writing and sending %s packet to world %s", packet.getClass().getSimpleName(), world.getName()));
+            e.printStackTrace();
+        }
+    }
 }

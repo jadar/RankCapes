@@ -8,6 +8,9 @@
 
 package com.jadarstudios.rankcapes.forge.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 
@@ -22,29 +25,30 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class KeyEventHandler
+public enum KeyEventHandler
 {
+    INSTANCE;
     
     private static final Minecraft mc = Minecraft.getMinecraft();
     
-    private KeyBinding keyBinding;
+    private List<KeyBinding> keyBindings;
     
-    public KeyEventHandler()
+    private KeyEventHandler()
     {
-        keyBinding = new KeyBinding("rankcapes.key.1", Keyboard.KEY_C, "key.categories.misc");
-        ClientRegistry.registerKeyBinding(keyBinding);
+        this.keyBindings = new ArrayList<KeyBinding>();
+        this.keyBindings.add(new KeyBinding("rankcapes.key.1", 'c', "key.categories.misc"));
+        
+        for (KeyBinding binding : this.keyBindings)
+            ClientRegistry.registerKeyBinding(binding);
     }
     
     @SubscribeEvent
-    public void keyUp(KeyInputEvent event)
+    public void key(KeyInputEvent event)
     {
-        char key = Keyboard.getEventCharacter();
-        boolean keyState = Keyboard.getEventKeyState();
-
-        if (key == keyBinding.getKeyCode())
-        {
-            if(!keyState)
-            {
+        int key = Keyboard.getEventCharacter();
+        
+        for (KeyBinding binding : this.keyBindings)
+            if (key == binding.getKeyCode())
                 // if no screen up, open gui.
                 if (mc.currentScreen == null)
                 {
@@ -52,15 +56,12 @@ public class KeyEventHandler
                     mc.displayGuiScreen(new GuiCapeSelect());
                     return;
                 }
-                // if our gui is up, close it.
-                if (mc.currentScreen instanceof GuiCapeSelect)
+                else if (mc.currentScreen instanceof GuiCapeSelect)
                 {
                     // System.out.println("Close Screen");
                     mc.displayGuiScreen(null);
                     return;
                 }
-            }
-        }
     }
     
 }

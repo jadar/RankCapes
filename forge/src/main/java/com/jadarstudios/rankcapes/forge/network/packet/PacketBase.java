@@ -5,7 +5,9 @@ import io.netty.buffer.ByteBuf;
 public abstract class PacketBase
 {
     
-    public PacketBase() {}
+    public PacketBase()
+    {
+    }
     
     public abstract void write(ByteBuf data);
     
@@ -25,5 +27,5 @@ public abstract class PacketBase
         data.readBytes(stringBytes);
         
         return new String(stringBytes);
-    }   
+    }
 }

@@ -1,6 +1,6 @@
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
-import io.netty.buffer.ByteBuf;
+import java.nio.ByteBuffer;
 
 /**
  * Abstract class for packets coming from the server.
@@ -12,5 +12,7 @@ public abstract class PacketServer extends PacketBase
     
     // "implemets" this so that child classes dont need to.
     @Override
-    public final void write(ByteBuf data) {}
+    public final void read(ByteBuffer data)
+    {
+    }
 }

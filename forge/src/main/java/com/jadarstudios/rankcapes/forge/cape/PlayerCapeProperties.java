@@ -8,7 +8,7 @@ import net.minecraftforge.common.IExtendedEntityProperties;
 
 public class PlayerCapeProperties implements IExtendedEntityProperties
 {
-
+    
     public static final String IDENTIFIER = "rankcapes_data";
     
     ICape playerCape;
@@ -24,30 +24,30 @@ public class PlayerCapeProperties implements IExtendedEntityProperties
     {
         this.player = player;
     }
-
+    
     @Override
     public void init(Entity entity, World world)
     {
-        if(entity instanceof AbstractClientPlayer)
-        {
-            this.playerCape = new StaticCape("DEFAULT", ((AbstractClientPlayer) entity).getTextureCape());
-        }
     }
     
     public void setCape(ICape cape)
     {
         this.playerCape = cape;
     }
-
+    
     public ICape getCape()
     {
         return this.playerCape;
     }
     
     @Override
-    public void saveNBTData(NBTTagCompound compound) {}
-
+    public void saveNBTData(NBTTagCompound compound)
+    {
+    }
+    
     @Override
-    public void loadNBTData(NBTTagCompound compound) {}
+    public void loadNBTData(NBTTagCompound compound)
+    {
+    }
     
 }

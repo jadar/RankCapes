@@ -10,10 +10,7 @@ import com.jadarstudios.rankcapes.forge.network.packet.S3PacketTest;
 public enum PacketType
 {
     // server packets
-    PLAYER_CAPES_UPDATE(S0PacketPlayerCapesUpdate.class),
-    CAPE_PACK(S1PacketCapePack.class),
-    AVAILABLE_CAPES(S2PacketAvailableCapes.class),
-    TEST_PACKET(S3PacketTest.class),
+    PLAYER_CAPES_UPDATE(S0PacketPlayerCapesUpdate.class), CAPE_PACK(S1PacketCapePack.class), AVAILABLE_CAPES(S2PacketAvailableCapes.class), TEST_PACKET(S3PacketTest.class),
     
     // client packets
     UPDATE_CAPE(C4PacketUpdateCape.class);
@@ -27,7 +24,7 @@ public enum PacketType
     
     public Class<? extends PacketBase> getPacketClass()
     {
-        return packetClass;
+        return this.packetClass;
     }
     
 }

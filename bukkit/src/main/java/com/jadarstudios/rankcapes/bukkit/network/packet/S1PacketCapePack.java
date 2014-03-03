@@ -1,23 +1,34 @@
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
-import io.netty.buffer.ByteBuf;
+import java.nio.ByteBuffer;
 
 public class S1PacketCapePack extends PacketServer
 {
- 
-    public byte[] packBytes;
-
-    public S1PacketCapePack() {}
     
-    public S1PacketCapePack(byte[] packBytes)
+    public int packSize;
+    public byte[] packBytes;
+    
+    public S1PacketCapePack()
     {
+    }
+    
+    public S1PacketCapePack(int packSize, byte[] packBytes)
+    {
+        this.packSize = packSize;
         this.packBytes = packBytes;
     }
-
+    
     @Override
-    public void read(ByteBuf data)
+    public void write(ByteBuffer data)
     {
-        int length = data.readInt();
-        packBytes = data.readBytes(length).array();
+        data.putInt(this.packSize);
+        data.putInt(this.packBytes.length);
+        data.put(this.packBytes);
+    }
+    
+    @Override
+    public int getSize()
+    {
+        return this.packBytes.length + Integer.bitCount(this.packSize);
     }
 }

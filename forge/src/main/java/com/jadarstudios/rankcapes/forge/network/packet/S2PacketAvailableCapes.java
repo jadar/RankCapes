@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.jadarstudios.rankcapes.forge.RankCapesForge;
 
 public class S2PacketAvailableCapes extends PacketServer
 {
@@ -15,12 +17,26 @@ public class S2PacketAvailableCapes extends PacketServer
     @Override
     public void read(ByteBuf data)
     {
-        capes = readString(data);
+        this.capes = this.readString(data);
     }
     
+    @SuppressWarnings("unchecked")
     public List<String> getCapes()
     {
-        return (new Gson()).fromJson(this.capes, ArrayList.class); 
+        List<String> capes = null;
+        
+        try
+        {
+            capes = new Gson().fromJson(this.capes, ArrayList.class);
+        }
+        catch (JsonSyntaxException e)
+        {
+            RankCapesForge.log.error(String.format("Error while parsing JSON for packet %s", this.getClass().getSimpleName()));
+            RankCapesForge.log.error(this.capes);
+            e.printStackTrace();
+        }
+        
+        return capes;
     }
     
 }

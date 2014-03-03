@@ -1,26 +1,35 @@
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
-import io.netty.buffer.ByteBuf;
-
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
 import java.util.List;
 
-import com.google.gson.Gson;
+import org.json.simple.JSONArray;
 
 public class S2PacketAvailableCapes extends PacketServer
 {
     
     protected String capes;
     
-    @Override
-    public void read(ByteBuf data)
+    public S2PacketAvailableCapes(List<String> capes)
     {
-        capes = readString(data);
+        this.setCapes(capes);
     }
     
-    public List<String> getCapes()
+    @Override
+    public void write(ByteBuffer data)
     {
-        return (new Gson()).fromJson(this.capes, ArrayList.class); 
+        writeString(this.capes, data);
+    }
+    
+    public void setCapes(List<String> capes)
+    {
+        this.capes = JSONArray.toJSONString(capes);
+    }
+    
+    @Override
+    public int getSize()
+    {
+        return this.capes.getBytes().length;
     }
     
 }

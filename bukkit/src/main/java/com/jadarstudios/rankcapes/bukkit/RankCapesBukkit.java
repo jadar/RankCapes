@@ -32,118 +32,82 @@ import org.mcstats.MetricsLite;
 import com.jadarstudios.rankcapes.bukkit.command.CommandTestPacket;
 import com.jadarstudios.rankcapes.bukkit.command.MyCapeCommand;
 import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
-import com.jadarstudios.rankcapes.bukkit.network.CapePackServerListenThread;
 import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
 
 /**
  * Handles all player event. Usually just passes them off to the PacketHandler.
- *
+ * 
  * @author Jadar
- *
+ * 
  */
 public class RankCapesBukkit extends JavaPlugin
 {
-    
     private static RankCapesBukkit INSTANCE;
-    /**
-     * The channel to use to exchange messages with the client.
-     */
+    
     public static final String PLUGIN_CHANNEL = "rankcapes";
     
-    /**
-     * Used to log messages.
-     */
     public static Logger log;
     
-    /**
-     * Cape page file name from config file.
-     */
     private String capePackName = "";
     
-    /**
-     * Cape pack zip bytes.
-     */
     private byte[] capePack = null;
     
-    /**
-     * Server port to listen for connections on.
-     */
     private int capeServerPort;
     
-    /**
-     * CapePackServerListenThread instance.
-     */
-    private CapePackServerListenThread listenThread;
-    
-    /**
-     * plugin's packet handler instance
-     */
     private PluginPacketHandler packetHandler;
     
-    /**
-     * all capes that are available.
-     */
     private List<String> availableCapes;
     
     @Override
-    /**
-     * Called when the plugin is enabled.
-     */
     public void onEnable()
     {
         INSTANCE = this;
         
         // initializes the availableCapes list.
-        availableCapes = new ArrayList<String>();
+        this.availableCapes = new ArrayList<String>();
         
         // sets up the logger.
-        log = getLogger();
+        log = this.getLogger();
         
         // makes the plugin data folder if necessary.
-        getDataFolder().mkdir();
+        this.getDataFolder().mkdir();
         
         // sets up the config.
-        setupConfig();
+        this.setupConfig();
         
         // sets up the plugin metrics/stats (MCStats.org)
-        setupMetrics();
+        this.setupMetrics();
         
         // registers the communication channels with bukkit.
-        registerChannels();
+        this.registerChannels();
         
         // sets up the plugin database.
-        setupDatabase();
+        this.setupDatabase();
         
         // sets up test command.
-        getCommand("mycape").setExecutor(new MyCapeCommand(this));
-        getCommand("testpacket").setExecutor(new CommandTestPacket(this));
+        this.getCommand("mycape").setExecutor(new MyCapeCommand(this));
+        this.getCommand("testpacket").setExecutor(new CommandTestPacket(this));
         
         // loads cape pack into the capePack fild.
-        setupCapePack();
-        if (capePack == null)
+        this.loadCapePack();
+        if (this.capePack == null)
         {
-            log.severe("Cape Pack is null! It is either an invalid ZIP file or does not exist!");
-            disable();
+            log.severe("Cape Pack not found! It is either an invalid ZIP file or does not exist!");
+            this.disable();
             return;
         }
         
         // checks if the pack has a pack.mcmeta in the zip.
-        boolean valid = validatePack(capePack);
+        boolean valid = this.validatePack(this.capePack);
         if (!valid)
         {
-            log.severe("Cape Pack is invalid! Either the pack.mcmeta file is missing or the file is corrupt.");
-            disable();
+            log.severe("Cape Pack is not valid! Either the pack.mcmeta file is missing or the file is corrupt.");
+            this.disable();
             return;
         }
         
-        // creates and starts the listening thread.
-        listenThread = new CapePackServerListenThread(this, capeServerPort);
-        listenThread.setDaemon(true);
-        listenThread.setName("RankCapes Cape Pack Server");
-        listenThread.start();
-        
         // registers the player event hander.
-        getServer().getPluginManager().registerEvents(new PlayerEventHandler(this), this);
+        this.getServer().getPluginManager().registerEvents(PlayerEventHandler.INSTANCE, this);
         
         log.info("RankCapes Initialized!");
     }
@@ -154,10 +118,9 @@ public class RankCapesBukkit extends JavaPlugin
     private void setupConfig()
     {
         // makes default config file if its not already there.
-        saveDefaultConfig();
+        this.saveDefaultConfig();
         
-        capePackName = getConfig().getString("cape-pack");
-        capeServerPort = getConfig().getInt("port");
+        this.capePackName = this.getConfig().getString("cape-pack");
     }
     
     /**
@@ -170,11 +133,11 @@ public class RankCapesBukkit extends JavaPlugin
             MetricsLite metrics = new MetricsLite(this);
             metrics.start();
         }
-        catch(IOException e)
+        catch (IOException e)
         {
             ;
         }
-        catch(NoClassDefFoundError e)
+        catch (NoClassDefFoundError e)
         {
             ;
         }
@@ -185,12 +148,12 @@ public class RankCapesBukkit extends JavaPlugin
         try
         {
             // finds if database exists.
-            getDatabase().find(PlayerCape.class).findRowCount();
+            this.getDatabase().find(PlayerCape.class).findRowCount();
         }
         catch (PersistenceException ex)
         {
-            log.info("Installing database for " + getDescription().getName() + " due to first time usage");
-            installDDL();
+            log.info("Installing database for " + this.getDescription().getName() + " due to first time usage");
+            this.installDDL();
         }
     }
     
@@ -198,48 +161,42 @@ public class RankCapesBukkit extends JavaPlugin
      * Reads the cape pack into the capePack byte array to be sent to the
      * client.
      */
-    private void setupCapePack()
+    private void loadCapePack()
     {
         // location of the cape pack.
-        File tmpFile = new File(getDataFolder() + "/" + capePackName);
+        File file = new File(this.getDataFolder() + "/" + this.capePackName);
         
-        if (tmpFile.isDirectory())
+        if (file.isDirectory())
         {
-            log.severe("Error parsing Cape Pack: Cape Pack " + tmpFile.getName() + " is a directory, not a file.");
+            log.severe("Error parsing Cape Pack: Cape Pack " + file.getName() + " is a directory, not a file.");
             return;
         }
         
         // copies default capes.zip to the plugin folder
-        if (!tmpFile.exists())
-        {
-            saveResource("capes.zip", false);
-        }
+        if (!file.exists())
+            this.saveResource("capes.zip", false);
         
-        log.info("Loading cape pack: " + tmpFile.getName());
-        
-        // if file size of cape pack is greater than 5 mb then return.
-        if (tmpFile.length() > 5242880)
-            return;
+        log.info("Loading cape pack: " + file.getName());
         
         // read cape pack from the RankCapes folder.
         try
         {
-            FileInputStream tmpFileIn = new FileInputStream(tmpFile);
-            capePack = new byte[(int) tmpFile.length()];
+            FileInputStream tmpFileIn = new FileInputStream(file);
+            this.capePack = new byte[(int) file.length()];
             
-            tmpFileIn.read(capePack);
+            tmpFileIn.read(this.capePack);
             tmpFileIn.close();
         }
         catch (FileNotFoundException e)
         {
             e.printStackTrace();
-            log.severe("Error parsing Cape Pack: Could not find the cape pack file " + tmpFile.getName());
+            log.severe("Error parsing Cape Pack: Could not find the cape pack file " + file.getName());
             return;
         }
         catch (IOException e)
         {
             e.printStackTrace();
-            log.severe("Error parsing Cape Pack: There was an error while loading " + tmpFile.getName());
+            log.severe("Error parsing Cape Pack: There was an error while loading " + file.getName());
             return;
         }
     }
@@ -253,10 +210,10 @@ public class RankCapesBukkit extends JavaPlugin
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, PLUGIN_CHANNEL);
         
         // declare new packet handler
-        packetHandler = PluginPacketHandler.instance();
+        this.packetHandler = PluginPacketHandler.INSTANCE;
         
         // incoming channel.
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, PLUGIN_CHANNEL, packetHandler);
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, PLUGIN_CHANNEL, this.packetHandler);
     }
     
     @Override
@@ -277,11 +234,7 @@ public class RankCapesBukkit extends JavaPlugin
      */
     public void onDisable()
     {
-        if(listenThread != null)
-        {
-        	listenThread.stopAllThreads();
-        	listenThread.stopThread();
-        }
+        
     }
     
     /**
@@ -290,7 +243,7 @@ public class RankCapesBukkit extends JavaPlugin
     public void disable()
     {
         log.info("Disabling!");
-        getServer().getPluginManager().disablePlugin(this);
+        this.getServer().getPluginManager().disablePlugin(this);
     }
     
     /**
@@ -313,15 +266,13 @@ public class RankCapesBukkit extends JavaPlugin
             // reads the zip and finds the files. if the pack config file is not
             // found, return false.
             while ((entry = zipIn.getNextEntry()) != null)
-            {
                 // if the zip contains a file names "pack.mcmeta"
                 if (entry.getName().equals("pack.mcmeta"))
                 {
-                    boolean b = parseMetadata(zipIn);
+                    boolean b = this.parseMetadata(zipIn);
                     zipIn.close();
                     return b;
                 }
-            }
         }
         catch (IOException e)
         {
@@ -344,21 +295,18 @@ public class RankCapesBukkit extends JavaPlugin
     {
         try
         {
-            //JsonRootNode root = parser.parse(new InputStreamReader(input));
+            // JsonRootNode root = parser.parse(new InputStreamReader(input));
             
             Object root = JSONValue.parse(new InputStreamReader(input));
-            JSONObject object = (JSONObject)root;
-           
+            JSONObject object = (JSONObject) root;
             
             // loops through every entry in the base of the JSON file.
             for (Object key : object.keySet())
-            {
-                if(key instanceof String)
+                if (key instanceof String)
                 {
-                    String cape = (String)key;
-                    availableCapes.add(cape);
+                    String cape = (String) key;
+                    this.availableCapes.add(cape);
                 }
-            }
         }
         catch (Exception e)
         {
@@ -376,7 +324,7 @@ public class RankCapesBukkit extends JavaPlugin
      */
     public List<String> getAvailableCapes()
     {
-        return availableCapes;
+        return this.availableCapes;
     }
     
     /**
@@ -386,7 +334,7 @@ public class RankCapesBukkit extends JavaPlugin
      */
     public byte[] getPack()
     {
-        return capePack;
+        return this.capePack;
     }
     
     /**
@@ -398,17 +346,7 @@ public class RankCapesBukkit extends JavaPlugin
      */
     public PlayerCape getPlayerCape(Player player)
     {
-        return getDatabase().find(PlayerCape.class).where().ieq("playerName", player.getName()).findUnique();
-    }
-    
-    /**
-     * Gets the CapePackServerListenThread instance.
-     * 
-     * @return CapePackServerListenThread instance.
-     */
-    public CapePackServerListenThread getListenThread()
-    {
-        return listenThread;
+        return this.getDatabase().find(PlayerCape.class).where().ieq("playerName", player.getName()).findUnique();
     }
     
     /**
@@ -418,7 +356,7 @@ public class RankCapesBukkit extends JavaPlugin
      */
     public int getCapeServerPort()
     {
-        return capeServerPort;
+        return this.capeServerPort;
     }
     
     public static RankCapesBukkit instance()

@@ -3,6 +3,3 @@
 
 # The filename of the cape pack zip.
 cape-pack: capes.zip
-
-# The port to listen for clients on. used to send capes to client. do not set this to your minecraft server port!
-port: 25567

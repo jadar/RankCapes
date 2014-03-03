@@ -11,7 +11,6 @@ package com.jadarstudios.rankcapes.forge;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 
 import org.apache.logging.log4j.LogManager;
@@ -32,51 +31,37 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 @Mod(modid = ModProperties.MOD_ID, name = ModProperties.MOD_NAME, version = ModProperties.MOD_VERSION)
 public class RankCapesForge
 {
-    
     @Instance
     public static RankCapesForge instance;
-      
-    private CapePack capePack = null;
     
-    private final CapeHandler capeHandler;
+    private CapePack capePack = null;
     public List<String> availableCapes;
     
     public static final Logger log = LogManager.getLogger(ModProperties.MOD_NAME);
     
     public RankCapesForge()
     {
-        availableCapes = new ArrayList<String>();
-        capeHandler = new CapeHandler();
+        this.availableCapes = new ArrayList<String>();
     }
     
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
         
-        MinecraftForge.EVENT_BUS.register(new KeyEventHandler());
-        FMLCommonHandler.instance().bus().register(new PlayerEventHandler());
-        MinecraftForge.EVENT_BUS.register(capeHandler);
+        FMLCommonHandler.instance().bus().register(KeyEventHandler.INSTANCE);
+        FMLCommonHandler.instance().bus().register(PlayerEventHandler.INSTANCE);
+        MinecraftForge.EVENT_BUS.register(PlayerEventHandler.INSTANCE);
+        MinecraftForge.EVENT_BUS.register(CapeHandler.instance());
         ClientPacketHandler.instance();
-    }
-    
-    public CapeHandler getCapeHandler()
-    {
-        return capeHandler;
     }
     
     public CapePack getCapePack()
     {
-        return capePack;
+        return this.capePack;
     }
     
-    public synchronized void setCapePack(CapePack pack)
+    public void setCapePack(CapePack pack)
     {
-        capePack = pack;
-    }
-    
-    public static String getCurrentServerAddress()
-    {
-        String address = Minecraft.getMinecraft().getNetHandler().getNetworkManager().getSocketAddress().toString();
-        return address.substring(0, address.lastIndexOf(':')).replace('/', ' ').trim();
+        this.capePack = pack;
     }
 }

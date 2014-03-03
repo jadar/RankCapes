@@ -7,6 +7,8 @@ public abstract class PacketClient extends PacketBase
     
     // "implement" this so child classes don't have to.
     @Override
-    public final void read(ByteBuf data) {}
+    public final void read(ByteBuf data)
+    {
+    }
     
 }

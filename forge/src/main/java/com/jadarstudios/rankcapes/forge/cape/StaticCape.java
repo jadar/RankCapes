@@ -8,38 +8,38 @@
 
 package com.jadarstudios.rankcapes.forge.cape;
 
-import net.minecraft.client.Minecraft;
+import java.awt.image.BufferedImage;
+
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.renderer.ThreadDownloadImageData;
+import net.minecraft.client.renderer.texture.TextureUtil;
 
 public class StaticCape implements ICape
 {
     
-    protected ITextureObject capeData;
+    protected BufferedImage capeImage;
     protected String name;
     
-    public StaticCape(String name, ITextureObject parCapeData)
+    public StaticCape(String name, BufferedImage capeImage)
     {
-        capeData = parCapeData;
+        this.capeImage = new HDImageBuffer().parseUserSkin(capeImage);
+        this.name = name;
     }
     
     @Override
-    public ITextureObject getCapeTexture()
+    public BufferedImage getCapeTexture()
     {
-        return capeData;
+        return this.capeImage;
     }
-
     
     @Override
     public void loadTexture(AbstractClientPlayer player)
     {
-//        if (!loadedTexture)
-//        {
-           // loadedTexture = 
-        Minecraft.getMinecraft().getTextureManager().loadTexture(player.getLocationCape(), getCapeTexture());
-//        }
+        ThreadDownloadImageData data = player.getTextureCape();
+        data.setBufferedImage(this.capeImage);
+        TextureUtil.uploadTextureImage(data.getGlTextureId(), this.capeImage);
     }
-
+    
     @Override
     public String getName()
     {

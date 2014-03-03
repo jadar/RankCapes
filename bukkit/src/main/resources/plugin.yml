@@ -1,5 +1,5 @@
 name: RankCapes
-version: alpha1
+version: ${version}
 description: Give capes to the different rank groups on your server!
 author: Jadar
 website: http://www.jadarstudios.com/

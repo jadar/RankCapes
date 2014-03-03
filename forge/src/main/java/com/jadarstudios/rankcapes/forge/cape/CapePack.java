@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,11 +48,6 @@ public class CapePack
      */
     private static Gson parser = new Gson();
     
-    /**
-     * The server address that this cape pack belongs to.
-     */
-    private String serverAddress = "";
-    
     /** map of filenames (no extension) to static capes. */
     private HashMap<String, StaticCape> unprocessedCapes;
     /** processed capes based on the metadata. */
@@ -63,14 +59,12 @@ public class CapePack
      * @param input
      *            bytes of a valid zip file.
      */
-    public CapePack(String address, byte[] input)
+    public CapePack(byte[] input)
     {
-        serverAddress = address;
+        this.unprocessedCapes = new HashMap<String, StaticCape>();
+        this.processedCapes = new HashMap<String, ICape>();
         
-        unprocessedCapes = new HashMap<String, StaticCape>();
-        processedCapes = new HashMap<String, ICape>();
-        
-        parsePack(input);
+        this.parsePack(input);
     }
     
     /**
@@ -91,32 +85,27 @@ public class CapePack
             while ((entry = zipInput.getNextEntry()) != null)
             {
                 String name = entry.getName();
+                // System.out.println(name);
                 if (name.endsWith(".png"))
                 {
                     // remove file extension from the name.
                     name = FilenameUtils.removeExtension(name);
                     
-                    StaticCape cape = loadCape(name, zipInput);
-                    unprocessedCapes.put(name, cape);
+                    StaticCape cape = this.loadCape(name, zipInput);
+                    this.unprocessedCapes.put(name, cape);
                 }
                 else if (name.endsWith(".mcmeta"))
                 {
                     // parses the pack metadata.
                     InputStreamReader streamReader = new InputStreamReader(zipInput);
                     while (streamReader.ready())
-                    {
                         metadata += (char) streamReader.read();
-                    }
                 }
             }
             if (!Strings.isNullOrEmpty(metadata))
-            {
-                parsePackMetadata(StringUtils.remove(metadata, (char) 65535));
-            }
+                this.parsePackMetadata(StringUtils.remove(metadata, (char) 65535));
             else
-            {
                 RankCapesForge.log.warn("Cape Pack metadata is missing!");
-            }
         }
         catch (IOException e)
         {
@@ -142,16 +131,11 @@ public class CapePack
             {
                 String name = n.getKey();
                 Object value = n.getValue();
-
+                
                 if (value instanceof Map)
-                {
-                    
-                    parseAnimatedCapeNode(name, (Map)value);
-                }
+                    this.parseAnimatedCapeNode(name, (Map) value);
                 else if (value instanceof String)
-                {
-                    parseStaticCapeNode(name, (String)value);
-                }
+                    this.parseStaticCapeNode(name, (String) value);
             }
         }
         catch (Exception e)
@@ -171,29 +155,29 @@ public class CapePack
         Object framesObj = node.get("frames");
         Object fpsObj = node.get("fps");
         
-        if(framesObj instanceof String[] && fpsObj instanceof Integer)
-        { 
-            String[] frames = (String[])framesObj;
-            int fps = (Integer)fpsObj;
+        if (framesObj instanceof ArrayList && fpsObj instanceof Double)
+        {
+            @SuppressWarnings("unchecked")
+            ArrayList<Object> frames = (ArrayList<Object>) framesObj;
+            int fps = ((Double) fpsObj).intValue();
             
             AnimatedCape cape = new AnimatedCape(name, fps);
             
-            for (String frame : frames)
-            {
-                String fileName = FilenameUtils.removeExtension(frame);
-                if (!Strings.isNullOrEmpty(fileName))
+            for (Object frameObj : frames)
+                if (frameObj instanceof String)
                 {
-                    if (unprocessedCapes.containsKey(fileName))
-                
-                    {
-                        cape.addFrame(unprocessedCapes.get(fileName));
-                    }
-            
+                    String frame = (String) frameObj;
+                    
+                    String fileName = FilenameUtils.removeExtension(frame);
+                    if (!Strings.isNullOrEmpty(fileName))
+                        if (this.unprocessedCapes.containsKey(fileName))
+                            cape.addFrame(this.unprocessedCapes.get(fileName));
                 }
-            }
             
-            processedCapes.put(name, cape);
+            this.processedCapes.put(name, cape);
         }
+        else
+            RankCapesForge.log.warn("Well shit..");
     }
     
     /**
@@ -208,10 +192,10 @@ public class CapePack
     {
         String rankName = name;
         String fileName = FilenameUtils.removeExtension(capeFile);
-        if (unprocessedCapes.containsKey(fileName))
+        if (this.unprocessedCapes.containsKey(fileName))
         {
-            StaticCape cape = unprocessedCapes.get(fileName).setName(rankName);
-            processedCapes.put(rankName, cape);
+            StaticCape cape = this.unprocessedCapes.get(fileName).setName(rankName);
+            this.processedCapes.put(rankName, cape);
         }
     }
     
@@ -229,11 +213,10 @@ public class CapePack
     {
         // removes extension just in case.
         name = FilenameUtils.removeExtension(name).trim();
-
-        BufferedImage image = ImageIO.read(imageInput);
-        BufferedImageTexture loadImageData = new BufferedImageTexture(image);
         
-        return new StaticCape(name, loadImageData);
+        BufferedImage image = ImageIO.read(imageInput);
+        
+        return new StaticCape(name, image);
     }
     
     /**
@@ -245,17 +228,7 @@ public class CapePack
      */
     public ICape getCape(String capeName)
     {
-        return processedCapes.get(capeName);
-    }
-    
-    /**
-     * Gets the server address that this cape pack belongs to.
-     * 
-     * @return
-     */
-    public String getServerAddress()
-    {
-        return serverAddress;
+        return this.processedCapes.get(capeName);
     }
     
     /**
@@ -264,10 +237,8 @@ public class CapePack
     public void printCapeKeys()
     {
         System.out.println("\n\n\n");
-        for (String s : processedCapes.keySet())
-        {
+        for (String s : this.processedCapes.keySet())
             System.out.println(String.format("Print Cape: %s", s));
-        }
         System.out.println("\n\n\n");
     }
 }

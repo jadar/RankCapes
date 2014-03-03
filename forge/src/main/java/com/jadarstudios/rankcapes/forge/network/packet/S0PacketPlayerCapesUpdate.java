@@ -2,8 +2,7 @@ package com.jadarstudios.rankcapes.forge.network.packet;
 
 import io.netty.buffer.ByteBuf;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
@@ -21,24 +20,24 @@ public class S0PacketPlayerCapesUpdate extends PacketServer
             byte typeByte = data.readByte();
             this.type = Type.values()[typeByte];
             
-            this.players = readString(data);
+            this.players = this.readString(data);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             RankCapesForge.log.error("Exception while reading PacketCapeUpdate packet.");
             e.printStackTrace();
         }
     }
     
-    public List<String> getPlayers()
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getPlayers()
     {
-        return (new Gson()).fromJson(this.players, ArrayList.class);  
+        return new Gson().fromJson(this.players, Map.class);
     }
     
     public static enum Type
     {
-        UPDATE,
-        REMOVE;
+        UPDATE, REMOVE;
     }
     
 }
