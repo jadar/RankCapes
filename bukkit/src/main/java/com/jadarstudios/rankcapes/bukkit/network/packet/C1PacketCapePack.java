@@ -2,17 +2,17 @@ package com.jadarstudios.rankcapes.bukkit.network.packet;
 
 import java.nio.ByteBuffer;
 
-public class S1PacketCapePack extends PacketServer
+public class C1PacketCapePack extends PacketClient
 {
     
     public int packSize;
     public byte[] packBytes;
     
-    public S1PacketCapePack()
+    public C1PacketCapePack()
     {
     }
     
-    public S1PacketCapePack(int packSize, byte[] packBytes)
+    public C1PacketCapePack(int packSize, byte[] packBytes)
     {
         this.packSize = packSize;
         this.packBytes = packBytes;

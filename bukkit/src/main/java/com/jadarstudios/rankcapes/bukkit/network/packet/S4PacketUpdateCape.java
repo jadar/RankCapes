@@ -8,12 +8,12 @@ import java.nio.ByteBuffer;
  * 
  * @author Jadar
  */
-public class C4PacketUpdateCape extends PacketClient
+public class S4PacketUpdateCape extends PacketServer
 {
     public Type updateType;
     public String cape;
     
-    public C4PacketUpdateCape()
+    public S4PacketUpdateCape()
     {
     }
     
@@ -22,12 +22,12 @@ public class C4PacketUpdateCape extends PacketClient
      * 
      * @param cape
      */
-    public C4PacketUpdateCape(String cape)
+    public S4PacketUpdateCape(String cape)
     {
         this(Type.UPDATE, cape);
     }
     
-    public C4PacketUpdateCape(Type updateType, String cape)
+    public S4PacketUpdateCape(Type updateType, String cape)
     {
         this.updateType = updateType;
         this.cape = cape;

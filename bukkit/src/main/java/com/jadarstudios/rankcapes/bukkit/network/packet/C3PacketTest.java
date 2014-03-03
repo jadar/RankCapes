@@ -2,16 +2,16 @@ package com.jadarstudios.rankcapes.bukkit.network.packet;
 
 import java.nio.ByteBuffer;
 
-public class S3PacketTest extends PacketBase
+public class C3PacketTest extends PacketBase
 {
     
     public String payload = "";
     
-    public S3PacketTest()
+    public C3PacketTest()
     {
     }
     
-    public S3PacketTest(String payload)
+    public C3PacketTest(String payload)
     {
         this.payload = payload;
     }

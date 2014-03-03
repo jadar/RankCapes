@@ -29,12 +29,11 @@ public class AnimatedCape implements ICape
     int framesPerSecond = 0;
     int currentFrame = 0;
     
-    // elapsed time in ticks.
+    // elapsed time in milliseconds.
     long elapsedTime = 0;
-    // time since update in ticks.
     long lastElapsedTime = 0;
     
-    boolean pause = false;
+    public boolean pause = false;
     
     protected String name;
     

@@ -29,7 +29,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mcstats.MetricsLite;
 
-import com.jadarstudios.rankcapes.bukkit.command.CommandTestPacket;
 import com.jadarstudios.rankcapes.bukkit.command.MyCapeCommand;
 import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
 import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
@@ -43,18 +42,12 @@ import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
 public class RankCapesBukkit extends JavaPlugin
 {
     private static RankCapesBukkit INSTANCE;
+    public static Logger log;
     
     public static final String PLUGIN_CHANNEL = "rankcapes";
     
-    public static Logger log;
-    
     private String capePackName = "";
-    
     private byte[] capePack = null;
-    
-    private int capeServerPort;
-    
-    private PluginPacketHandler packetHandler;
     
     private List<String> availableCapes;
     
@@ -86,7 +79,7 @@ public class RankCapesBukkit extends JavaPlugin
         
         // sets up test command.
         this.getCommand("mycape").setExecutor(new MyCapeCommand(this));
-        this.getCommand("testpacket").setExecutor(new CommandTestPacket(this));
+        //this.getCommand("testpacket").setExecutor(new CommandTestPacket(this));
         
         // loads cape pack into the capePack fild.
         this.loadCapePack();
@@ -209,11 +202,11 @@ public class RankCapesBukkit extends JavaPlugin
         // outgoing channel
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, PLUGIN_CHANNEL);
         
-        // declare new packet handler
-        this.packetHandler = PluginPacketHandler.INSTANCE;
+        // 'get' the packet handler orginal to initialize it.
+        PluginPacketHandler.INSTANCE.ordinal();
         
         // incoming channel.
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, PLUGIN_CHANNEL, this.packetHandler);
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, PLUGIN_CHANNEL, PluginPacketHandler.INSTANCE);
     }
     
     @Override
@@ -234,7 +227,7 @@ public class RankCapesBukkit extends JavaPlugin
      */
     public void onDisable()
     {
-        
+        Bukkit.getMessenger().unregisterIncomingPluginChannel(this, PLUGIN_CHANNEL);
     }
     
     /**
@@ -347,16 +340,6 @@ public class RankCapesBukkit extends JavaPlugin
     public PlayerCape getPlayerCape(Player player)
     {
         return this.getDatabase().find(PlayerCape.class).where().ieq("playerName", player.getName()).findUnique();
-    }
-    
-    /**
-     * Gets the port that the cape server should be hosted on.
-     * 
-     * @return cape port.
-     */
-    public int getCapeServerPort()
-    {
-        return this.capeServerPort;
     }
     
     public static RankCapesBukkit instance()

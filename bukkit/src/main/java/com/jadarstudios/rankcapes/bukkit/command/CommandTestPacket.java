@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import com.jadarstudios.rankcapes.bukkit.RankCapesBukkit;
 import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
 import com.jadarstudios.rankcapes.bukkit.network.packet.PacketBase;
-import com.jadarstudios.rankcapes.bukkit.network.packet.S3PacketTest;
+import com.jadarstudios.rankcapes.bukkit.network.packet.C3PacketTest;
 
 public class CommandTestPacket implements CommandExecutor
 {
@@ -38,7 +38,7 @@ public class CommandTestPacket implements CommandExecutor
             for (int i = 0; i < args.length; i++)
                 s += args[i] + " ";
             
-            PacketBase packet = new S3PacketTest(s);
+            PacketBase packet = new C3PacketTest(s);
             PluginPacketHandler.INSTANCE.sendPacketToPlayer(player, packet);
             
             return true;

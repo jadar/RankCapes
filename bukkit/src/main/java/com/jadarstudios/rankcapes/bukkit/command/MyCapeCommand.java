@@ -8,9 +8,6 @@
 
 package com.jadarstudios.rankcapes.bukkit.command;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,8 +15,6 @@ import org.bukkit.entity.Player;
 
 import com.jadarstudios.rankcapes.bukkit.RankCapesBukkit;
 import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
-import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
-import com.jadarstudios.rankcapes.bukkit.network.packet.S0PacketPlayerCapesUpdate;
 
 /**
  * This is a command that allows players to get their cape name in chat. Used for debug purposes.
@@ -48,12 +43,6 @@ public class MyCapeCommand implements CommandExecutor
             sender.sendMessage("You have no cape.");
         else
             sender.sendMessage("You have the " + p.getCapeName() + " cape.");
-        
-        Map<String, String> map = new HashMap<String, String>();
-        map.put(player.getName(), p.getCapeName());
-        S0PacketPlayerCapesUpdate packet = new S0PacketPlayerCapesUpdate(map);
-        
-        PluginPacketHandler.INSTANCE.sendPacketToPlayer(player, packet);
         
         this.instance.getDatabase().save(p);
         return true;

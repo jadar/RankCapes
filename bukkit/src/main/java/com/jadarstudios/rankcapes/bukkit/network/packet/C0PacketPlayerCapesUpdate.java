@@ -9,17 +9,17 @@ import org.json.simple.JSONValue;
 import com.jadarstudios.rankcapes.bukkit.RankCapesBukkit;
 import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
 
-public class S0PacketPlayerCapesUpdate extends PacketServer
+public class C0PacketPlayerCapesUpdate extends PacketClient
 {
     public Type type;
     public Map<String, String> playersMap;
     
-    public S0PacketPlayerCapesUpdate(Type type)
+    public C0PacketPlayerCapesUpdate(Type type)
     {
         this.type = type;
     }
     
-    public S0PacketPlayerCapesUpdate(Map<String, String> players)
+    public C0PacketPlayerCapesUpdate(Map<String, String> players)
     {
         this.type = Type.UPDATE;
         this.playersMap = players;
@@ -42,12 +42,12 @@ public class S0PacketPlayerCapesUpdate extends PacketServer
         }
     }
     
-    public S0PacketPlayerCapesUpdate addPlayer(PlayerCape cape)
+    public C0PacketPlayerCapesUpdate addPlayer(PlayerCape cape)
     {
         return this.addPlayer(cape.getPlayerName(), cape.getCapeName());
     }
     
-    public S0PacketPlayerCapesUpdate addPlayer(String player, String cape)
+    public C0PacketPlayerCapesUpdate addPlayer(String player, String cape)
     {
         if (this.playersMap == null)
             this.playersMap = new HashMap<String, String>();

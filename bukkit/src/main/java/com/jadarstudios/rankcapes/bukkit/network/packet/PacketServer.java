@@ -12,7 +12,14 @@ public abstract class PacketServer extends PacketBase
     
     // "implemets" this so that child classes dont need to.
     @Override
-    public final void read(ByteBuffer data)
+    public final void write(ByteBuffer data)
     {
+    }
+    
+    // "implement" this so child classes don't have to.
+    @Override
+    public final int getSize()
+    {
+        return 0;
     }
 }

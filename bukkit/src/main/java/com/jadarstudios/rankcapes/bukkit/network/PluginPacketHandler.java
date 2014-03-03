@@ -21,13 +21,13 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import com.jadarstudios.rankcapes.bukkit.RankCapesBukkit;
 import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
-import com.jadarstudios.rankcapes.bukkit.network.packet.C4PacketUpdateCape;
+import com.jadarstudios.rankcapes.bukkit.network.packet.C0PacketPlayerCapesUpdate;
+import com.jadarstudios.rankcapes.bukkit.network.packet.C0PacketPlayerCapesUpdate.Type;
+import com.jadarstudios.rankcapes.bukkit.network.packet.C1PacketCapePack;
+import com.jadarstudios.rankcapes.bukkit.network.packet.C2PacketAvailableCapes;
+import com.jadarstudios.rankcapes.bukkit.network.packet.C3PacketTest;
 import com.jadarstudios.rankcapes.bukkit.network.packet.PacketBase;
-import com.jadarstudios.rankcapes.bukkit.network.packet.S0PacketPlayerCapesUpdate;
-import com.jadarstudios.rankcapes.bukkit.network.packet.S0PacketPlayerCapesUpdate.Type;
-import com.jadarstudios.rankcapes.bukkit.network.packet.S1PacketCapePack;
-import com.jadarstudios.rankcapes.bukkit.network.packet.S2PacketAvailableCapes;
-import com.jadarstudios.rankcapes.bukkit.network.packet.S3PacketTest;
+import com.jadarstudios.rankcapes.bukkit.network.packet.S4PacketUpdateCape;
 
 /**
  * Handles packets sent on the plugin message channel.
@@ -56,15 +56,15 @@ public enum PluginPacketHandler implements PluginMessageListener
             packet = PacketManager.INSTANCE.getPacketFromBytes(bytes);
             
             // handle cape change
-            if (packet instanceof C4PacketUpdateCape)
+            if (packet instanceof S4PacketUpdateCape)
             {
-                C4PacketUpdateCape updatePacket = (C4PacketUpdateCape) packet;
+                S4PacketUpdateCape updatePacket = (S4PacketUpdateCape) packet;
                 
                 switch (updatePacket.updateType)
                 {
                     case UPDATE:
                     {
-                        this.handleCapeChage((C4PacketUpdateCape) packet, player);
+                        this.handleCapeChage((S4PacketUpdateCape) packet, player);
                         break;
                     }
                     case REMOVE:
@@ -74,8 +74,8 @@ public enum PluginPacketHandler implements PluginMessageListener
                     }
                 }
             }
-            else if (packet instanceof S3PacketTest)
-                RankCapesBukkit.log.info(String.format("Test packet from CLIENT: %s with PAYLOAD: %s", player.getName(), ((S3PacketTest) packet).payload));
+            else if (packet instanceof C3PacketTest)
+                RankCapesBukkit.log.info(String.format("Test packet from CLIENT: %s with PAYLOAD: %s", player.getName(), ((C3PacketTest) packet).payload));
             
         }
         catch (Exception e)
@@ -102,7 +102,7 @@ public enum PluginPacketHandler implements PluginMessageListener
         Player player = event.getPlayer();
         this.playersServing.add(player);
         
-        S3PacketTest packet = new S3PacketTest("Hello there!");
+        C3PacketTest packet = new C3PacketTest("Hello there!");
         this.sendPacketToPlayer(player, packet);
         
         RankCapesBukkit.log.info("Sent test packet with payload: " + packet.payload);
@@ -128,7 +128,7 @@ public enum PluginPacketHandler implements PluginMessageListener
         // player that changed world
         Player player = event.getPlayer();
         
-        S0PacketPlayerCapesUpdate packetRemove = new S0PacketPlayerCapesUpdate(Type.REMOVE).addPlayer(player.getName(), "");
+        C0PacketPlayerCapesUpdate packetRemove = new C0PacketPlayerCapesUpdate(Type.REMOVE).addPlayer(player.getName(), "");
         this.sendPacketToWorld(event.getFrom(), packetRemove);
         
         // send all player capes. only sends in same world.
@@ -155,18 +155,18 @@ public enum PluginPacketHandler implements PluginMessageListener
                 int toPos = pos + chunkSize > pack.length ? pack.length : pos + chunkSize;
                 byte[] chunk = Arrays.copyOfRange(pack, pos, toPos);
                 
-                S1PacketCapePack packet = new S1PacketCapePack(pack.length, chunk);
+                C1PacketCapePack packet = new C1PacketCapePack(pack.length, chunk);
                 this.sendPacketToPlayer(player, packet);
             }
         }
         else
         {
-            S1PacketCapePack packet = new S1PacketCapePack(pack.length, pack);
+            C1PacketCapePack packet = new C1PacketCapePack(pack.length, pack);
             this.sendPacketToPlayer(player, packet);
         }
     }
     
-    private void handleCapeChage(C4PacketUpdateCape packet, Player player)
+    private void handleCapeChage(S4PacketUpdateCape packet, Player player)
     {
         String capeName = packet.cape;
         
@@ -225,7 +225,7 @@ public enum PluginPacketHandler implements PluginMessageListener
         if (cape == null && type == Type.UPDATE)
             return;
         
-        S0PacketPlayerCapesUpdate packet = new S0PacketPlayerCapesUpdate(type);
+        C0PacketPlayerCapesUpdate packet = new C0PacketPlayerCapesUpdate(type);
         packet.addPlayer(cape);
         
         this.sendPacketToWorld(updated.getWorld(), packet);
@@ -233,7 +233,7 @@ public enum PluginPacketHandler implements PluginMessageListener
     
     public void sendAllPlayerCapes(Player player)
     {
-        S0PacketPlayerCapesUpdate packet = new S0PacketPlayerCapesUpdate(Type.UPDATE);
+        C0PacketPlayerCapesUpdate packet = new C0PacketPlayerCapesUpdate(Type.UPDATE);
         
         for (Player iteratorPlayer : this.playersServing)
             // if iteratorPlayer is in the same world as updatedPlayer
@@ -259,7 +259,7 @@ public enum PluginPacketHandler implements PluginMessageListener
     {
         // available capes to player.
         List<String> capes = this.getAvailableCapes(player);
-        S2PacketAvailableCapes packet = new S2PacketAvailableCapes(capes);
+        C2PacketAvailableCapes packet = new C2PacketAvailableCapes(capes);
         
         // send message to player
         this.sendPacketToPlayer(player, packet);
