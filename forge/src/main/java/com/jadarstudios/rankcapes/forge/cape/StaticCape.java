@@ -14,7 +14,7 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.TextureUtil;
 
-public class StaticCape implements ICape
+public class StaticCape extends AbstractCape
 {
     
     protected BufferedImage capeImage;

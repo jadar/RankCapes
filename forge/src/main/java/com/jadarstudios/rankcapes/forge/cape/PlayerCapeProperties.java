@@ -11,7 +11,7 @@ public class PlayerCapeProperties implements IExtendedEntityProperties
     
     public static final String IDENTIFIER = "rankcapes_data";
     
-    ICape playerCape;
+    AbstractCape playerCape;
     
     AbstractClientPlayer player;
     
@@ -30,12 +30,12 @@ public class PlayerCapeProperties implements IExtendedEntityProperties
     {
     }
     
-    public void setCape(ICape cape)
+    public void setCape(AbstractCape cape)
     {
         this.playerCape = cape;
     }
     
-    public ICape getCape()
+    public AbstractCape getCape()
     {
         return this.playerCape;
     }

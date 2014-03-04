@@ -15,7 +15,7 @@ import net.minecraftforge.common.MinecraftForge;
 
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
 import com.jadarstudios.rankcapes.forge.cape.AnimatedCape;
-import com.jadarstudios.rankcapes.forge.cape.ICape;
+import com.jadarstudios.rankcapes.forge.cape.AbstractCape;
 import com.jadarstudios.rankcapes.forge.cape.PlayerCapeProperties;
 import com.jadarstudios.rankcapes.forge.event.EventPlayerCapeChange;
 
@@ -60,19 +60,25 @@ public class CapeHandler
         // ICape cape = currentPlayerCapes.get(player.getCommandSenderName());
         PlayerCapeProperties properties = (PlayerCapeProperties) player.getExtendedProperties(PlayerCapeProperties.IDENTIFIER);
         if (properties == null)
+        {
             return;
+        }
         
-        ICape cape = properties.getCape();
+        AbstractCape cape = properties.getCape();
         
         if (cape != null && cape instanceof AnimatedCape)
         {
             boolean flag = ((AnimatedCape) cape).update();
             if (flag)
                 this.setPlayerCape(cape, player);
+            else
+            {
+                flag = true;
+            }
         }
     }
     
-    public void setPlayerCape(ICape cape, AbstractClientPlayer player)
+    public void setPlayerCape(AbstractCape cape, AbstractClientPlayer player)
     {
         if (cape != null)
         {
@@ -93,6 +99,7 @@ public class CapeHandler
     
     public void resetPlayerCape(AbstractClientPlayer player)
     {
+        player.getTextureCape().setBufferedImage(null);
         Minecraft.getMinecraft().getTextureManager().loadTexture(player.getLocationCape(), player.getTextureCape());
     }
     

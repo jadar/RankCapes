@@ -22,8 +22,9 @@ import net.minecraft.network.Packet;
 
 import com.jadarstudios.rankcapes.forge.ModProperties;
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
+import com.jadarstudios.rankcapes.forge.cape.AnimatedCape;
 import com.jadarstudios.rankcapes.forge.cape.CapePack;
-import com.jadarstudios.rankcapes.forge.cape.ICape;
+import com.jadarstudios.rankcapes.forge.cape.AbstractCape;
 import com.jadarstudios.rankcapes.forge.handler.CapeHandler;
 import com.jadarstudios.rankcapes.forge.network.packet.PacketBase;
 import com.jadarstudios.rankcapes.forge.network.packet.S0PacketPlayerCapesUpdate;
@@ -161,7 +162,11 @@ public class ClientPacketHandler
             {
                 case UPDATE:
                 {
-                    ICape cape = capePack.getCape(entry.getValue());
+                    AbstractCape cape = capePack.getCape(entry.getValue());
+                    if(cape instanceof AnimatedCape)
+                    {
+                        cape = ((AnimatedCape)cape).clone();
+                    }
                     CapeHandler.instance().setPlayerCape(cape, player);
                     break;
                 }

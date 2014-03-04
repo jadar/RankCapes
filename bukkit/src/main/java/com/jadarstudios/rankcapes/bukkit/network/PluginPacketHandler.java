@@ -112,9 +112,9 @@ public enum PluginPacketHandler implements PluginMessageListener
         this.sendAllPlayerCapes(player);
         // send capes the player has permissions to.
         this.sendAvailableCapes(player);
-        //
-        // // update the other players that there is a new one.
-        // sendCapeUpdateToClients(player);
+        
+        // update the other players that there is a new one.
+        this.sendCapeUpdates(player, Type.UPDATE);
     }
     
     /**
@@ -140,7 +140,7 @@ public enum PluginPacketHandler implements PluginMessageListener
     
     public void sendCapePack(Player player)
     {
-        byte[] pack = plugin.getPack();
+        byte[] pack = plugin.getPackBytes();
         
         // chunks the array if necessary.
         if (pack.length >= Messenger.MAX_MESSAGE_SIZE)
@@ -204,11 +204,16 @@ public enum PluginPacketHandler implements PluginMessageListener
      */
     private void handleCapeRemoval(Player player)
     {
-        // deletes player's entry in the database.
-        plugin.getDatabase().delete(plugin.getDatabase().find(PlayerCape.class).where().ieq("playerName", player.getName()).findUnique());
+        PlayerCape cape = plugin.getDatabase().find(PlayerCape.class).where().ieq("playerName", player.getName()).findUnique();
+        System.out.println(cape);
+        if(cape != null)
+        {
+            // deletes player's entry in the database.
+            plugin.getDatabase().delete(cape);
         
-        // sends update to clients, including the updated player.
-        this.sendCapeUpdates(player, Type.REMOVE);
+            // sends update to clients, including the updated player.
+            this.sendCapeUpdates(player, Type.REMOVE);
+        }
     }
     
     /**
@@ -218,17 +223,18 @@ public enum PluginPacketHandler implements PluginMessageListener
      */
     public void sendCapeUpdates(Player updated, Type type)
     {
-        // player cape entry form database.
-        PlayerCape cape = plugin.getPlayerCape(updated);
-        
-        // if its null then no use updating.
-        if (cape == null && type == Type.UPDATE)
-            return;
-        
         C0PacketPlayerCapesUpdate packet = new C0PacketPlayerCapesUpdate(type);
-        packet.addPlayer(cape);
         
-        this.sendPacketToWorld(updated.getWorld(), packet);
+        if(type == Type.UPDATE)
+        {
+            PlayerCape cape = plugin.getPlayerCape(updated);
+            
+            if(cape != null)
+                packet.addPlayer(cape);
+        }
+        
+        if(packet.getUpdateNumber() > 0)
+            this.sendPacketToWorld(updated.getWorld(), packet);
     }
     
     public void sendAllPlayerCapes(Player player)
@@ -246,8 +252,9 @@ public enum PluginPacketHandler implements PluginMessageListener
                 if (cape != null)
                     packet.addPlayer(cape);
             }
-        
-        this.sendPacketToPlayer(player, packet);
+        System.out.println("yolo");
+        if(packet.getUpdateNumber() > 0)
+            this.sendPacketToPlayer(player, packet);
     }
     
     /**

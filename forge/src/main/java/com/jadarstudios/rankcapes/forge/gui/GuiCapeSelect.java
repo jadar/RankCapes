@@ -20,7 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
-import com.jadarstudios.rankcapes.forge.cape.ICape;
+import com.jadarstudios.rankcapes.forge.cape.AbstractCape;
 import com.jadarstudios.rankcapes.forge.cape.PlayerCapeProperties;
 import com.jadarstudios.rankcapes.forge.handler.CapeHandler;
 import com.jadarstudios.rankcapes.forge.handler.KeyEventHandler;
@@ -80,7 +80,7 @@ public class GuiCapeSelect extends GuiScreen
     /**
      * The cape the player had before GUI opening.
      */
-    private ICape playerCape;
+    private AbstractCape playerCape;
     
     private GuiCapeButton selectedCapeButton = null;
     private int currentPage = 0;
@@ -148,8 +148,9 @@ public class GuiCapeSelect extends GuiScreen
                     {
                         this.selectedCapeButton.enabled = true;
                         button.enabled = false;
+                        
                         this.selectedCapeButton = button;
-                        this.gotoPage(pageNumber);
+                        this.currentPage = pageNumber;
                     }
                     
                     // adds the button to the page.
@@ -162,6 +163,7 @@ public class GuiCapeSelect extends GuiScreen
             
             // add page to list.
             this.buttonPages.add(buttonPage);
+            this.gotoPage(this.currentPage);
         }
         
         // disables set button if no capes are available.
@@ -292,7 +294,7 @@ public class GuiCapeSelect extends GuiScreen
                 
                 if (button.id != 3)
                 {
-                    ICape cape = mod.getCapePack().getCape(capeName);
+                    AbstractCape cape = mod.getCapePack().getCape(capeName);
                     CapeHandler.instance().setPlayerCape(cape, mc.thePlayer);
                 }
                 else
@@ -314,6 +316,7 @@ public class GuiCapeSelect extends GuiScreen
     public void keyTyped(char keyChar, int key)
     {
         KeyEventHandler.INSTANCE.key(new KeyInputEvent());
+        super.keyTyped(keyChar, key);
     }
     
     /**
@@ -326,7 +329,6 @@ public class GuiCapeSelect extends GuiScreen
     {
         if (pageNumber >= 0 && pageNumber < this.buttonPages.size())
         {
-            System.out.println(pageNumber);
             this.currentPage = pageNumber;
             if (pageNumber == 0)
             {

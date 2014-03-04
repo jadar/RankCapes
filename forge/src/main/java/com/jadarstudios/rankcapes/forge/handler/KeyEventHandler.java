@@ -52,13 +52,11 @@ public enum KeyEventHandler
                 // if no screen up, open gui.
                 if (mc.currentScreen == null)
                 {
-                    System.out.println("Open Screen");
                     mc.displayGuiScreen(new GuiCapeSelect());
                     return;
                 }
                 else if (mc.currentScreen instanceof GuiCapeSelect)
                 {
-                    // System.out.println("Close Screen");
                     mc.displayGuiScreen(null);
                     return;
                 }

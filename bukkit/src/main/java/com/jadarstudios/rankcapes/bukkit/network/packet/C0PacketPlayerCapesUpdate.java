@@ -57,6 +57,11 @@ public class C0PacketPlayerCapesUpdate extends PacketClient
         return this;
     }
     
+    public int getUpdateNumber()
+    {
+        return this.playersMap != null ? this.playersMap.size() : 0;
+    }
+    
     @Override
     public int getSize()
     {

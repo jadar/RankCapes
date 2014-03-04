@@ -51,7 +51,7 @@ public class CapePack
     /** map of filenames (no extension) to static capes. */
     private HashMap<String, StaticCape> unprocessedCapes;
     /** processed capes based on the metadata. */
-    HashMap<String, ICape> processedCapes;
+    HashMap<String, AbstractCape> processedCapes;
     
     /**
      * Creates a new CapePack. Stores all the capes.
@@ -62,7 +62,7 @@ public class CapePack
     public CapePack(byte[] input)
     {
         this.unprocessedCapes = new HashMap<String, StaticCape>();
-        this.processedCapes = new HashMap<String, ICape>();
+        this.processedCapes = new HashMap<String, AbstractCape>();
         
         this.parsePack(input);
     }
@@ -226,7 +226,7 @@ public class CapePack
      *            name of the cape
      * @return cape that the name is mapped to.
      */
-    public ICape getCape(String capeName)
+    public AbstractCape getCape(String capeName)
     {
         return this.processedCapes.get(capeName);
     }

@@ -21,17 +21,18 @@ import net.minecraft.client.entity.AbstractClientPlayer;
  * 
  * @author Jadar
  */
-public class AnimatedCape implements ICape
+public class AnimatedCape extends AbstractCape
 {
     
     List<StaticCape> capeFrames;
     
     int framesPerSecond = 0;
     int currentFrame = 0;
+    int previousFrame = 0;
     
     // elapsed time in milliseconds.
     long elapsedTime = 0;
-    long lastElapsedTime = 0;
+    long previousElapsedTime = 0;
     
     public boolean pause = false;
     
@@ -103,24 +104,29 @@ public class AnimatedCape implements ICape
         if (this.pause)
             return false;
         
-        boolean flag = false;
-        
         this.elapsedTime = Minecraft.getSystemTime();
         
         // time since update is one tick + time between tick.
-        long delta = this.elapsedTime - this.lastElapsedTime;
-        
+        long delta = this.elapsedTime - this.previousElapsedTime;
+
         if (delta >= this.framesPerSecond * 1000)
         {
-            flag = true;
-            this.currentFrame++;
-            this.lastElapsedTime = this.elapsedTime;
+            setCurrentFrame(this.currentFrame + 1);
+            this.previousElapsedTime = this.elapsedTime;
         }
         
         if (this.currentFrame > this.getTotalFrames() - 1)
-            this.currentFrame = 0;
+        {
+            setCurrentFrame(0);
+        }
         
-        return flag;
+        return previousFrame != this.currentFrame;
+    }
+    
+    private void setCurrentFrame(int frame)
+    {
+        this.previousFrame = this.currentFrame;
+        this.currentFrame = frame;
     }
     
     @Override
