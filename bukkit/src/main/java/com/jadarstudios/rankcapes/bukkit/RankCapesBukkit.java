@@ -22,6 +22,8 @@ import javax.persistence.PersistenceException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -33,10 +35,12 @@ import java.util.zip.ZipInputStream;
  */
 public class RankCapesBukkit extends JavaPlugin
 {
-    private static RankCapesBukkit INSTANCE;
-    public static Logger log;
+    public static final String CAPE_PERMISSION_BASE = "rankcapes.cape.use.";
 
     public static final String PLUGIN_CHANNEL = "rankcapes";
+
+    private static RankCapesBukkit INSTANCE;
+    public static Logger log;
 
     private String capePackName = "";
     private byte[] capePack = null;
@@ -156,11 +160,11 @@ public class RankCapesBukkit extends JavaPlugin
      */
     private void registerChannels()
     {
+        // 'get' the packet handler ordinal to initialize it.
+        PluginPacketHandler.INSTANCE.ordinal();
+
         // outgoing channel
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, PLUGIN_CHANNEL);
-
-        // 'get' the packet handler orginal to initialize it.
-        PluginPacketHandler.INSTANCE.ordinal();
 
         // incoming channel.
         Bukkit.getMessenger().registerIncomingPluginChannel(this, PLUGIN_CHANNEL, PluginPacketHandler.INSTANCE);
@@ -267,12 +271,26 @@ public class RankCapesBukkit extends JavaPlugin
             JSONObject object = (JSONObject) root;
 
             // loops through every entry in the base of the JSON file.
-            for (Object key : object.keySet())
+            for (Object entryObj : object.entrySet())
             {
-                if (key instanceof String)
+                if(entryObj instanceof Entry)
                 {
-                    String cape = (String) key;
-                    this.availableCapes.add(cape);
+                    Object key = ((Entry) entryObj).getKey();
+                    Object value = ((Entry) entryObj).getValue();
+                    if (key instanceof String)
+                    {
+                        String cape = (String) key;
+                        this.availableCapes.add(cape);
+
+                        if(value instanceof Map || value instanceof List)
+                        {
+                            // not finished
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
         }

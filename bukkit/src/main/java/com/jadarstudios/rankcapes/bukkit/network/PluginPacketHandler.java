@@ -63,7 +63,6 @@ public enum PluginPacketHandler implements PluginMessageListener
                     }
                     case REMOVE:
                     {
-                        System.out.println("remove cape!");
                         this.handleCapeRemoval(player);
                         break;
                     }
@@ -161,7 +160,7 @@ public enum PluginPacketHandler implements PluginMessageListener
         String capeName = packet.cape;
 
         // checks if the player has the permission to use the cape it wants to.
-        if (player.hasPermission("rankcapes.cape.use." + capeName))
+        if (player.hasPermission(RankCapesBukkit.CAPE_PERMISSION_BASE + capeName))
         {
             // player cape from database.
             PlayerCape cape = plugin.getPlayerCape(player);
