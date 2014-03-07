@@ -1,6 +1,6 @@
 /**
  * RankCapes Forge Mod
- * 
+ *
  * Copyright (c) 2013 Jacob Rhoda.
  * Released under the MIT license
  * http://github.com/jadar/RankCapes/blob/master/LICENSE
@@ -8,40 +8,38 @@
 
 package com.jadarstudios.rankcapes.forge.handler;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.jadarstudios.rankcapes.forge.RankCapesForge;
+import com.jadarstudios.rankcapes.forge.cape.AbstractCape;
+import com.jadarstudios.rankcapes.forge.cape.AnimatedCape;
 import com.jadarstudios.rankcapes.forge.cape.CapePack;
+import com.jadarstudios.rankcapes.forge.cape.PlayerCapeProperties;
+import com.jadarstudios.rankcapes.forge.event.EventPlayerCapeChange;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
 
-import com.jadarstudios.rankcapes.forge.RankCapesForge;
-import com.jadarstudios.rankcapes.forge.cape.AbstractCape;
-import com.jadarstudios.rankcapes.forge.cape.AnimatedCape;
-import com.jadarstudios.rankcapes.forge.cape.PlayerCapeProperties;
-import com.jadarstudios.rankcapes.forge.event.EventPlayerCapeChange;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 @SideOnly(Side.CLIENT)
 /**
  * This class changes the capes on players.
- * 
+ *
  * If getting errors about invisible fields, make them visible.
  * Forge makes everything visible when compiled at runtime.
- * 
+ *
  * @author Jadar
  */
 public enum CapeHandler
 {
     INSTANCE;
-    
+
     // used to print debug code.
     private static final boolean debug = true;
 
@@ -62,7 +60,9 @@ public enum CapeHandler
         // ICape cape = currentPlayerCapes.get(player.getCommandSenderName());
         PlayerCapeProperties properties = PlayerCapeProperties.forPlayer(player);
         if (properties == null)
+        {
             return;
+        }
 
         AbstractCape cape = properties.getCape();
 
@@ -70,7 +70,9 @@ public enum CapeHandler
         {
             boolean flag = ((AnimatedCape) cape).update();
             if (flag)
+            {
                 this.setPlayerCape(cape, player);
+            }
         }
     }
 
@@ -84,7 +86,9 @@ public enum CapeHandler
         MinecraftForge.EVENT_BUS.post(new EventPlayerCapeChange(cape, player));
 
         if (debug && !(cape instanceof AnimatedCape))
+        {
             RankCapesForge.log.info("Changing the cape of: " + player.getCommandSenderName());
+        }
 
         cape.loadTexture(player);
 
@@ -92,7 +96,7 @@ public enum CapeHandler
         properties.setCape(cape);
 
     }
-    
+
     /**
      * Really awful cape removal method. Uses reflection to get the {@link ThreadDownloadImageData#loadTexture}
      * method to fully work.
@@ -102,33 +106,31 @@ public enum CapeHandler
         ThreadDownloadImageData texture = player.getTextureCape();
         texture.deleteGlTexture();
         texture.setBufferedImage(null);
-        for(Field f : texture.getClass().getDeclaredFields())
+        for (Field f : texture.getClass().getDeclaredFields())
         {
             try
             {
-                if(f.getGenericType().equals(Boolean.TYPE))
+                if (f.getGenericType().equals(Boolean.TYPE))
                 {
                     f.setAccessible(true);
                     f.set(texture, false);
-                    
+
                 }
-                else if(f.getGenericType().equals(Thread.class))
+                else if (f.getGenericType().equals(Thread.class))
                 {
                     f.setAccessible(true);
                     f.set(texture, null);
                 }
             }
-            catch (IllegalArgumentException e)
+            catch (IllegalArgumentException ignored)
             {
-                ;
             }
-            catch (IllegalAccessException e)
+            catch (IllegalAccessException ignored)
             {
-                ;
             }
         }
         Minecraft.getMinecraft().getTextureManager().loadTexture(player.getLocationCape(), texture);
-        
+
         PlayerCapeProperties properties = (PlayerCapeProperties) player.getExtendedProperties(PlayerCapeProperties.IDENTIFIER);
         properties.setCape(null);
     }

@@ -1,6 +1,6 @@
 /**
  * RankCapes Forge Mod
- * 
+ *
  * Copyright (c) 2013 Jacob Rhoda.
  * Released under the MIT license
  * http://github.com/jadar/RankCapes/blob/master/LICENSE
@@ -8,41 +8,35 @@
 
 package com.jadarstudios.rankcapes.forge.cape;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
 
-import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
 public class StaticCape extends AbstractCape
 {
-    
+
     protected BufferedImage capeImage;
     protected int[] texture;
     protected String name;
-    
+
     public StaticCape(String name, BufferedImage capeImage)
     {
         this.capeImage = new HDImageBuffer().parseUserSkin(capeImage);
         this.name = name;
     }
-    
+
     @Override
     public BufferedImage getCapeTexture()
     {
         return this.capeImage;
     }
-    
+
     @Override
     public void loadTexture(AbstractClientPlayer player)
     {
-        if(this.texture == null)
+        if (this.texture == null)
         {
             this.texture = readImageData(capeImage);
         }
@@ -51,13 +45,13 @@ public class StaticCape extends AbstractCape
         data.setBufferedImage(this.capeImage);
         TextureUtil.uploadTexture(data.getGlTextureId(), this.texture, capeImage.getWidth(), capeImage.getHeight());
     }
-    
+
     @Override
     public String getName()
     {
         return this.name;
     }
-    
+
     public StaticCape setName(String name)
     {
         this.name = name;

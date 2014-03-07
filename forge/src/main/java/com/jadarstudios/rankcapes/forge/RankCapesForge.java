@@ -1,6 +1,6 @@
 /**
  * RankCapes Forge Mod
- * 
+ *
  * Copyright (c) 2013 Jacob Rhoda.
  * Released under the MIT license
  * http://github.com/jadar/RankCapes/blob/master/LICENSE
@@ -8,27 +8,20 @@
 
 package com.jadarstudios.rankcapes.forge;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.relauncher.Side;
-import net.minecraftforge.common.MinecraftForge;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.jadarstudios.rankcapes.forge.cape.CapePack;
 import com.jadarstudios.rankcapes.forge.handler.CapeHandler;
 import com.jadarstudios.rankcapes.forge.handler.KeyEventHandler;
 import com.jadarstudios.rankcapes.forge.handler.PlayerEventHandler;
 import com.jadarstudios.rankcapes.forge.network.ClientPacketHandler;
-
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.relauncher.Side;
+import net.minecraftforge.common.MinecraftForge;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Mod(modid = ModProperties.MOD_ID, name = ModProperties.MOD_NAME, version = ModProperties.MOD_VERSION)
 public class RankCapesForge
@@ -41,7 +34,7 @@ public class RankCapesForge
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        if(FMLCommonHandler.instance().getEffectiveSide() != Side.CLIENT)
+        if (FMLCommonHandler.instance().getEffectiveSide() != Side.CLIENT)
         {
             throw new RuntimeException(String.format("%s (version %s) should only be run on the client!", ModProperties.MOD_ID, ModProperties.MOD_VERSION));
         }
