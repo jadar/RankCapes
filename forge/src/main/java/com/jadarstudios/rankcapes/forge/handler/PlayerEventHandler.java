@@ -24,7 +24,7 @@ public enum PlayerEventHandler
     public void onEntityConstruct(EntityConstructing event)
     {
         if (event.entity instanceof EntityPlayer)
-            event.entity.registerExtendedProperties(PlayerCapeProperties.IDENTIFIER, new PlayerCapeProperties((AbstractClientPlayer) event.entity));
+            event.entity.registerExtendedProperties(PlayerCapeProperties.IDENTIFIER, new PlayerCapeProperties());
     }
     
     @SubscribeEvent

@@ -22,9 +22,8 @@ import net.minecraft.network.Packet;
 
 import com.jadarstudios.rankcapes.forge.ModProperties;
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
-import com.jadarstudios.rankcapes.forge.cape.AnimatedCape;
-import com.jadarstudios.rankcapes.forge.cape.CapePack;
 import com.jadarstudios.rankcapes.forge.cape.AbstractCape;
+import com.jadarstudios.rankcapes.forge.cape.CapePack;
 import com.jadarstudios.rankcapes.forge.handler.CapeHandler;
 import com.jadarstudios.rankcapes.forge.network.packet.PacketBase;
 import com.jadarstudios.rankcapes.forge.network.packet.S0PacketPlayerCapesUpdate;
@@ -38,69 +37,62 @@ import cpw.mods.fml.common.network.FMLIndexedMessageToMessageCodec;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.util.StringUtils;
 
-public class ClientPacketHandler
+@SideOnly(Side.CLIENT)
+public enum ClientPacketHandler
 {
-    private static ClientPacketHandler INSTANCE = new ClientPacketHandler();
-    
+    INSTANCE;
+
+    private static boolean debug = false;
+
     private EnumMap<Side, FMLEmbeddedChannel> channels;
     private CapePackAssembler packAssembler;
     
     private ClientPacketHandler()
     {
         this.channels = NetworkRegistry.INSTANCE.newChannel(ModProperties.NETWORK_CHANNEL, new ChannelCodec());
-        
-        if (FMLCommonHandler.instance().getSide() == Side.CLIENT)
-            this.addClientHandler();
-    }
-    
-    @SideOnly(Side.CLIENT)
-    private void addClientHandler()
-    {
+
         FMLEmbeddedChannel clientChannel = this.channels.get(Side.CLIENT);
-        
-        String codec = clientChannel.findChannelHandlerNameForType(ChannelCodec.class);
-        clientChannel.pipeline().addAfter(codec, ModProperties.NETWORK_CHANNEL, new ChannelHandler());
-    }
-    
-    public static ClientPacketHandler instance()
-    {
-        return INSTANCE;
+        clientChannel.pipeline().addAfter(ModProperties.NETWORK_CHANNEL, "ClientChannelHandler", new ChannelHandler());
     }
     
     /**
      * Wrapper method for {@link FMLEmbeddedChannel#generatePacketFrom(Object)}.
      * Must have a codec in place to transform it for it to return anything.
      * 
-     * @param msg
-     *            object to generate from
-     * @param side
-     *            channel to side being sent to
+     * @param msg object to generate from
+     * @param side channel to side being sent to
      * @return created packet
      */
     public Packet generatePacketFrom(PacketBase msg, Side side)
     {
         return this.channels.get(side).generatePacketFrom(msg);
     }
-    
-    @SideOnly(Side.CLIENT)
+
     public void sendPacketToServer(Packet packet)
     {
         this.channels.get(Side.CLIENT).writeOutbound(packet);
     }
-    
-    @SideOnly(Side.CLIENT)
+
+    public void sendPacketToServer(PacketBase packet)
+    {
+        Packet generatedPacket = this.generatePacketFrom(packet, Side.SERVER);
+        this.sendPacketToServer(generatedPacket);
+    }
+
     private static class ChannelHandler extends SimpleChannelInboundHandler<PacketBase>
     {
         
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, PacketBase packet) throws Exception
         {
-            RankCapesForge.log.info("Got packet! Type: " + packet.getClass().getSimpleName());
+            if (debug)
+                RankCapesForge.log.info("Got packet! Type: " + packet.getClass().getSimpleName());
             
             try
             {
-                ClientPacketHandler handler = ClientPacketHandler.instance();
+                ClientPacketHandler handler = ClientPacketHandler.INSTANCE;
                 
                 if (packet instanceof S0PacketPlayerCapesUpdate)
                     handler.handleS0PacketPlayerCapesUpdate((S0PacketPlayerCapesUpdate) packet);
@@ -144,7 +136,7 @@ public class ClientPacketHandler
     
     private void handleS0PacketPlayerCapesUpdate(S0PacketPlayerCapesUpdate packet)
     {
-        CapePack capePack = RankCapesForge.instance.getCapePack();
+        CapePack capePack = CapeHandler.INSTANCE.getPack();
         if (capePack == null)
         {
             RankCapesForge.log.warn("Can't update cape because no cape pack.");
@@ -154,25 +146,23 @@ public class ClientPacketHandler
         Map<String, String> changedCapes = packet.getPlayers();
         for (Entry<String, String> entry : changedCapes.entrySet())
         {
-            RankCapesForge.log.info(String.format("Changed cape. Player: %s Cape: %s", entry.getKey(), entry.getValue()));
-            
             AbstractClientPlayer player = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(entry.getKey());
             
             switch (packet.type)
             {
                 case UPDATE:
                 {
-                    AbstractCape cape = capePack.getCape(entry.getValue());
-                    if(cape instanceof AnimatedCape)
+                    String capeName = entry.getValue();
+                    if(!StringUtils.isNullOrEmpty(capeName))
                     {
-                        cape = ((AnimatedCape)cape).clone();
+                        AbstractCape cape = capePack.getCape(capeName).clone();
+                        CapeHandler.INSTANCE.setPlayerCape(cape, player);
                     }
-                    CapeHandler.instance().setPlayerCape(cape, player);
                     break;
                 }
                 case REMOVE:
                 {
-                    CapeHandler.instance().resetPlayerCape(player);
+                    CapeHandler.INSTANCE.resetPlayerCape(player);
                     break;
                 }
             }
@@ -195,7 +185,7 @@ public class ClientPacketHandler
         if (this.packAssembler.getFullPack() != null)
         {
             CapePack capePack = new CapePack(this.packAssembler.getFullPack());
-            RankCapesForge.instance.setCapePack(capePack);
+            CapeHandler.INSTANCE.setPack(capePack);
             
             // deallocate so we can receive new pack later
             this.packAssembler = null;
@@ -204,47 +194,17 @@ public class ClientPacketHandler
     
     private void handleS2PacketAvailableCapes(S2PacketAvailableCapes packet)
     {
-        RankCapesForge.instance.availableCapes = packet.getCapes();
+        CapeHandler.INSTANCE.availableCapes = packet.getCapes();
     }
-    
+
     private void handleS3PacketTest(S3PacketTest packet)
     {
-        RankCapesForge.log.info(String.format("Test from server. Payload: %s", packet.payload));
-        
+        if (debug)
+            RankCapesForge.log.info(String.format("Test from server. Payload: %s", packet.payload));
+
         packet.payload += " back at ya";
-        
-        ClientPacketHandler handler = ClientPacketHandler.instance();
-        
-        handler.sendPacketToServer(handler.generatePacketFrom(packet, Side.SERVER));
+
+        ClientPacketHandler handler = ClientPacketHandler.INSTANCE;
+        this.sendPacketToServer(handler.generatePacketFrom(packet, Side.SERVER));
     }
-    
-    // /**
-    // * Sends packet to change the cape.
-    // *
-    // * @param capeName
-    // * name of cape to change to.
-    // */
-    // public void sendCapeChangePacket(String capeName)
-    // {
-    // Packet250CustomPayload packet = new Packet250CustomPayload();
-    // packet.channel = "RankCapes";
-    // packet.data = ("changeCape:" + capeName).getBytes();
-    // packet.length = packet.data.length;
-    //
-    // PacketDispatcher.sendPacketToServer(packet);
-    // }
-    
-    /**
-     * Sends packet to remove cape.
-     */
-    /*
-     * public void sendCapeRemovePacket()
-     * {
-     * Packet250CustomPayload packet = new Packet250CustomPayload();
-     * packet.channel = "RankCapes";
-     * packet.data = ("removeCape").getBytes();
-     * packet.length = packet.data.length;
-     * PacketDispatcher.sendPacketToServer(packet);
-     * }
-     */
 }

@@ -17,6 +17,7 @@ public class C0PacketPlayerCapesUpdate extends PacketClient
     public C0PacketPlayerCapesUpdate(Type type)
     {
         this.type = type;
+        this.playersMap = new HashMap<String, String>();
     }
     
     public C0PacketPlayerCapesUpdate(Map<String, String> players)

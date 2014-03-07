@@ -11,6 +11,8 @@ package com.jadarstudios.rankcapes.forge;
 import java.util.ArrayList;
 import java.util.List;
 
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraftforge.common.MinecraftForge;
 
 import org.apache.logging.log4j.LogManager;
@@ -33,35 +35,32 @@ public class RankCapesForge
 {
     @Instance
     public static RankCapesForge instance;
-    
-    private CapePack capePack = null;
-    public List<String> availableCapes;
-    
+
     public static final Logger log = LogManager.getLogger(ModProperties.MOD_NAME);
-    
-    public RankCapesForge()
+
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event)
     {
-        this.availableCapes = new ArrayList<String>();
+        if(FMLCommonHandler.instance().getEffectiveSide() != Side.CLIENT)
+        {
+            throw new RuntimeException(String.format("%s (version %s) should only be run on the client!", ModProperties.MOD_ID, ModProperties.MOD_VERSION));
+        }
     }
-    
+
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-        
+        KeyEventHandler.INSTANCE.ordinal();
+        PlayerEventHandler.INSTANCE.ordinal();
+        CapeHandler.INSTANCE.ordinal();
+
+
         FMLCommonHandler.instance().bus().register(KeyEventHandler.INSTANCE);
         FMLCommonHandler.instance().bus().register(PlayerEventHandler.INSTANCE);
+
         MinecraftForge.EVENT_BUS.register(PlayerEventHandler.INSTANCE);
-        MinecraftForge.EVENT_BUS.register(CapeHandler.instance());
+        MinecraftForge.EVENT_BUS.register(CapeHandler.INSTANCE);
+
         ClientPacketHandler.instance();
-    }
-    
-    public CapePack getCapePack()
-    {
-        return this.capePack;
-    }
-    
-    public void setCapePack(CapePack pack)
-    {
-        this.capePack = pack;
     }
 }

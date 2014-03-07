@@ -12,17 +12,11 @@ public class PlayerCapeProperties implements IExtendedEntityProperties
     public static final String IDENTIFIER = "rankcapes_data";
     
     AbstractCape playerCape;
-    
     AbstractClientPlayer player;
     
     public static PlayerCapeProperties forPlayer(AbstractClientPlayer player)
     {
         return (PlayerCapeProperties) player.getExtendedProperties(IDENTIFIER);
-    }
-    
-    public PlayerCapeProperties(AbstractClientPlayer player)
-    {
-        this.player = player;
     }
     
     @Override
@@ -41,13 +35,9 @@ public class PlayerCapeProperties implements IExtendedEntityProperties
     }
     
     @Override
-    public void saveNBTData(NBTTagCompound compound)
-    {
-    }
+    public void saveNBTData(NBTTagCompound compound) {}
     
     @Override
-    public void loadNBTData(NBTTagCompound compound)
-    {
-    }
+    public void loadNBTData(NBTTagCompound compound) {}
     
 }

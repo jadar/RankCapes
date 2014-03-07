@@ -117,6 +117,7 @@ public class RankCapesBukkit extends JavaPlugin
     public void onDisable()
     {
         Bukkit.getMessenger().unregisterIncomingPluginChannel(this, PLUGIN_CHANNEL);
+        this.capePack = null;
     }
     
     /**

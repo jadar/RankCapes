@@ -9,15 +9,22 @@
 package com.jadarstudios.rankcapes.forge.cape;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.util.ResourceLocation;
+
+import javax.imageio.ImageIO;
 
 public class StaticCape extends AbstractCape
 {
     
     protected BufferedImage capeImage;
+    protected int[] texture;
     protected String name;
     
     public StaticCape(String name, BufferedImage capeImage)
@@ -35,9 +42,14 @@ public class StaticCape extends AbstractCape
     @Override
     public void loadTexture(AbstractClientPlayer player)
     {
+        if(this.texture == null)
+        {
+            this.texture = readImageData(capeImage);
+        }
+
         ThreadDownloadImageData data = player.getTextureCape();
         data.setBufferedImage(this.capeImage);
-        TextureUtil.uploadTextureImage(data.getGlTextureId(), this.capeImage);
+        TextureUtil.uploadTexture(data.getGlTextureId(), this.texture, capeImage.getWidth(), capeImage.getHeight());
     }
     
     @Override
@@ -50,5 +62,14 @@ public class StaticCape extends AbstractCape
     {
         this.name = name;
         return this;
+    }
+
+    private static int[] readImageData(BufferedImage bufferedImage)
+    {
+        int width = bufferedImage.getWidth();
+        int height = bufferedImage.getHeight();
+        int[] data = new int[width * height];
+        bufferedImage.getRGB(0, 0, width, height, data, 0, width);
+        return data;
     }
 }

@@ -8,14 +8,20 @@
 
 package com.jadarstudios.rankcapes.forge.handler;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.jadarstudios.rankcapes.forge.cape.CapePack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
-import com.jadarstudios.rankcapes.forge.cape.AnimatedCape;
 import com.jadarstudios.rankcapes.forge.cape.AbstractCape;
+import com.jadarstudios.rankcapes.forge.cape.AnimatedCape;
 import com.jadarstudios.rankcapes.forge.cape.PlayerCapeProperties;
 import com.jadarstudios.rankcapes.forge.event.EventPlayerCapeChange;
 
@@ -32,75 +38,113 @@ import cpw.mods.fml.relauncher.SideOnly;
  * 
  * @author Jadar
  */
-public class CapeHandler
+public enum CapeHandler
 {
+    INSTANCE;
+    
     // used to print debug code.
     private static final boolean debug = true;
-    
-    private static CapeHandler INSTNACE;
-    
-    public CapeHandler()
+
+    private CapePack capePack = null;
+    public List<String> availableCapes;
+
+    private CapeHandler()
     {
+        availableCapes = new ArrayList<String>();
     }
-    
-    public static CapeHandler instance()
-    {
-        if (INSTNACE == null)
-            INSTNACE = new CapeHandler();
-        
-        return INSTNACE;
-    }
-    
+
     @SubscribeEvent
     public void renderPlayerEvent(RenderPlayerEvent.Specials.Pre event)
     {
         AbstractClientPlayer player = (AbstractClientPlayer) event.entityPlayer;
-        
+
         // cape from current player.
         // ICape cape = currentPlayerCapes.get(player.getCommandSenderName());
-        PlayerCapeProperties properties = (PlayerCapeProperties) player.getExtendedProperties(PlayerCapeProperties.IDENTIFIER);
+        PlayerCapeProperties properties = PlayerCapeProperties.forPlayer(player);
         if (properties == null)
-        {
             return;
-        }
-        
+
         AbstractCape cape = properties.getCape();
-        
+
         if (cape != null && cape instanceof AnimatedCape)
         {
             boolean flag = ((AnimatedCape) cape).update();
             if (flag)
                 this.setPlayerCape(cape, player);
-            else
-            {
-                flag = true;
-            }
         }
     }
-    
+
     public void setPlayerCape(AbstractCape cape, AbstractClientPlayer player)
     {
-        if (cape != null)
+        if (cape == null)
         {
-            MinecraftForge.EVENT_BUS.post(new EventPlayerCapeChange(cape, player));
-            
-            if (debug && !(cape instanceof AnimatedCape))
-                RankCapesForge.log.info("Changing the cape of: " + player.getCommandSenderName());
-            
-            // loads its texture to the player's resource location, setting the cape.
-            cape.loadTexture(player);
-            
-            PlayerCapeProperties properties = (PlayerCapeProperties) player.getExtendedProperties(PlayerCapeProperties.IDENTIFIER);
-            properties.setCape(cape);
+            return;
         }
-        else
-            this.resetPlayerCape(player);
+
+        MinecraftForge.EVENT_BUS.post(new EventPlayerCapeChange(cape, player));
+
+        if (debug && !(cape instanceof AnimatedCape))
+            RankCapesForge.log.info("Changing the cape of: " + player.getCommandSenderName());
+
+        cape.loadTexture(player);
+
+        PlayerCapeProperties properties = PlayerCapeProperties.forPlayer(player);
+        properties.setCape(cape);
+
     }
     
+    /**
+     * Really awful cape removal method. Uses reflection to get the {@link ThreadDownloadImageData#loadTexture}
+     * method to fully work.
+     */
     public void resetPlayerCape(AbstractClientPlayer player)
     {
-        player.getTextureCape().setBufferedImage(null);
-        Minecraft.getMinecraft().getTextureManager().loadTexture(player.getLocationCape(), player.getTextureCape());
+        ThreadDownloadImageData texture = player.getTextureCape();
+        texture.deleteGlTexture();
+        texture.setBufferedImage(null);
+        for(Field f : texture.getClass().getDeclaredFields())
+        {
+            try
+            {
+                if(f.getGenericType().equals(Boolean.TYPE))
+                {
+                    f.setAccessible(true);
+                    f.set(texture, false);
+                    
+                }
+                else if(f.getGenericType().equals(Thread.class))
+                {
+                    f.setAccessible(true);
+                    f.set(texture, null);
+                }
+            }
+            catch (IllegalArgumentException e)
+            {
+                ;
+            }
+            catch (IllegalAccessException e)
+            {
+                ;
+            }
+        }
+        Minecraft.getMinecraft().getTextureManager().loadTexture(player.getLocationCape(), texture);
+        
+        PlayerCapeProperties properties = (PlayerCapeProperties) player.getExtendedProperties(PlayerCapeProperties.IDENTIFIER);
+        properties.setCape(null);
     }
-    
+
+    public AbstractCape getCape(String capeName)
+    {
+        return this.capePack != null ? this.capePack.getCape(capeName) : null;
+    }
+
+    public void setPack(CapePack pack)
+    {
+        this.capePack = pack;
+    }
+
+    public CapePack getPack()
+    {
+        return this.capePack;
+    }
 }

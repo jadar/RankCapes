@@ -69,6 +69,7 @@ public enum PluginPacketHandler implements PluginMessageListener
                     }
                     case REMOVE:
                     {
+                        System.out.println("remove cape!");
                         this.handleCapeRemoval(player);
                         break;
                     }
@@ -87,25 +88,16 @@ public enum PluginPacketHandler implements PluginMessageListener
     
     /**
      * Sends the port and available capes to the player registering a channel.
-     * 
-     * @param event
      */
     public void handlePlugnChannelRegister(PlayerRegisterChannelEvent event)
     {
-        // we only want to have clients with RankCapes installed. If the
-        // RankCapes channel is not registered, we should not try to server the
-        // player.
+        // we only want to have clients with RankCapes installed.
         if (!event.getChannel().equals(RankCapesBukkit.PLUGIN_CHANNEL))
             return;
         
         // get player and add to serving list.
         Player player = event.getPlayer();
         this.playersServing.add(player);
-        
-        C3PacketTest packet = new C3PacketTest("Hello there!");
-        this.sendPacketToPlayer(player, packet);
-        
-        RankCapesBukkit.log.info("Sent test packet with payload: " + packet.payload);
         
         this.sendCapePack(player);
         // send all player's capes.
@@ -218,22 +210,23 @@ public enum PluginPacketHandler implements PluginMessageListener
     
     /**
      * Sends a cape update of the given player to the world the player is in.
-     * 
-     * @param updatedPlayer
      */
     public void sendCapeUpdates(Player updated, Type type)
     {
         C0PacketPlayerCapesUpdate packet = new C0PacketPlayerCapesUpdate(type);
         
-        if(type == Type.UPDATE)
+        if (type == Type.UPDATE)
         {
             PlayerCape cape = plugin.getPlayerCape(updated);
-            
             if(cape != null)
                 packet.addPlayer(cape);
         }
-        
-        if(packet.getUpdateNumber() > 0)
+        else if (type == Type.REMOVE)
+        {
+            packet.addPlayer(updated.getName(), "");
+        }
+
+        if (packet.getUpdateNumber() > 0)
             this.sendPacketToWorld(updated.getWorld(), packet);
     }
     
@@ -274,9 +267,6 @@ public enum PluginPacketHandler implements PluginMessageListener
     
     /**
      * Gets the capes that a player is allowed to put on.
-     * 
-     * @param player
-     * @return
      */
     public List<String> getAvailableCapes(Player player)
     {
@@ -295,9 +285,6 @@ public enum PluginPacketHandler implements PluginMessageListener
     /**
      * Removes player from serving list. Typically used when a player
      * disconnects.
-     * 
-     * @param player
-     *            player to be removed.
      */
     public void removeServingPlayer(Player player)
     {

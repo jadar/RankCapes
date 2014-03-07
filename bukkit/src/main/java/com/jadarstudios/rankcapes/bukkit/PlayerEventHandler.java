@@ -24,16 +24,13 @@ import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
 public enum PlayerEventHandler implements Listener
 {
     INSTANCE;
-    
-    private static final RankCapesBukkit plugin = RankCapesBukkit.instance();
-    
+
     /**
      * Called when a player logs in.
      */
     @EventHandler
     public void onRegisterChannel(PlayerRegisterChannelEvent event)
     {
-        plugin.getLogger().info(event.getChannel());
         if (event.getChannel().equals(RankCapesBukkit.PLUGIN_CHANNEL))
             PluginPacketHandler.INSTANCE.handlePlugnChannelRegister(event);
     }

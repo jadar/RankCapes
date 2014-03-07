@@ -262,14 +262,15 @@ public class GuiCapeSelect extends GuiScreen
                 // remove cape if selected button is default.
                 if (this.selectedCapeButton.id == 3)
                 {
-                    C4PacketUpdateCape packet = new C4PacketUpdateCape(Type.REMOVE, "");
-                    ClientPacketHandler.instance().sendPacketToServer(ClientPacketHandler.instance().generatePacketFrom(packet, Side.SERVER));
+                    System.out.println("sending remove packet");
+                    C4PacketUpdateCape packet = new C4PacketUpdateCape(Type.REMOVE);
+                    ClientPacketHandler.instance().sendPacketToServer(packet);
                 }
                 // else send packet to server that we want to change.
                 else
                 {
                     C4PacketUpdateCape packet = new C4PacketUpdateCape(this.selectedCapeButton.capeName);
-                    ClientPacketHandler.instance().sendPacketToServer(ClientPacketHandler.instance().generatePacketFrom(packet, Side.SERVER));
+                    ClientPacketHandler.instance().sendPacketToServer(packet);
                 }
                 
                 // close the GUI
@@ -295,10 +296,10 @@ public class GuiCapeSelect extends GuiScreen
                 if (button.id != 3)
                 {
                     AbstractCape cape = mod.getCapePack().getCape(capeName);
-                    CapeHandler.instance().setPlayerCape(cape, mc.thePlayer);
+                    CapeHandler.INSTANCE.setPlayerCape(cape, mc.thePlayer);
                 }
                 else
-                    CapeHandler.instance().resetPlayerCape(mc.thePlayer);
+                    CapeHandler.INSTANCE.resetPlayerCape(mc.thePlayer);
                 
                 this.selectedCapeButton = capeButton;
             }
@@ -309,7 +310,7 @@ public class GuiCapeSelect extends GuiScreen
     {
         // sets player cape back to what is was before.
         if (this.playerCape != null)
-            CapeHandler.instance().setPlayerCape(this.playerCape, mc.thePlayer);
+            CapeHandler.INSTANCE.setPlayerCape(this.playerCape, mc.thePlayer);
     }
     
     @Override

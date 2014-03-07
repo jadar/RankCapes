@@ -103,24 +103,26 @@ public class AnimatedCape extends AbstractCape
     {
         if (this.pause)
             return false;
-        
+
+        boolean flag = false;
         this.elapsedTime = Minecraft.getSystemTime();
         
         // time since update is one tick + time between tick.
         long delta = this.elapsedTime - this.previousElapsedTime;
 
-        if (delta >= this.framesPerSecond * 1000)
+        if (delta * 1000 >= 1 / this.framesPerSecond)
         {
-            setCurrentFrame(this.currentFrame + 1);
+            flag = true;
+            this.currentFrame++;
             this.previousElapsedTime = this.elapsedTime;
         }
         
         if (this.currentFrame > this.getTotalFrames() - 1)
         {
-            setCurrentFrame(0);
+            this.currentFrame = 0;
         }
         
-        return previousFrame != this.currentFrame;
+        return flag;
     }
     
     private void setCurrentFrame(int frame)

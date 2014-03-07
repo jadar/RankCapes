@@ -11,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 public class C4PacketUpdateCape extends PacketClient
 {
     public Type updateType;
-    public String cape;
+    public String cape = "";
     
     /**
      * Creates the packet with {@link Type#UPDATE} as the update type.
@@ -20,13 +20,13 @@ public class C4PacketUpdateCape extends PacketClient
      */
     public C4PacketUpdateCape(String cape)
     {
-        this(Type.UPDATE, cape);
+        this(Type.UPDATE);
+        this.cape = cape;
     }
     
-    public C4PacketUpdateCape(Type updateType, String cape)
+    public C4PacketUpdateCape(Type updateType)
     {
         this.updateType = updateType;
-        this.cape = cape;
     }
     
     @Override

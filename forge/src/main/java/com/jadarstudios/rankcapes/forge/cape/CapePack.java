@@ -90,7 +90,7 @@ public class CapePack
                 {
                     // remove file extension from the name.
                     name = FilenameUtils.removeExtension(name);
-                    
+                    System.out.println(name);
                     StaticCape cape = this.loadCape(name, zipInput);
                     this.unprocessedCapes.put(name, cape);
                 }
@@ -146,9 +146,6 @@ public class CapePack
     
     /**
      * Parses an animated cape JSON node and creates the cape.
-     * 
-     * @param nodeName
-     * @param node
      */
     private void parseAnimatedCapeNode(String name, @SuppressWarnings("rawtypes") Map node)
     {
@@ -164,6 +161,7 @@ public class CapePack
             AnimatedCape cape = new AnimatedCape(name, fps);
             
             for (Object frameObj : frames)
+            {
                 if (frameObj instanceof String)
                 {
                     String frame = (String) frameObj;
@@ -173,20 +171,13 @@ public class CapePack
                         if (this.unprocessedCapes.containsKey(fileName))
                             cape.addFrame(this.unprocessedCapes.get(fileName));
                 }
-            
+            }
             this.processedCapes.put(name, cape);
         }
-        else
-            RankCapesForge.log.warn("Well shit..");
     }
     
     /**
      * Parses a static cape JSON node.
-     * 
-     * @param nodeKey
-     *            the JSON node key
-     * @param node
-     *            the JSON node.
      */
     private void parseStaticCapeNode(String name, String capeFile)
     {
