@@ -32,7 +32,7 @@ public enum PlayerEventHandler implements Listener
     {
         if (event.getChannel().equals(RankCapesBukkit.PLUGIN_CHANNEL))
         {
-            PluginPacketHandler.INSTANCE.handlePlugnChannelRegister(event);
+            PluginPacketHandler.INSTANCE.newPlayerJoined(event);
         }
     }
 
@@ -51,6 +51,6 @@ public enum PlayerEventHandler implements Listener
     @EventHandler
     public void changeWorld(PlayerChangedWorldEvent event)
     {
-        PluginPacketHandler.INSTANCE.changeWorld(event);
+        PluginPacketHandler.INSTANCE.playerChangedWorld(event);
     }
 }

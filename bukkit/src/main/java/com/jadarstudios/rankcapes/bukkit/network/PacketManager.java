@@ -39,7 +39,7 @@ public enum PacketManager
 
     public void addDiscriminator(byte discriminator, Class<? extends PacketBase> clazz)
     {
-        if (!this.discriminators.containsKey(this.discriminators) && !this.classes.containsKey(this.discriminators))
+        if (!this.discriminators.containsKey(clazz) && !this.classes.containsKey(discriminator))
         {
             this.discriminators.put(clazz, discriminator);
             this.classes.put(discriminator, clazz);

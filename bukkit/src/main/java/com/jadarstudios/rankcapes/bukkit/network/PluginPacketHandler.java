@@ -85,7 +85,7 @@ public enum PluginPacketHandler implements PluginMessageListener
     /**
      * Sends the port and available capes to the player registering a channel.
      */
-    public void handlePlugnChannelRegister(PlayerRegisterChannelEvent event)
+    public void newPlayerJoined(PlayerRegisterChannelEvent event)
     {
         // we only want to have clients with RankCapes installed.
         if (!event.getChannel().equals(RankCapesBukkit.PLUGIN_CHANNEL))
@@ -111,9 +111,9 @@ public enum PluginPacketHandler implements PluginMessageListener
      * Called when the player changes worlds. Used to send update to clients in
      * that world.
      *
-     * @param event
+     * @param event the event being raised
      */
-    public void changeWorld(PlayerChangedWorldEvent event)
+    public void playerChangedWorld(PlayerChangedWorldEvent event)
     {
         // player that changed world
         Player player = event.getPlayer();
@@ -262,7 +262,7 @@ public enum PluginPacketHandler implements PluginMessageListener
     /**
      * Sends the capes that a player is allowed to put on.
      *
-     * @param player
+     * @param player the player to send to
      */
     public void sendAvailableCapes(Player player)
     {

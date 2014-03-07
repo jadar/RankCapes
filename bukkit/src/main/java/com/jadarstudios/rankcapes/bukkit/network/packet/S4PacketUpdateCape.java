@@ -25,22 +25,6 @@ public class S4PacketUpdateCape extends PacketServer
     {
     }
 
-    /**
-     * Creates the packet with {@link Type#UPDATE} as the update type.
-     *
-     * @param cape
-     */
-    public S4PacketUpdateCape(String cape)
-    {
-        this(Type.UPDATE, cape);
-    }
-
-    public S4PacketUpdateCape(Type updateType, String cape)
-    {
-        this.updateType = updateType;
-        this.cape = cape;
-    }
-
     @Override
     public void read(ByteBuffer data)
     {
@@ -52,7 +36,7 @@ public class S4PacketUpdateCape extends PacketServer
 
     public static enum Type
     {
-        UPDATE, REMOVE;
+        UPDATE, REMOVE
     }
 
 }

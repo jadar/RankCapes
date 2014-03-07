@@ -18,13 +18,16 @@ public abstract class PacketBase
 
     /**
      * Writes the packet to the given byte buffer.
-     * It is strongly recommended to call super.write() as it encodes
-     * the packet discriminator to it.
      *
-     * @param data
+     * @param data the bytebuffer to write read packet data to
      */
     public abstract void write(ByteBuffer data) throws Exception;
 
+    /**
+     * Reads the packet to the given byte buffer.
+     *
+     * @param data the bytebuffer to read the packet data to
+     */
     public abstract void read(ByteBuffer data) throws Exception;
 
     /**

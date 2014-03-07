@@ -15,6 +15,7 @@ public class C3PacketTest extends PacketBase
 
     public String payload = "";
 
+    @SuppressWarnings("unused")
     public C3PacketTest()
     {
     }

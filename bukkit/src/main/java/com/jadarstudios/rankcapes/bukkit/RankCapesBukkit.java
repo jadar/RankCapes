@@ -133,14 +133,8 @@ public class RankCapesBukkit extends JavaPlugin
             MetricsLite metrics = new MetricsLite(this);
             metrics.start();
         }
-        catch (IOException e)
-        {
-            ;
-        }
-        catch (NoClassDefFoundError e)
-        {
-            ;
-        }
+        catch (IOException ignored) {}
+        catch (NoClassDefFoundError ignored) {}
     }
 
     private void setupDatabase()
@@ -198,23 +192,21 @@ public class RankCapesBukkit extends JavaPlugin
         // read cape pack from the RankCapes folder.
         try
         {
-            FileInputStream tmpFileIn = new FileInputStream(file);
+            FileInputStream fis = new FileInputStream(file);
             this.capePack = new byte[(int) file.length()];
 
-            tmpFileIn.read(this.capePack);
-            tmpFileIn.close();
+            fis.read(this.capePack);
+            fis.close();
         }
         catch (FileNotFoundException e)
         {
             e.printStackTrace();
             log.severe("Error parsing Cape Pack: Could not find the cape pack file " + file.getName());
-            return;
         }
         catch (IOException e)
         {
             e.printStackTrace();
             log.severe("Error parsing Cape Pack: There was an error while loading " + file.getName());
-            return;
         }
     }
 
@@ -235,7 +227,7 @@ public class RankCapesBukkit extends JavaPlugin
             }
 
             ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(pack));
-            ZipEntry entry = null;
+            ZipEntry entry;
 
             // reads the zip and finds the files. if the pack config file is not
             // found, return false.

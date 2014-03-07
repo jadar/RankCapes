@@ -27,12 +27,6 @@ public class C0PacketPlayerCapesUpdate extends PacketClient
         this.playersMap = new HashMap<String, String>();
     }
 
-    public C0PacketPlayerCapesUpdate(Map<String, String> players)
-    {
-        this.type = Type.UPDATE;
-        this.playersMap = players;
-    }
-
     @Override
     public void write(ByteBuffer data)
     {
@@ -80,6 +74,6 @@ public class C0PacketPlayerCapesUpdate extends PacketClient
 
     public static enum Type
     {
-        UPDATE, REMOVE;
+        UPDATE, REMOVE
     }
 }
