@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'idea'
 
 repositories {
     mavenCentral()
@@ -21,6 +22,7 @@ compileJava {
 dependencies {
 	compile 'org.bukkit:bukkit:1.7.2-R0.4-SNAPSHOT'
 	compile 'org.mcstats.bukkit:metrics-lite:R6'
+	runtime 'org.bukkit:craftbukkit:1.7.2-R0.4-SNAPSHOT'
 }
 
 
