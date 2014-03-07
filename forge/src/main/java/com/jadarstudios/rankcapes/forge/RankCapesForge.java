@@ -53,14 +53,12 @@ public class RankCapesForge
         KeyEventHandler.INSTANCE.ordinal();
         PlayerEventHandler.INSTANCE.ordinal();
         CapeHandler.INSTANCE.ordinal();
-
+        ClientPacketHandler.INSTANCE.ordinal();
 
         FMLCommonHandler.instance().bus().register(KeyEventHandler.INSTANCE);
         FMLCommonHandler.instance().bus().register(PlayerEventHandler.INSTANCE);
 
         MinecraftForge.EVENT_BUS.register(PlayerEventHandler.INSTANCE);
         MinecraftForge.EVENT_BUS.register(CapeHandler.INSTANCE);
-
-        ClientPacketHandler.instance();
     }
 }
