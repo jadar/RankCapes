@@ -36,7 +36,6 @@ import java.util.zip.ZipInputStream;
 public class RankCapesBukkit extends JavaPlugin
 {
     public static final String CAPE_PERMISSION_BASE = "rankcapes.cape.use.";
-
     public static final String PLUGIN_CHANNEL = "rankcapes";
 
     private static RankCapesBukkit INSTANCE;
