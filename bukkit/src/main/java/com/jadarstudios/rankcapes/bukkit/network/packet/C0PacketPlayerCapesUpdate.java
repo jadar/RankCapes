@@ -39,7 +39,7 @@ public class C0PacketPlayerCapesUpdate extends PacketClient
         }
         catch (Exception e)
         {
-            RankCapesBukkit.log.severe("Exception while writing PacketCapeUpdate packet.");
+            RankCapesBukkit.instance().getLogger().severe("Exception while writing PacketCapeUpdate packet.");
             e.printStackTrace();
         }
     }

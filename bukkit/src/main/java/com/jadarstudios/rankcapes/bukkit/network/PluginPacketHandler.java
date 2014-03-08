@@ -70,13 +70,13 @@ public enum PluginPacketHandler implements PluginMessageListener
             }
             else if (packet instanceof C3PacketTest)
             {
-                RankCapesBukkit.log.info(String.format("Test packet from CLIENT: %s with PAYLOAD: %s", player.getName(), ((C3PacketTest) packet).payload));
+                plugin.getLogger().info(String.format("Test packet from CLIENT: %s with PAYLOAD: %s", player.getName(), ((C3PacketTest) packet).payload));
             }
 
         }
         catch (Exception e)
         {
-            RankCapesBukkit.log.severe("Error while processing packet from player " + player.getName());
+            plugin.getLogger().severe("Error while processing packet from player " + player.getName());
             e.printStackTrace();
         }
     }
@@ -183,7 +183,7 @@ public enum PluginPacketHandler implements PluginMessageListener
         }
         else
         {
-            RankCapesBukkit.log.warning("Player" + player.getName() + " tried to set a cape that he does not have access to! ");
+            plugin.getLogger().warning("Player" + player.getName() + " tried to set a cape that he does not have access to! ");
         }
     }
 
@@ -294,6 +294,11 @@ public enum PluginPacketHandler implements PluginMessageListener
         return capes;
     }
 
+    public List<Player> getPlayersServing()
+    {
+        return this.playersServing;
+    }
+
     /**
      * Removes player from serving list. Typically used when a player
      * disconnects.
@@ -314,7 +319,7 @@ public enum PluginPacketHandler implements PluginMessageListener
         }
         catch (Exception e)
         {
-            RankCapesBukkit.log.severe(String.format("Exception while writing and sending %s packet to player %s", packet.getClass().getSimpleName(), player.getName()));
+            plugin.getLogger().severe(String.format("Exception while writing and sending %s packet to player %s", packet.getClass().getSimpleName(), player.getName()));
             e.printStackTrace();
         }
     }
@@ -330,7 +335,7 @@ public enum PluginPacketHandler implements PluginMessageListener
         }
         catch (Exception e)
         {
-            RankCapesBukkit.log.severe(String.format("Exception while writing and sending %s packet to world %s", packet.getClass().getSimpleName(), world.getName()));
+            plugin.getLogger().severe(String.format("Exception while writing and sending %s packet to world %s", packet.getClass().getSimpleName(), world.getName()));
             e.printStackTrace();
         }
     }

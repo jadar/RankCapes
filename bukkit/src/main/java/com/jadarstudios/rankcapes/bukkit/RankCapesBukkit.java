@@ -24,22 +24,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-/**
- * Handles all player event. Usually just passes them off to the PacketHandler.
- *
- * @author Jadar
- */
+
 public class RankCapesBukkit extends JavaPlugin
 {
     public static final String CAPE_PERMISSION_BASE = "rankcapes.cape.use.";
     public static final String PLUGIN_CHANNEL = "rankcapes";
 
     private static RankCapesBukkit INSTANCE;
-    public static Logger log;
 
     private String capePackName = "";
     private byte[] capePack = null;
@@ -58,9 +52,6 @@ public class RankCapesBukkit extends JavaPlugin
 
         // initializes the availableCapes list.
         this.availableCapes = new ArrayList<String>();
-
-        // sets up the logger.
-        log = this.getLogger();
 
         // makes the plugin data folder if necessary.
         this.getDataFolder().mkdir();
@@ -85,7 +76,7 @@ public class RankCapesBukkit extends JavaPlugin
         this.loadCapePack();
         if (this.capePack == null)
         {
-            log.severe("Cape Pack not found! It is either an invalid ZIP file or does not exist!");
+            this.getLogger().severe("Cape Pack not found! It is either an invalid ZIP file or does not exist!");
             this.disable();
             return;
         }
@@ -94,7 +85,7 @@ public class RankCapesBukkit extends JavaPlugin
         boolean valid = this.validatePack(this.capePack);
         if (!valid)
         {
-            log.severe("Cape Pack is not valid! Either the pack.mcmeta file is missing or the file is corrupt.");
+            getLogger().severe("Cape Pack is not valid! Either the pack.mcmeta file is missing or the file is corrupt.");
             this.disable();
             return;
         }
@@ -102,7 +93,15 @@ public class RankCapesBukkit extends JavaPlugin
         // registers the player event hander.
         this.getServer().getPluginManager().registerEvents(PlayerEventHandler.INSTANCE, this);
 
-        log.info("RankCapes Initialized!");
+        PluginPacketHandler packetHandler = PluginPacketHandler.INSTANCE;
+
+        for(Player p : packetHandler.getPlayersServing())
+        {
+            packetHandler.sendCapePack(p);
+            packetHandler.sendAvailableCapes(p);
+        }
+
+        getLogger().info("RankCapes Initialized!");
     }
 
     /**
@@ -149,7 +148,7 @@ public class RankCapesBukkit extends JavaPlugin
         }
         catch (PersistenceException ex)
         {
-            log.info("Installing database for " + this.getDescription().getName() + " due to first time usage");
+            getLogger().info("Installing database for " + this.getDescription().getName() + " due to first time usage");
             this.installDDL();
         }
     }
@@ -180,7 +179,7 @@ public class RankCapesBukkit extends JavaPlugin
 
         if (file.isDirectory())
         {
-            log.severe("Error parsing Cape Pack: Cape Pack " + file.getName() + " is a directory, not a file.");
+            getLogger().severe("Error parsing Cape Pack: Cape Pack " + file.getName() + " is a directory, not a file.");
             return;
         }
 
@@ -190,7 +189,7 @@ public class RankCapesBukkit extends JavaPlugin
             this.saveResource("capes.zip", false);
         }
 
-        log.info("Loading cape pack: " + file.getName());
+        getLogger().info("Loading cape pack: " + file.getName());
 
         // read cape pack from the RankCapes folder.
         try
@@ -204,12 +203,12 @@ public class RankCapesBukkit extends JavaPlugin
         catch (FileNotFoundException e)
         {
             e.printStackTrace();
-            log.severe("Error parsing Cape Pack: Could not find the cape pack file " + file.getName());
+            getLogger().severe("Error parsing Cape Pack: Could not find the cape pack file " + file.getName());
         }
         catch (IOException e)
         {
             e.printStackTrace();
-            log.severe("Error parsing Cape Pack: There was an error while loading " + file.getName());
+            getLogger().severe("Error parsing Cape Pack: There was an error while loading " + file.getName());
         }
     }
 
@@ -248,7 +247,7 @@ public class RankCapesBukkit extends JavaPlugin
         catch (IOException e)
         {
             e.printStackTrace();
-            log.severe("Error parsing cape pack: Could not validate cape pack!");
+            getLogger().severe("Error parsing cape pack: Could not validate cape pack!");
             return false;
         }
 
@@ -348,7 +347,7 @@ public class RankCapesBukkit extends JavaPlugin
      */
     public void disable()
     {
-        log.info("Disabling!");
+        getLogger().info("Disabling!");
         this.getServer().getPluginManager().disablePlugin(this);
     }
 }
