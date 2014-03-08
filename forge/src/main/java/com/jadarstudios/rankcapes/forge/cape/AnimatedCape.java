@@ -96,7 +96,7 @@ public class AnimatedCape extends AbstractCape
         // time since update is one tick + time between tick.
         long delta = this.elapsedTime - this.previousElapsedTime;
 
-        if (delta * 1000 >= 1 / this.framesPerSecond)
+        if (delta >= (1 / this.framesPerSecond) * 1000)
         {
             flag = true;
             this.currentFrame++;

@@ -46,7 +46,8 @@ public enum ClientPacketHandler
         this.channels = NetworkRegistry.INSTANCE.newChannel(ModProperties.NETWORK_CHANNEL, new ChannelCodec());
 
         FMLEmbeddedChannel clientChannel = this.channels.get(Side.CLIENT);
-        clientChannel.pipeline().addAfter(ModProperties.NETWORK_CHANNEL, "ClientChannelHandler", new ChannelHandler());
+        String codec = clientChannel.findChannelHandlerNameForType(ChannelCodec.class);
+        clientChannel.pipeline().addAfter(codec, ModProperties.NETWORK_CHANNEL, new ChannelHandler());
     }
 
     /**
