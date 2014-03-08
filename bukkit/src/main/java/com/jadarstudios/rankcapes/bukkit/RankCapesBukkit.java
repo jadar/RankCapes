@@ -8,6 +8,7 @@
 
 package com.jadarstudios.rankcapes.bukkit;
 
+import com.jadarstudios.rankcapes.bukkit.CapePackValidator.InvalidCapePackException;
 import com.jadarstudios.rankcapes.bukkit.command.MyCapeCommand;
 import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
 import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
@@ -16,14 +17,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
 import org.mcstats.MetricsLite;
 
 import javax.persistence.PersistenceException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -81,11 +81,28 @@ public class RankCapesBukkit extends JavaPlugin
             return;
         }
 
-        // checks if the pack has a pack.mcmeta in the zip.
-        boolean valid = this.validatePack(this.capePack);
-        if (!valid)
+        try
         {
-            getLogger().severe("Cape Pack is not valid! Either the pack.mcmeta file is missing or the file is corrupt.");
+            this.validatePack(this.capePack);
+        }
+        catch(IOException e)
+        {
+            getLogger().severe("Error while validating Cape Pack! The file may be corrupt.");
+            e.printStackTrace();
+            this.disable();
+            return;
+        }
+        catch(InvalidCapePackException e)
+        {
+            getLogger().severe("Error while validating Cape Pack!");
+            e.printStackTrace();
+            this.disable();
+            return;
+        }
+        catch (ParseException e)
+        {
+            getLogger().severe("Error while validating Cape Pack!");
+            e.printStackTrace();
             this.disable();
             return;
         }
@@ -216,89 +233,58 @@ public class RankCapesBukkit extends JavaPlugin
      * Validates a cape pack and returns true if it is valid.
      *
      * @param pack to validate
-     *
-     * @return boolean is valid
      */
-    private boolean validatePack(byte[] pack)
+    private void validatePack(byte[] pack) throws IOException, InvalidCapePackException, ParseException
     {
-        try
+
+        if (pack == null)
         {
-            if (pack == null)
-            {
-                return false;
-            }
+            throw new InvalidCapePackException("The cape pack was null");
+        }
 
-            ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(pack));
-            ZipEntry entry;
+        ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(pack));
+        ZipEntry entry;
 
-            // reads the zip and finds the files. if the pack config file is not
-            // found, return false.
-            while ((entry = zipIn.getNextEntry()) != null)
-            // if the zip contains a file names "pack.mcmeta"
+        // reads the zip and finds the files. if the pack config file is not
+        // found, return false.
+        while ((entry = zipIn.getNextEntry()) != null)
+        // if the zip contains a file names "pack.mcmeta"
+        {
+            if (entry.getName().equals("pack.mcmeta"))
             {
-                if (entry.getName().equals("pack.mcmeta"))
+                try
                 {
-                    boolean b = this.parseMetadata(zipIn);
-                    zipIn.close();
-                    return b;
+                    this.parseMetadata(zipIn);
                 }
+                finally
+                {
+                    zipIn.close();
+                }
+
+                break;
             }
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            getLogger().severe("Error parsing cape pack: Could not validate cape pack!");
-            return false;
-        }
-
-        return true;
     }
 
     /**
      * Parses cape pack metadata.
      *
      * @param input zip input stream of the cape pack.
-     *
-     * @return was successful.
      */
-    private boolean parseMetadata(ZipInputStream input)
+    private void parseMetadata(ZipInputStream input) throws InvalidCapePackException, IOException, ParseException
     {
-        try
+        Object root = JSONValue.parseWithException(new InputStreamReader(input));
+        JSONObject object = (JSONObject) root;
+
+        CapePackValidator.validatePack(object);
+
+        for (Object key: object.keySet())
         {
-            Object root = JSONValue.parse(new InputStreamReader(input));
-            JSONObject object = (JSONObject) root;
-
-            // loops through every entry in the base of the JSON file.
-            for (Object entryObj : object.entrySet())
+            if (key instanceof String)
             {
-                if(entryObj instanceof Entry)
-                {
-                    Object key = ((Entry) entryObj).getKey();
-                    Object value = ((Entry) entryObj).getValue();
-                    if (key instanceof String)
-                    {
-                        String cape = (String) key;
-                        this.availableCapes.add(cape);
-
-                        if(value instanceof Map || value instanceof List)
-                        {
-                            // not finished
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
+                this.availableCapes.add((String)key);
             }
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -316,7 +302,7 @@ public class RankCapesBukkit extends JavaPlugin
      *
      * @return cape pack byte array.
      */
-    public byte[] getPackBytes()
+    public byte[] getCapePack()
     {
         return this.capePack;
     }
@@ -329,6 +315,23 @@ public class RankCapesBukkit extends JavaPlugin
         return this.getDatabase().find(PlayerCape.class).where().ieq("playerName", player.getName()).findUnique();
     }
 
+    public void setPlayerCape(PlayerCape cape)
+    {
+        this.getDatabase().save(cape);
+    }
+
+    public boolean deletePlayerCape(Player player)
+    {
+        PlayerCape cape = this.getPlayerCape(player);
+
+        if(cape != null)
+        {
+            this.getDatabase().delete(cape);
+            return true;
+        }
+
+        return false;
+    }
     /**
      * Gets all the classes used to get data from the database.
      *
