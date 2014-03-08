@@ -10,7 +10,9 @@ package com.jadarstudios.rankcapes.bukkit.network.packet;
 
 import org.json.simple.JSONArray;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.util.List;
 
 public class C2PacketAvailableCapes extends PacketClient
@@ -24,7 +26,7 @@ public class C2PacketAvailableCapes extends PacketClient
     }
 
     @Override
-    public void write(ByteBuffer data)
+    public void write(ByteBuffer data) throws BufferOverflowException, ReadOnlyBufferException
     {
         writeString(this.capes, data);
     }

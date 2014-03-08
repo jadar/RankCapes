@@ -11,7 +11,10 @@ package com.jadarstudios.rankcapes.bukkit.network;
 import com.jadarstudios.rankcapes.bukkit.network.packet.PacketBase;
 import com.jadarstudios.rankcapes.bukkit.network.packet.PacketType;
 
+import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.util.HashMap;
 
 public enum PacketManager
@@ -56,7 +59,7 @@ public enum PacketManager
         return this.classes.get(discriminator);
     }
 
-    public PacketBase getPacketFromBytes(byte[] bytes) throws Exception
+    public PacketBase getPacketFromBytes(byte[] bytes) throws BufferUnderflowException, InstantiationException, IllegalAccessException
     {
         ByteBuffer data = ByteBuffer.wrap(bytes);
         byte discriminator = data.get();
@@ -69,7 +72,7 @@ public enum PacketManager
         return packet;
     }
 
-    public byte[] getBytesFromPacket(PacketBase packet) throws Exception
+    public byte[] getBytesFromPacket(PacketBase packet) throws BufferOverflowException, ReadOnlyBufferException
     {
         byte discriminator = this.getDiscriminator(packet.getClass());
 

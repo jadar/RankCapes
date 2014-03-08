@@ -8,6 +8,7 @@
 
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 /**
@@ -26,7 +27,7 @@ public class S4PacketUpdateCape extends PacketServer
     }
 
     @Override
-    public void read(ByteBuffer data)
+    public void read(ByteBuffer data) throws BufferUnderflowException
     {
         byte typeOrdinal = data.get();
         this.updateType = Type.values()[typeOrdinal];

@@ -21,14 +21,14 @@ public abstract class PacketBase
      *
      * @param data the bytebuffer to write read packet data to
      */
-    public abstract void write(ByteBuffer data) throws Exception;
+    public abstract void write(ByteBuffer data) throws BufferOverflowException, ReadOnlyBufferException;
 
     /**
      * Reads the packet to the given byte buffer.
      *
      * @param data the bytebuffer to read the packet data to
      */
-    public abstract void read(ByteBuffer data) throws Exception;
+    public abstract void read(ByteBuffer data) throws BufferUnderflowException;
 
     /**
      * The potential size of the packet in bits.

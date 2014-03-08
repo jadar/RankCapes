@@ -8,6 +8,7 @@
 
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 /**
@@ -20,7 +21,7 @@ public abstract class PacketServer extends PacketBase
 
     // "implemets" this so that child classes dont need to.
     @Override
-    public final void write(ByteBuffer data)
+    public final void write(ByteBuffer data) throws BufferUnderflowException
     {
     }
 

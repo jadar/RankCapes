@@ -8,7 +8,9 @@
 
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
 
 public class C3PacketTest extends PacketBase
 {
@@ -26,7 +28,7 @@ public class C3PacketTest extends PacketBase
     }
 
     @Override
-    public void write(ByteBuffer data)
+    public void write(ByteBuffer data) throws BufferOverflowException, ReadOnlyBufferException
     {
         writeString(this.payload, data);
     }

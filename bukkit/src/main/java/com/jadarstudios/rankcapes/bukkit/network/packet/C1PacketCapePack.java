@@ -8,7 +8,9 @@
 
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
 
 public class C1PacketCapePack extends PacketClient
 {
@@ -23,7 +25,7 @@ public class C1PacketCapePack extends PacketClient
     }
 
     @Override
-    public void write(ByteBuffer data)
+    public void write(ByteBuffer data) throws BufferOverflowException, ReadOnlyBufferException
     {
         data.putInt(this.packSize);
         data.putInt(this.packBytes.length);

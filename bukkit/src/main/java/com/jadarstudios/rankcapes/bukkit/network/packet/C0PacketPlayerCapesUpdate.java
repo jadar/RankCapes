@@ -8,11 +8,12 @@
 
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
-import com.jadarstudios.rankcapes.bukkit.RankCapesBukkit;
 import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
 import org.json.simple.JSONValue;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,20 +29,12 @@ public class C0PacketPlayerCapesUpdate extends PacketClient
     }
 
     @Override
-    public void write(ByteBuffer data)
+    public void write(ByteBuffer data) throws BufferOverflowException, ReadOnlyBufferException
     {
-        try
-        {
-            data.put((byte) this.type.ordinal());
+        data.put((byte) this.type.ordinal());
 
-            String players = JSONValue.toJSONString(this.playersMap);
-            writeString(players, data);
-        }
-        catch (Exception e)
-        {
-            RankCapesBukkit.instance().getLogger().severe("Exception while writing PacketCapeUpdate packet.");
-            e.printStackTrace();
-        }
+        String players = JSONValue.toJSONString(this.playersMap);
+        writeString(players, data);
     }
 
     public C0PacketPlayerCapesUpdate addPlayer(PlayerCape cape)

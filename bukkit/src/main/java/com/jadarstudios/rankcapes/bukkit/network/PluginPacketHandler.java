@@ -127,9 +127,63 @@ public enum PluginPacketHandler implements PluginMessageListener
         this.sendCapeUpdates(player, Type.UPDATE);
     }
 
+    protected void handleCapeChage(S4PacketUpdateCape packet, Player player)
+    {
+        String capeName = packet.cape;
+
+        // checks if the player has the permission to use the cape it wants to.
+        if (player.hasPermission(RankCapesBukkit.CAPE_PERMISSION_BASE + capeName))
+        {
+            // player cape from database.
+            PlayerCape cape = plugin.getPlayerCape(player);
+
+            // if null, make a new one
+            if (cape == null)
+            {
+                cape = new PlayerCape();
+                cape.setPlayer(player);
+            }
+
+            // set cape
+            cape.setCapeName(capeName);
+
+            // save the cape in the database.
+            plugin.setPlayerCape(cape);
+
+            // sends update to clients, including the updated player.
+            this.sendCapeUpdates(player, Type.UPDATE);
+        }
+        else
+        {
+            plugin.getLogger().warning("Player" + player.getName() + " tried to set a cape that he does not have access to! ");
+        }
+    }
+
+    /**
+     * Handles a cape removal.
+     *
+     * @param player whose cape will be removed
+     */
+    protected void handleCapeRemoval(Player player)
+    {
+        // deletes player's entry in the database.
+        boolean flag = plugin.deletePlayerCape(player);
+
+        if (flag)
+        {
+            // sends update to clients, including the updated player.
+            this.sendCapeUpdates(player, Type.REMOVE);
+        }
+    }
+
+    /**
+     * Sends a {@link C1PacketCapePack} to the given player.
+     *
+     * @param player the player to send to
+     */
     public void sendCapePack(Player player)
     {
-        byte[] pack = plugin.getPackBytes();
+        byte[] pack = plugin.getCapePack();
 
         // chunks the array if necessary.
         if (pack.length >= Messenger.MAX_MESSAGE_SIZE)
@@ -152,57 +206,6 @@ public enum PluginPacketHandler implements PluginMessageListener
         {
             C1PacketCapePack packet = new C1PacketCapePack(pack.length, pack);
             this.sendPacketToPlayer(player, packet);
-        }
-    }
-
-    private void handleCapeChage(S4PacketUpdateCape packet, Player player)
-    {
-        String capeName = packet.cape;
-
-        // checks if the player has the permission to use the cape it wants to.
-        if (player.hasPermission(RankCapesBukkit.CAPE_PERMISSION_BASE + capeName))
-        {
-            // player cape from database.
-            PlayerCape cape = plugin.getPlayerCape(player);
-
-            // if null, make a new one
-            if (cape == null)
-            {
-                cape = new PlayerCape();
-                cape.setPlayer(player);
-            }
-
-            // set cape
-            cape.setCapeName(capeName);
-
-            // save the cape in the database.
-            plugin.getDatabase().save(cape);
-
-            // sends update to clients, including the updated player.
-            this.sendCapeUpdates(player, Type.UPDATE);
-        }
-        else
-        {
-            plugin.getLogger().warning("Player" + player.getName() + " tried to set a cape that he does not have access to! ");
-        }
-    }
-
-    /**
-     * Called when "removeCape" is received from a player.
-     *
-     * @param player whose cape will be removed
-     */
-    private void handleCapeRemoval(Player player)
-    {
-        PlayerCape cape = plugin.getDatabase().find(PlayerCape.class).where().ieq("playerName", player.getName()).findUnique();
-        System.out.println(cape);
-        if (cape != null)
-        {
-            // deletes player's entry in the database.
-            plugin.getDatabase().delete(cape);
-
-            // sends update to clients, including the updated player.
-            this.sendCapeUpdates(player, Type.REMOVE);
         }
     }
 
@@ -237,8 +240,8 @@ public enum PluginPacketHandler implements PluginMessageListener
         C0PacketPlayerCapesUpdate packet = new C0PacketPlayerCapesUpdate(Type.UPDATE);
 
         for (Player iteratorPlayer : this.playersServing)
-        // if iteratorPlayer is in the same world as updatedPlayer
         {
+            // if iteratorPlayer is in the same world as updatedPlayer
             if (player.getWorld().getPlayers().contains(iteratorPlayer))
             {
                 // get cape of iteratorPlayer
@@ -251,7 +254,7 @@ public enum PluginPacketHandler implements PluginMessageListener
                 }
             }
         }
-        System.out.println("yolo");
+
         if (packet.getUpdateNumber() > 0)
         {
             this.sendPacketToPlayer(player, packet);
@@ -271,41 +274,6 @@ public enum PluginPacketHandler implements PluginMessageListener
 
         // send message to player
         this.sendPacketToPlayer(player, packet);
-    }
-
-    /**
-     * Gets the capes that a player is allowed to put on.
-     */
-    public List<String> getAvailableCapes(Player player)
-    {
-        // initialize list
-        List<String> capes = new ArrayList<String>();
-
-        // loop through all available capes.
-        for (String cape : plugin.getAvailableCapes())
-        // find if player has the permission node to use that cape.
-        {
-            if (player.hasPermission("rankcapes.cape.use." + cape))
-            {
-                capes.add(cape);
-            }
-        }
-
-        return capes;
-    }
-
-    public List<Player> getPlayersServing()
-    {
-        return this.playersServing;
-    }
-
-    /**
-     * Removes player from serving list. Typically used when a player
-     * disconnects.
-     */
-    public void removeServingPlayer(Player player)
-    {
-        this.playersServing.remove(player);
     }
 
     public void sendPacketToPlayer(Player player, PacketBase packet)
@@ -338,5 +306,44 @@ public enum PluginPacketHandler implements PluginMessageListener
             plugin.getLogger().severe(String.format("Exception while writing and sending %s packet to world %s", packet.getClass().getSimpleName(), world.getName()));
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Gets the capes that a player is allowed to put on.
+     */
+    public List<String> getAvailableCapes(Player player)
+    {
+        // initialize list
+        List<String> capes = new ArrayList<String>();
+
+        // loop through all available capes.
+        for (String cape : plugin.getAvailableCapes())
+        // find if player has the permission node to use that cape.
+        {
+            if (player.hasPermission(RankCapesBukkit.CAPE_PERMISSION_BASE + cape))
+            {
+                capes.add(cape);
+            }
+        }
+
+        return capes;
+    }
+
+    /**
+     * Returns a list of the players that are being served.
+     *
+     * @return player list
+     */
+    public List<Player> getPlayersServing()
+    {
+        return this.playersServing;
+    }
+
+    /**
+     * Removes player from serving list. Typically used when a player disconnects.
+     */
+    public void removeServingPlayer(Player player)
+    {
+        this.playersServing.remove(player);
     }
 }
