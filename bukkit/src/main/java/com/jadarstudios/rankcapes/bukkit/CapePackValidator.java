@@ -10,6 +10,8 @@ package com.jadarstudios.rankcapes.bukkit;
 
 import org.json.simple.JSONObject;
 
+import java.io.ByteArrayInputStream;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ public class CapePackValidator
 {
 
     private static final HashMap<String, Class<?>> ANIMATED_FIELDS = new HashMap<String, Class<?>>();
+    private static final short ZIP_IDENTIFIER = 0x504B;
 
     static
     {
@@ -90,6 +93,18 @@ public class CapePackValidator
         {
             throw new InvalidCapePackException(String.format("The value \"%s\" is not a string.", node));
         }
+    }
+
+    public static boolean isZipFile(byte[] bytes)
+    {
+        ByteArrayInputStream input = new ByteArrayInputStream(bytes);
+
+        ByteBuffer buffer = ByteBuffer.allocate(4);
+        input.read(buffer.array(), 0, buffer.capacity());
+
+        short packIdentifier = buffer.getShort();
+
+        return packIdentifier == ZIP_IDENTIFIER;
     }
 
     public static class InvalidCapePackException extends Exception

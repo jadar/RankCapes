@@ -236,22 +236,28 @@ public class RankCapesBukkit extends JavaPlugin
      */
     private void validatePack(byte[] pack) throws IOException, InvalidCapePackException, ParseException
     {
+        boolean foundMetadata = false;
 
         if (pack == null)
         {
             throw new InvalidCapePackException("The cape pack was null");
         }
 
+        if(!CapePackValidator.isZipFile(pack))
+        {
+            throw new InvalidCapePackException("The cape pack is not a ZIP file.");
+        }
+
         ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(pack));
         ZipEntry entry;
 
-        // reads the zip and finds the files. if the pack config file is not
-        // found, return false.
+        // reads the zip and finds the files. if the pack config file is not found, return false.
         while ((entry = zipIn.getNextEntry()) != null)
         // if the zip contains a file names "pack.mcmeta"
         {
             if (entry.getName().equals("pack.mcmeta"))
             {
+                foundMetadata = true;
                 try
                 {
                     this.parseMetadata(zipIn);
@@ -263,6 +269,11 @@ public class RankCapesBukkit extends JavaPlugin
 
                 break;
             }
+        }
+
+        if(!foundMetadata)
+        {
+            throw new InvalidCapePackException("The Cape Pack metadata was not found.");
         }
     }
 
