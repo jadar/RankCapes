@@ -30,9 +30,7 @@ import java.util.List;
 @SideOnly(Side.CLIENT)
 /**
  * This class changes the capes on players.
- *
- * If getting errors about invisible fields, make them visible.
- * Forge makes everything visible when compiled at runtime.
+ * It also ticks {@link AnimatedCape}s.
  *
  * @author Jadar
  */
@@ -68,10 +66,21 @@ public enum CapeHandler
 
         if (cape != null && cape instanceof AnimatedCape)
         {
-            boolean flag = ((AnimatedCape) cape).update();
-            if (flag)
+            AnimatedCape animated = (AnimatedCape)cape;
+            boolean flag = true;
+
+            if(animated.onlyAnimateWhenMoving())
             {
-                this.setPlayerCape(cape, player);
+                flag = player.motionX != 0 || player.motionZ != 0 || Math.abs(player.motionY) > 0.09;
+            }
+
+            if(flag)
+            {
+                boolean updated = animated.update();
+                if (updated)
+                {
+                    this.setPlayerCape(animated, player);
+                }
             }
         }
     }

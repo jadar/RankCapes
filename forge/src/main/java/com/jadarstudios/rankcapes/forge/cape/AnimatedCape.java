@@ -8,6 +8,7 @@
 
 package com.jadarstudios.rankcapes.forge.cape;
 
+import com.jadarstudios.rankcapes.forge.RankCapesForge;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 
@@ -33,9 +34,9 @@ public class AnimatedCape extends AbstractCape
     long elapsedTime = 0;
     long previousElapsedTime = 0;
 
-    public boolean pause = false;
+    protected String name = "";
 
-    protected String name;
+    boolean onlyAnimateWhenMoving = false;
 
     public AnimatedCape(String name)
     {
@@ -47,6 +48,12 @@ public class AnimatedCape extends AbstractCape
     {
         this(name);
         this.framesPerSecond = parFramesPerSecond;
+    }
+
+    public AnimatedCape(String name, int framesPerSecond, boolean onlyAnimateWhenMoving)
+    {
+        this(name, framesPerSecond);
+        this.onlyAnimateWhenMoving = onlyAnimateWhenMoving;
     }
 
     @Override
@@ -85,22 +92,18 @@ public class AnimatedCape extends AbstractCape
 
     public boolean update()
     {
-        if (this.pause)
-        {
-            return false;
-        }
-
         boolean flag = false;
         this.elapsedTime = Minecraft.getSystemTime();
 
         // time since update is one tick + time between tick.
         long delta = this.elapsedTime - this.previousElapsedTime;
 
-        if (delta >= (1 / this.framesPerSecond) * 1000)
+        if (delta >= (1000 / this.framesPerSecond))
         {
             flag = true;
             this.currentFrame++;
             this.previousElapsedTime = this.elapsedTime;
+            RankCapesForge.log.info(this.currentFrame);
         }
 
         if (this.currentFrame > this.getTotalFrames() - 1)
@@ -109,6 +112,11 @@ public class AnimatedCape extends AbstractCape
         }
 
         return flag;
+    }
+
+    public boolean onlyAnimateWhenMoving()
+    {
+        return this.onlyAnimateWhenMoving;
     }
 
     @Override

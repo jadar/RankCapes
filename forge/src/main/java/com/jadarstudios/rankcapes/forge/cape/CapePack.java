@@ -162,14 +162,21 @@ public class CapePack
     {
         Object framesObj = node.get("frames");
         Object fpsObj = node.get("fps");
+        Object onlyAnimateWhenMovingObj = node.get("onlyAnimateWhenMoving");
 
         if (framesObj instanceof ArrayList && fpsObj instanceof Double)
         {
             @SuppressWarnings("unchecked")
             ArrayList<Object> frames = (ArrayList<Object>) framesObj;
             int fps = ((Double) fpsObj).intValue();
+            boolean onlyAnimateWhenMoving = false;
 
-            AnimatedCape cape = new AnimatedCape(name, fps);
+            if(onlyAnimateWhenMovingObj instanceof Boolean)
+            {
+                onlyAnimateWhenMoving = (Boolean) onlyAnimateWhenMovingObj;
+            }
+
+            AnimatedCape cape = new AnimatedCape(name, fps, onlyAnimateWhenMoving);
 
             for (Object frameObj : frames)
             {
