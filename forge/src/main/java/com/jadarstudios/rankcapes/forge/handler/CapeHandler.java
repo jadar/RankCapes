@@ -38,7 +38,7 @@ public enum CapeHandler
     INSTANCE;
 
     // used to print debug code.
-    private static final boolean debug = true;
+    private static final boolean debug = false;
 
     private CapePack capePack = null;
     public List<String> availableCapes;

@@ -81,12 +81,12 @@ public class CapePack
             while ((entry = zipInput.getNextEntry()) != null)
             {
                 String name = entry.getName();
-                // System.out.println(name);
+
                 if (name.endsWith(".png"))
                 {
                     // remove file extension from the name.
                     name = FilenameUtils.removeExtension(name);
-                    System.out.println(name);
+
                     StaticCape cape = this.loadCape(name, zipInput);
                     this.unprocessedCapes.put(name, cape);
                 }

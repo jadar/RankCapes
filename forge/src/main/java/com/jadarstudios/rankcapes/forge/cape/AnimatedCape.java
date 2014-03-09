@@ -8,7 +8,6 @@
 
 package com.jadarstudios.rankcapes.forge.cape;
 
-import com.jadarstudios.rankcapes.forge.RankCapesForge;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 
@@ -116,7 +115,6 @@ public class AnimatedCape extends AbstractCape
             flag = true;
             this.currentFrame++;
             this.previousElapsedTime = this.elapsedTime;
-            RankCapesForge.log.info(this.currentFrame);
         }
 
         if (this.currentFrame > this.getTotalFrames() - 1)
