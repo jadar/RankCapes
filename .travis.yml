@@ -10,4 +10,5 @@ jdk:
 
 env: TERM=dumb
 script: gradle setupCIWorkspace build --refresh-dependencies
-intall: /bin/true
+before_install:
+  - chmod +x gradlew
