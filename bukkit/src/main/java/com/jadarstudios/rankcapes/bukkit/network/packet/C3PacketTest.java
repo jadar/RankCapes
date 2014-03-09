@@ -12,15 +12,17 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 
+/**
+ * Test packet capable of being sent or received.
+ */
 public class C3PacketTest extends PacketBase
 {
 
     public String payload = "";
 
+    // for instantiation
     @SuppressWarnings("unused")
-    public C3PacketTest()
-    {
-    }
+    public C3PacketTest() {}
 
     public C3PacketTest(String payload)
     {

@@ -12,12 +12,19 @@ import org.json.simple.JSONArray;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.nio.ReadOnlyBufferException;
 import java.util.List;
 
+/**
+ * This class is a packet that sends the capes that are available to a client.
+ *
+ * @author Jadar
+ */
 public class C2PacketAvailableCapes extends PacketClient
 {
 
+    /**
+     * The capes formatted in JSON.
+     */
     protected String capes;
 
     public C2PacketAvailableCapes(List<String> capes)
@@ -26,7 +33,7 @@ public class C2PacketAvailableCapes extends PacketClient
     }
 
     @Override
-    public void write(ByteBuffer data) throws BufferOverflowException, ReadOnlyBufferException
+    public void write(ByteBuffer data) throws BufferOverflowException
     {
         writeString(this.capes, data);
     }

@@ -8,6 +8,11 @@
 
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
+/**
+ * The packet types. The enum ordinal is the discriminator so the order is the same on the client and server.
+ *
+ * @author Jadar
+ */
 public enum PacketType
 {
     // server packets

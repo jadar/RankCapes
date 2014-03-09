@@ -56,25 +56,23 @@ public class RankCapesBukkit extends JavaPlugin
         // makes the plugin data folder if necessary.
         this.getDataFolder().mkdir();
 
-        // sets up the config.
         this.setupConfig();
 
         // sets up the plugin metrics/stats (MCStats.org)
         this.setupMetrics();
 
-        // registers the communication channels with bukkit.
+        // registers the packet channels with bukkit.
         this.registerChannels();
-
-        // sets up the plugin database.
         this.setupDatabase();
 
-        // sets up test command.
         this.getCommand("mycape").setExecutor(new MyCapeCommand(this));
         // this.getCommand("testpacket").setExecutor(new CommandTestPacket(this));
 
-        // loads cape pack into the capePack fild.
-        this.loadCapePack();
-        if (this.capePack == null)
+        try
+        {
+            this.loadCapePack();
+        }
+        catch(IOException e)
         {
             this.getLogger().severe("Cape Pack not found! It is either an invalid ZIP file or does not exist!");
             this.disable();
@@ -117,8 +115,6 @@ public class RankCapesBukkit extends JavaPlugin
             packetHandler.sendCapePack(p);
             packetHandler.sendAvailableCapes(p);
         }
-
-        getLogger().info("RankCapes Initialized!");
     }
 
     /**
@@ -129,6 +125,7 @@ public class RankCapesBukkit extends JavaPlugin
     {
         Bukkit.getMessenger().unregisterIncomingPluginChannel(this, PLUGIN_CHANNEL);
         this.capePack = null;
+        this.availableCapes = null;
     }
 
     /**
@@ -156,6 +153,9 @@ public class RankCapesBukkit extends JavaPlugin
         catch (NoClassDefFoundError ignored) {}
     }
 
+    /**
+     * Sets up the plugin database.
+     */
     private void setupDatabase()
     {
         try
@@ -189,15 +189,14 @@ public class RankCapesBukkit extends JavaPlugin
      * Reads the cape pack into the capePack byte array to be sent to the
      * client.
      */
-    private void loadCapePack()
+    private void loadCapePack() throws IOException
     {
         // location of the cape pack.
-        File file = new File(this.getDataFolder() + "/" + this.capePackName);
+        File file = new File(this.getDataFolder() + File.separator + this.capePackName);
 
         if (file.isDirectory())
         {
-            getLogger().severe("Error parsing Cape Pack: Cape Pack " + file.getName() + " is a directory, not a file.");
-            return;
+            throw new FileNotFoundException(file.getName() + " is a directory, not a file.");
         }
 
         // copies default capes.zip to the plugin folder
@@ -206,26 +205,20 @@ public class RankCapesBukkit extends JavaPlugin
             this.saveResource("capes.zip", false);
         }
 
-        getLogger().info("Loading cape pack: " + file.getName());
+        this.getLogger().info("Loading cape pack: " + file.getName());
+
+        FileInputStream fis = new FileInputStream(file);
 
         // read cape pack from the RankCapes folder.
         try
         {
-            FileInputStream fis = new FileInputStream(file);
             this.capePack = new byte[(int) file.length()];
 
             fis.read(this.capePack);
+        }
+        finally
+        {
             fis.close();
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-            getLogger().severe("Error parsing Cape Pack: Could not find the cape pack file " + file.getName());
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            getLogger().severe("Error parsing Cape Pack: There was an error while loading " + file.getName());
         }
     }
 
@@ -320,17 +313,31 @@ public class RankCapesBukkit extends JavaPlugin
 
     /**
      * Gets player's cape from plugin database.
+     *
+     * @param player the player of whose cape to return
+     * @return the database entry of the given player's cape
      */
     public PlayerCape getPlayerCape(Player player)
     {
         return this.getDatabase().find(PlayerCape.class).where().ieq("playerName", player.getName()).findUnique();
     }
 
+    /**
+     * Sets the player cape in the database.
+     *
+     * @param cape the database entry
+     */
     public void setPlayerCape(PlayerCape cape)
     {
         this.getDatabase().save(cape);
     }
 
+    /**
+     * Removes a player's cape from the database.
+     *
+     * @param player the player of whose cape to delete
+     * @return if the cape was deleted
+     */
     public boolean deletePlayerCape(Player player)
     {
         PlayerCape cape = this.getPlayerCape(player);

@@ -12,7 +12,7 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 /**
- * Abstract class for packets coming from the server.
+ * A packet from client to server. Only meant to be read from.
  *
  * @author Jadar
  */

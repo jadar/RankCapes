@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 
 /**
- * From client to server;
+ * A packet from server to client. Only meant to be written to.
  *
  * @author Jadar
  */

@@ -12,9 +12,15 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 
+/**
+ * This class is a packet that sends a Cape Pack to a client.
+ */
 public class C1PacketCapePack extends PacketClient
 {
 
+    /**
+     * The full pack size. (This class can be used to chunk the Cape Pack.)
+     */
     public int packSize;
     public byte[] packBytes;
 

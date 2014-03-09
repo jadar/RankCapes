@@ -81,9 +81,6 @@ public enum PluginPacketHandler implements PluginMessageListener
         }
     }
 
-    /**
-     * Sends the port and available capes to the player registering a channel.
-     */
     public void newPlayerJoined(PlayerRegisterChannelEvent event)
     {
         // we only want to have clients with RankCapes installed.
@@ -185,13 +182,12 @@ public enum PluginPacketHandler implements PluginMessageListener
     {
         byte[] pack = plugin.getCapePack();
 
+        // the chunk size is the max message size minus the size of the 3 bytes used by the packet.
+        int chunkSize = Messenger.MAX_MESSAGE_SIZE - Byte.SIZE * 3;
+
         // chunks the array if necessary.
         if (pack.length >= Messenger.MAX_MESSAGE_SIZE)
         {
-            // the chunk size is the max message size minus the size of the 3 bytes used by the
-            // packet.
-            int chunkSize = Messenger.MAX_MESSAGE_SIZE - Byte.SIZE * 3;
-
             for (int pos = 0; pos < pack.length; pos += chunkSize)
             {
                 // makes sure we don't get an overflow exception
@@ -229,7 +225,7 @@ public enum PluginPacketHandler implements PluginMessageListener
             packet.addPlayer(updated.getName(), "");
         }
 
-        if (packet.getUpdateNumber() > 0)
+        if (packet.getUpdateCount() > 0)
         {
             this.sendPacketToWorld(updated.getWorld(), packet);
         }
@@ -255,7 +251,7 @@ public enum PluginPacketHandler implements PluginMessageListener
             }
         }
 
-        if (packet.getUpdateNumber() > 0)
+        if (packet.getUpdateCount() > 0)
         {
             this.sendPacketToPlayer(player, packet);
         }
@@ -276,6 +272,12 @@ public enum PluginPacketHandler implements PluginMessageListener
         this.sendPacketToPlayer(player, packet);
     }
 
+    /**
+     * Sends a packet to a specific player.
+     *
+     * @param player the player to send to
+     * @param packet the packet to send
+     */
     public void sendPacketToPlayer(Player player, PacketBase packet)
     {
         try
@@ -292,6 +294,12 @@ public enum PluginPacketHandler implements PluginMessageListener
         }
     }
 
+    /**
+     * Sends a packet to all in a world.
+     *
+     * @param world the world to send to
+     * @param packet the packet to send
+     */
     public void sendPacketToWorld(World world, PacketBase packet)
     {
         try
