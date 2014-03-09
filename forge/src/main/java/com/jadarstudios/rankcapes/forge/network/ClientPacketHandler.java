@@ -1,6 +1,6 @@
 /**
  * RankCapes Forge Mod
- * 
+ *
  * Copyright (c) 2013 Jacob Rhoda.
  * Released under the MIT license
  * http://github.com/jadar/RankCapes/blob/master/LICENSE
@@ -8,283 +8,213 @@
 
 package com.jadarstudios.rankcapes.forge.network;
 
+import com.jadarstudios.rankcapes.forge.ModProperties;
+import com.jadarstudios.rankcapes.forge.RankCapesForge;
+import com.jadarstudios.rankcapes.forge.cape.AbstractCape;
+import com.jadarstudios.rankcapes.forge.cape.CapePack;
+import com.jadarstudios.rankcapes.forge.handler.CapeHandler;
+import com.jadarstudios.rankcapes.forge.network.packet.*;
+import cpw.mods.fml.common.network.FMLEmbeddedChannel;
+import cpw.mods.fml.common.network.FMLIndexedMessageToMessageCodec;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.network.Packet;
+import net.minecraft.util.StringUtils;
 
 import java.util.EnumMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.Packet;
-
-import com.jadarstudios.rankcapes.forge.ModProperties;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.network.FMLEmbeddedChannel;
-import cpw.mods.fml.common.network.FMLIndexedMessageToMessageCodec;
-import cpw.mods.fml.common.network.FMLOutboundHandler;
-import cpw.mods.fml.common.network.FMLOutboundHandler.OutboundTarget;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
-public class ClientPacketHandler
+@SideOnly(Side.CLIENT)
+public enum ClientPacketHandler
 {
-    private static ClientPacketHandler INSTANCE = new ClientPacketHandler();
-    
+    INSTANCE;
+
+    private static boolean debug = false;
+
     private EnumMap<Side, FMLEmbeddedChannel> channels;
-    
+    private ByteArrayChunkAssembler packAssembler;
+
     private ClientPacketHandler()
     {
-        this.channels = NetworkRegistry.INSTANCE.newChannel(ModProperties.MOD_ID, new ChannelCodec());
-        
-        if (FMLCommonHandler.instance().getSide() == Side.CLIENT)
-            this.addClientHandler();
-    }
-    
-    public static ClientPacketHandler getInstance()
-    {
-        return INSTANCE;
-        
-    }
-    
-    @SideOnly(Side.CLIENT)
-    private void addClientHandler()
-    {
+        this.channels = NetworkRegistry.INSTANCE.newChannel(ModProperties.NETWORK_CHANNEL, new ChannelCodec());
+
         FMLEmbeddedChannel clientChannel = this.channels.get(Side.CLIENT);
-        
         String codec = clientChannel.findChannelHandlerNameForType(ChannelCodec.class);
-        clientChannel.pipeline().addAfter(codec, ModProperties.MOD_ID, new ChannelHandler());
+        clientChannel.pipeline().addAfter(codec, ModProperties.NETWORK_CHANNEL, new ChannelHandler());
     }
-    
+
     /**
      * Wrapper method for {@link FMLEmbeddedChannel#generatePacketFrom(Object)}.
      * Must have a codec in place to transform it for it to return anything.
-     * 
-     * @param msg
-     *            object to generate from
-     * @param side
-     *            channel to side being sent to
+     *
+     * @param msg  object to generate from
+     * @param side channel to side being sent to
+     *
      * @return created packet
      */
     public Packet generatePacketFrom(PacketBase msg, Side side)
     {
         return this.channels.get(side).generatePacketFrom(msg);
     }
-    
-    @SideOnly(Side.CLIENT)
+
     public void sendPacketToServer(Packet packet)
     {
-        this.sendPacketToTarget(packet, FMLOutboundHandler.OutboundTarget.TOSERVER);
+        this.channels.get(Side.CLIENT).writeOutbound(packet);
     }
-    
-    public void sendPacketToPlayer(Packet packet, EntityPlayer player)
+
+    public void sendPacketToServer(PacketBase packet)
     {
-        this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
-        this.sendPacketToTarget(packet, FMLOutboundHandler.OutboundTarget.PLAYER);
+        Packet generatedPacket = this.generatePacketFrom(packet, Side.SERVER);
+        this.sendPacketToServer(generatedPacket);
     }
-    
-    public void sendPacketToAllPlayers(Packet packet, EntityPlayer player)
+
+    private static class ChannelHandler extends SimpleChannelInboundHandler<PacketBase>
     {
-        this.sendPacketToTarget(packet, FMLOutboundHandler.OutboundTarget.ALL);
+
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, PacketBase packet) throws Exception
+        {
+            if (debug)
+            {
+                RankCapesForge.log.info("Got packet! Type: " + packet.getClass().getSimpleName());
+            }
+
+            try
+            {
+                ClientPacketHandler handler = ClientPacketHandler.INSTANCE;
+
+                if (packet instanceof C0PacketPlayerCapesUpdate)
+                {
+                    handler.handleS0PacketPlayerCapesUpdate((C0PacketPlayerCapesUpdate) packet);
+                }
+                else if (packet instanceof C1PacketCapePack)
+                {
+                    handler.handleS1PacketCapePack((C1PacketCapePack) packet);
+                }
+                else if (packet instanceof C2PacketAvailableCapes)
+                {
+                    handler.handleS2PacketAvailableCapes((C2PacketAvailableCapes) packet);
+                }
+                else if (packet instanceof C3PacketTest)
+                {
+                    handler.handleS3PacketTest((C3PacketTest) packet);
+                }
+            }
+            catch (Exception e)
+            {
+                RankCapesForge.log.error(String.format("Error while handling packet %s!", packet.getClass().getSimpleName()));
+                e.printStackTrace();
+            }
+        }
     }
-    
-    protected void sendPacketToTarget(Packet packet, OutboundTarget target)
-    {
-        this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(target);
-        this.channels.get(Side.SERVER).writeOutbound(packet);
-    }
-    
+
     private static class ChannelCodec extends FMLIndexedMessageToMessageCodec<PacketBase>
     {
-        
+
         public ChannelCodec()
         {
             for (PacketType type : PacketType.values())
-                this.addDiscriminator(type.ordinal(), type.packetClass);
+            {
+                this.addDiscriminator(type.ordinal(), type.getPacketClass());
+            }
         }
-        
+
         @Override
         public void encodeInto(ChannelHandlerContext ctx, PacketBase msg, ByteBuf target) throws Exception
         {
             msg.write(target);
         }
-        
+
         @Override
         public void decodeInto(ChannelHandlerContext ctx, ByteBuf source, PacketBase msg)
         {
             msg.read(source);
-            
-        }
-    }
-    
-    @SideOnly(Side.CLIENT)
-    private static class ChannelHandler extends SimpleChannelInboundHandler<FMLProxyPacket>
-    {
-        
-        @Override
-        protected void channelRead0(ChannelHandlerContext ctx, FMLProxyPacket packet) throws Exception
-        {
-            System.out.println("Got packet!");
+
         }
     }
 
-    /*
-    @Override
-    public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player)
+    private void handleS0PacketPlayerCapesUpdate(C0PacketPlayerCapesUpdate packet)
     {
-        String data = readByteArray(packet.data);
-        
+        CapePack capePack = CapeHandler.INSTANCE.getPack();
+        if (capePack == null)
+        {
+            RankCapesForge.log.warn("Can't update cape because no cape pack.");
+            return;
+        }
+
+        Map<String, String> changedCapes = packet.getPlayers();
+        for (Entry<String, String> entry : changedCapes.entrySet())
+        {
+            AbstractClientPlayer player = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(entry.getKey());
+
+            switch (packet.type)
+            {
+                case UPDATE:
+                {
+                    String capeName = entry.getValue();
+                    if (!StringUtils.isNullOrEmpty(capeName))
+                    {
+                        AbstractCape cape = capePack.getCape(capeName).clone();
+                        CapeHandler.INSTANCE.setPlayerCape(cape, player);
+                    }
+                    break;
+                }
+                case REMOVE:
+                {
+                    CapeHandler.INSTANCE.resetPlayerCape(player);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void handleS1PacketCapePack(C1PacketCapePack packet)
+    {
+        if (this.packAssembler == null || this.packAssembler.fullSize != packet.packSize)
+        {
+            this.packAssembler = new ByteArrayChunkAssembler(packet.packSize);
+        }
+
+        boolean flag = this.packAssembler.addChunk(packet.packBytes);
+        if (!flag)
+        {
+            RankCapesForge.log.warn("Pack Assembler Failed!");
+            this.packAssembler = null;
+            return;
+        }
+
+        if (this.packAssembler.getFullArray() != null)
+        {
+            CapePack capePack = new CapePack(this.packAssembler.getFullArray());
+            CapeHandler.INSTANCE.setPack(capePack);
+
+            // deallocate so we can receive new pack later
+            this.packAssembler = null;
+        }
+    }
+
+    private void handleS2PacketAvailableCapes(C2PacketAvailableCapes packet)
+    {
+        CapeHandler.INSTANCE.availableCapes = packet.getCapes();
+    }
+
+    private void handleS3PacketTest(C3PacketTest packet)
+    {
         if (debug)
         {
-            RankCapesForge.log.info("Recieved Packet! Data: " + data);
+            RankCapesForge.log.info(String.format("Test from server. Payload: %s", packet.payload));
         }
-        
-        if (!data.contains(":"))
-            return;
-        
-        // should have 2 entries, command:args
-        String[] command = data.split(":");
-        
-        // return if the command does not have args, or if the args are empty or
-        // null.
-        if (command.length < 2 || Strings.isNullOrEmpty(command[1]))
-            return;
-        
-        if (command[0].equals("transmitPort"))
-        {
-            if (StringUtils.isNumeric(command[1]))
-            {
-                RankCapesForge.instance.connectReadThread(Integer.parseInt(command[1]));
-            }
-        }
-        else if (command[0].equals("playerCapeUpdate"))
-        {
-            handlePlayerCapeUpdate(command[1]);
-        }
-        else if (command[0].equals("allPlayerCapes"))
-        {
-            HashMap<String, String> t = parsePlayerCapes(command[1]);
-            RankCapesForge.instance.getCapeHandler().playerCapeNames = t;
-            RankCapesForge.instance.getCapeHandler().capeChangeQue.addAll(t.keySet());
-        }
-        else if (command[0].equals("availableCapes"))
-        {
-            List<String> t = Arrays.asList(command[1].split(","));
-            RankCapesForge.instance.availableCapes = t;
-        }
-        else if (command[0].equals("removeCapeUpdate"))
-        {
-            RankCapesForge.instance.getCapeHandler().playerCapeNames.remove(command[1]);
-            RankCapesForge.instance.getCapeHandler().capeChangeQue.add(command[1]);
-        }
-        
+
+        packet.payload += " back at ya";
+
+        ClientPacketHandler handler = ClientPacketHandler.INSTANCE;
+        this.sendPacketToServer(handler.generatePacketFrom(packet, Side.SERVER));
     }
-    /*
-    /**
-     * Handles single player cape update.
-     * 
-     * @param args
-     *            from received command.
-     */
-/*    private void handlePlayerCapeUpdate(String args)
-    {
-        String[] t = args.split(",");
-        if (t.length != 2)
-            return;
-        
-        RankCapesForge.instance.getCapeHandler().playerCapeNames.put(t[0], t[1]);
-        RankCapesForge.instance.getCapeHandler().capeChangeQue.add(t[0]);
-    }
-    */
-    /**
-     * Parses a String to a HashMap of the player capes.
-     * 
-     * @param data
-     *            string of serialized hashmap
-     * @return deserialized hashmap
-     *//*
-    public HashMap<String, String> parsePlayerCapes(String data)
-    {
-        HashMap<String, String> map = new HashMap<String, String>();
-        
-        String[] splitData = data.split(Pattern.quote("|"));
-        
-        for (String playerData : splitData)
-        {
-            String[] splitPlayerData = playerData.split(",");
-            map.put(splitPlayerData[0], splitPlayerData[1]);
-        }
-        
-        return map;
-    }
-    
-    /**
-     * Requests the Cape Pack.
-     *//*
-    public void sendRequestPacket()
-    {
-        Packet250CustomPayload packet = new Packet250CustomPayload();
-        packet.channel = "RankCapes";
-        packet.data = "REQUEST-PACK".getBytes();
-        packet.length = packet.data.length;
-        
-        PacketDispatcher.sendPacketToServer(packet);
-    }*/
-    
-    /**
-     * Sends packet to change the cape.
-     * 
-     * @param capeName
-     *            name of cape to change to.
-     *//*
-    public void sendCapeChangePacket(String capeName)
-    {
-        Packet250CustomPayload packet = new Packet250CustomPayload();
-        packet.channel = "RankCapes";
-        packet.data = ("changeCape:" + capeName).getBytes();
-        packet.length = packet.data.length;
-        
-        PacketDispatcher.sendPacketToServer(packet);
-    }*/
-    
-    /**
-     * Sends packet to remove cape.
-     *//*
-    public void sendCapeRemovePacket()
-    {
-        Packet250CustomPayload packet = new Packet250CustomPayload();
-        packet.channel = "RankCapes";
-        packet.data = ("removeCape").getBytes();
-        packet.length = packet.data.length;
-        
-        PacketDispatcher.sendPacketToServer(packet);
-    }*/
-    
-    /**
-     * Reads a byte aray to a String.
-     * 
-     * @param data
-     *            byte array to read
-     * @return string from bytes
-     *//*
-    private static String readByteArray(byte[] data)
-    {
-        try
-        {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data)));
-            String rtrn = "";
-            while (br.ready())
-            {
-                rtrn += br.readLine();
-            }
-            return rtrn;
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-    }*/
 }

@@ -11,3 +11,10 @@ MANIFEST.MF
 RankCapes.jardesc
 .gradle
 eclipse/
+
+# IDEA files and folders
+.idea/
+out/
+*.iml
+*.ipr
+*.iws

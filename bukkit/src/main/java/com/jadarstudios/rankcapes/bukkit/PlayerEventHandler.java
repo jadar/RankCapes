@@ -1,6 +1,6 @@
 /**
- * RankCapes Bukkit Plugin.
- * 
+ * RankCapes Bukkit Plugin
+ *
  * Copyright (c) 2013 Jacob Rhoda.
  * Released under the MIT license
  * http://github.com/jadar/RankCapes/blob/master/LICENSE
@@ -8,6 +8,7 @@
 
 package com.jadarstudios.rankcapes.bukkit;
 
+import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -16,47 +17,40 @@ import org.bukkit.event.player.PlayerRegisterChannelEvent;
 
 /**
  * Used to detect when players do things.
- * 
+ *
  * @author Jadar
  */
-public class PlayerEventHandler implements Listener
+public enum PlayerEventHandler implements Listener
 {
-    
-    private final RankCapesBukkit plugin;
-    
-    public PlayerEventHandler(RankCapesBukkit parPlugin)
-    {
-        plugin = parPlugin;
-    }
-    
-    @EventHandler
+    INSTANCE;
+
     /**
      * Called when a player logs in.
      */
+    @EventHandler
     public void onRegisterChannel(PlayerRegisterChannelEvent event)
     {
-        plugin.getLogger().info(event.getChannel());
         if (event.getChannel().equals(RankCapesBukkit.PLUGIN_CHANNEL))
         {
-            plugin.getPacketHandler().handlePlugnChannelRegister(event);
+            PluginPacketHandler.INSTANCE.newPlayerJoined(event);
         }
     }
-    
-    @EventHandler
+
     /**
      * Called when a player logs out.
      */
+    @EventHandler
     public void onPlayerLogout(PlayerQuitEvent event)
     {
-        plugin.getPacketHandler().removeServingPlayer(event.getPlayer());
+        PluginPacketHandler.INSTANCE.removeServingPlayer(event.getPlayer());
     }
-    
-    @EventHandler
+
     /**
      * Called when a player changes worlds.
      */
+    @EventHandler
     public void changeWorld(PlayerChangedWorldEvent event)
     {
-        plugin.getPacketHandler().changeWorld(event);
+        PluginPacketHandler.INSTANCE.playerChangedWorld(event);
     }
 }

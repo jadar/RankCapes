@@ -1,6 +1,6 @@
 /**
- * RankCapes Bukkit Plugin.
- * 
+ * RankCapes Bukkit Plugin
+ *
  * Copyright (c) 2013 Jacob Rhoda.
  * Released under the MIT license
  * http://github.com/jadar/RankCapes/blob/master/LICENSE
@@ -8,152 +8,137 @@
 
 package com.jadarstudios.rankcapes.bukkit;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import javax.persistence.PersistenceException;
-
+import com.jadarstudios.rankcapes.bukkit.CapePackValidator.InvalidCapePackException;
+import com.jadarstudios.rankcapes.bukkit.command.MyCapeCommand;
+import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
+import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
 import org.mcstats.MetricsLite;
 
-import com.jadarstudios.rankcapes.bukkit.command.MyCapeCommand;
-import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
-import com.jadarstudios.rankcapes.bukkit.network.CapePackServerListenThread;
-import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
+import javax.persistence.PersistenceException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
-/**
- * Handles all player event. Usually just passes them off to the PacketHandler.
- *
- * @author Jadar
- *
- */
+
 public class RankCapesBukkit extends JavaPlugin
 {
-    /**
-     * The channel to use to exchange messages with the client.
-     */
+    public static final String CAPE_PERMISSION_BASE = "rankcapes.cape.use.";
     public static final String PLUGIN_CHANNEL = "rankcapes";
-    
-    /**
-     * Used to log messages.
-     */
-    public static Logger log;
-    
-    /**
-     * Cape page file name from config file.
-     */
+
+    private static RankCapesBukkit INSTANCE;
+
     private String capePackName = "";
-    
-    /**
-     * Cape pack zip bytes.
-     */
     private byte[] capePack = null;
-    
-    /**
-     * Server port to listen for connections on.
-     */
-    private int capeServerPort;
-    
-    /**
-     * CapePackServerListenThread instance.
-     */
-    private CapePackServerListenThread listenThread;
-    
-    /**
-     * plugin's packet handler instance
-     */
-    private PluginPacketHandler packetHandler;
-    
-    /**
-     * all capes that are available.
-     */
+
     private List<String> availableCapes;
-    
+
+    public static RankCapesBukkit instance()
+    {
+        return INSTANCE;
+    }
+
     @Override
-    /**
-     * Called when the plugin is enabled.
-     */
     public void onEnable()
     {
+        INSTANCE = this;
+
         // initializes the availableCapes list.
-        availableCapes = new ArrayList<String>();
-        
-        // sets up the logger.
-        log = getLogger();
-        
+        this.availableCapes = new ArrayList<String>();
+
         // makes the plugin data folder if necessary.
-        getDataFolder().mkdir();
-        
-        // sets up the config.
-        setupConfig();
-        
+        this.getDataFolder().mkdir();
+
+        this.setupConfig();
+
         // sets up the plugin metrics/stats (MCStats.org)
-        setupMetrics();
-        
-        // registers the communication channels with bukkit.
-        registerChannels();
-        
-        // sets up the plugin database.
-        setupDatabase();
-        
-        // sets up test command.
-        getCommand("mycape").setExecutor(new MyCapeCommand(this));
-        
-        // loads cape pack into the capePack fild.
-        setupCapePack();
-        if (capePack == null)
+        this.setupMetrics();
+
+        // registers the packet channels with bukkit.
+        this.registerChannels();
+        this.setupDatabase();
+
+        this.getCommand("mycape").setExecutor(new MyCapeCommand(this));
+        // this.getCommand("testpacket").setExecutor(new CommandTestPacket(this));
+
+        try
         {
-            log.severe("Cape Pack is null! It is either an invalid ZIP file or does not exist!");
-            disable();
+            this.loadCapePack();
+        }
+        catch (IOException e)
+        {
+            this.getLogger().severe("Cape Pack not found! It is either an invalid ZIP file or does not exist!");
+            this.disable();
             return;
         }
-        
-        // checks if the pack has a pack.mcmeta in the zip.
-        boolean valid = validatePack(capePack);
-        if (!valid)
+
+        try
         {
-            log.severe("Cape Pack is invalid! Either the pack.mcmeta file is missing or the file is corrupt.");
-            disable();
+            this.validatePack(this.capePack);
+        }
+        catch (IOException e)
+        {
+            getLogger().severe("Error while validating Cape Pack! The file may be corrupt.");
+            e.printStackTrace();
+            this.disable();
             return;
         }
-        
-        // creates and starts the listening thread.
-        listenThread = new CapePackServerListenThread(this, capeServerPort);
-        listenThread.setDaemon(true);
-        listenThread.setName("RankCapes Cape Pack Server");
-        listenThread.start();
-        
+        catch (InvalidCapePackException e)
+        {
+            getLogger().severe("Error while validating Cape Pack!");
+            e.printStackTrace();
+            this.disable();
+            return;
+        }
+        catch (ParseException e)
+        {
+            getLogger().severe("Error while validating Cape Pack!");
+            e.printStackTrace();
+            this.disable();
+            return;
+        }
+
         // registers the player event hander.
-        getServer().getPluginManager().registerEvents(new PlayerEventHandler(this), this);
-        
-        log.info("RankCapes Initialized!");
+        this.getServer().getPluginManager().registerEvents(PlayerEventHandler.INSTANCE, this);
+
+        PluginPacketHandler packetHandler = PluginPacketHandler.INSTANCE;
+
+        for (Player p : packetHandler.getPlayersServing())
+        {
+            packetHandler.sendCapePack(p);
+            packetHandler.sendAvailableCapes(p);
+        }
     }
-    
+
+    /**
+     * Called when the plugin is disabled.
+     */
+    @Override
+    public void onDisable()
+    {
+        Bukkit.getMessenger().unregisterIncomingPluginChannel(this, PLUGIN_CHANNEL);
+        this.capePack = null;
+        this.availableCapes = null;
+    }
+
     /**
      * Loads in the plugin config.
      */
     private void setupConfig()
     {
         // makes default config file if its not already there.
-        saveDefaultConfig();
-        
-        capePackName = getConfig().getString("cape-pack");
-        capeServerPort = getConfig().getInt("port");
+        this.saveDefaultConfig();
+
+        this.capePackName = this.getConfig().getString("cape-pack");
     }
-    
+
     /**
      * Sets up plugin metrics (MCStats.org)
      */
@@ -164,264 +149,233 @@ public class RankCapesBukkit extends JavaPlugin
             MetricsLite metrics = new MetricsLite(this);
             metrics.start();
         }
-        catch(IOException e)
+        catch (IOException ignored)
         {
-            ;
         }
-        catch(NoClassDefFoundError e)
+        catch (NoClassDefFoundError ignored)
         {
-            ;
         }
     }
-    
+
+    /**
+     * Sets up the plugin database.
+     */
     private void setupDatabase()
     {
         try
         {
             // finds if database exists.
-            getDatabase().find(PlayerCape.class).findRowCount();
+            this.getDatabase().find(PlayerCape.class).findRowCount();
         }
         catch (PersistenceException ex)
         {
-            log.info("Installing database for " + getDescription().getName() + " due to first time usage");
-            installDDL();
+            getLogger().info("Installing database for " + this.getDescription().getName() + " due to first time usage");
+            this.installDDL();
         }
     }
-    
-    /**
-     * Reads the cape pack into the capePack byte array to be sent to the
-     * client.
-     */
-    private void setupCapePack()
-    {
-        // location of the cape pack.
-        File tmpFile = new File(getDataFolder() + "/" + capePackName);
-        
-        if (tmpFile.isDirectory())
-        {
-            log.severe("Error parsing Cape Pack: Cape Pack " + tmpFile.getName() + " is a directory, not a file.");
-            return;
-        }
-        
-        // copies default capes.zip to the plugin folder
-        if (!tmpFile.exists())
-        {
-            saveResource("capes.zip", false);
-        }
-        
-        log.info("Loading cape pack: " + tmpFile.getName());
-        
-        // if file size of cape pack is greater than 5 mb then return.
-        if (tmpFile.length() > 5242880)
-            return;
-        
-        // read cape pack from the RankCapes folder.
-        try
-        {
-            FileInputStream tmpFileIn = new FileInputStream(tmpFile);
-            capePack = new byte[(int) tmpFile.length()];
-            
-            tmpFileIn.read(capePack);
-            tmpFileIn.close();
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-            log.severe("Error parsing Cape Pack: Could not find the cape pack file " + tmpFile.getName());
-            return;
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            log.severe("Error parsing Cape Pack: There was an error while loading " + tmpFile.getName());
-            return;
-        }
-    }
-    
+
     /**
      * Registers the plugin channels to communicate with the client.
      */
     private void registerChannels()
     {
+        // 'get' the packet handler ordinal to initialize it.
+        PluginPacketHandler.INSTANCE.ordinal();
+
         // outgoing channel
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, PLUGIN_CHANNEL);
-        
-        // declare new packet handler
-        packetHandler = new PluginPacketHandler(this);
-        
+
         // incoming channel.
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, PLUGIN_CHANNEL, packetHandler);
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, PLUGIN_CHANNEL, PluginPacketHandler.INSTANCE);
     }
-    
-    @Override
+
+    /**
+     * Reads the cape pack into the capePack byte array to be sent to the
+     * client.
+     */
+    private void loadCapePack() throws IOException
+    {
+        // location of the cape pack.
+        File file = new File(this.getDataFolder() + File.separator + this.capePackName);
+
+        if (file.isDirectory())
+        {
+            throw new FileNotFoundException(file.getName() + " is a directory, not a file.");
+        }
+
+        // copies default capes.zip to the plugin folder
+        if (!file.exists())
+        {
+            this.saveResource("capes.zip", false);
+        }
+
+        this.getLogger().info("Loading cape pack: " + file.getName());
+
+        FileInputStream fis = new FileInputStream(file);
+
+        // read cape pack from the RankCapes folder.
+        try
+        {
+            this.capePack = new byte[(int) file.length()];
+
+            fis.read(this.capePack);
+        }
+        finally
+        {
+            fis.close();
+        }
+    }
+
+    /**
+     * Validates a cape pack and returns true if it is valid.
+     *
+     * @param pack to validate
+     */
+    private void validatePack(byte[] pack) throws IOException, InvalidCapePackException, ParseException
+    {
+        boolean foundMetadata = false;
+
+        if (pack == null)
+        {
+            throw new InvalidCapePackException("The cape pack was null");
+        }
+
+        if (!CapePackValidator.isZipFile(pack))
+        {
+            throw new InvalidCapePackException("The cape pack is not a ZIP file.");
+        }
+
+        ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(pack));
+        ZipEntry entry;
+
+        // reads the zip and finds the files. if the pack config file is not found, return false.
+        while ((entry = zipIn.getNextEntry()) != null)
+        // if the zip contains a file names "pack.mcmeta"
+        {
+            if (entry.getName().equals("pack.mcmeta"))
+            {
+                foundMetadata = true;
+                try
+                {
+                    this.parseMetadata(zipIn);
+                }
+                finally
+                {
+                    zipIn.close();
+                }
+
+                break;
+            }
+        }
+
+        if (!foundMetadata)
+        {
+            throw new InvalidCapePackException("The Cape Pack metadata was not found.");
+        }
+    }
+
+    /**
+     * Parses cape pack metadata.
+     *
+     * @param input zip input stream of the cape pack.
+     */
+    private void parseMetadata(ZipInputStream input) throws InvalidCapePackException, IOException, ParseException
+    {
+        Object root = JSONValue.parseWithException(new InputStreamReader(input));
+        JSONObject object = (JSONObject) root;
+
+        CapePackValidator.validatePack(object);
+
+        for (Object key : object.keySet())
+        {
+            if (key instanceof String)
+            {
+                this.availableCapes.add((String) key);
+            }
+        }
+    }
+
+    /**
+     * Gets all the capes that are available to be used.
+     *
+     * @return list of all capes.
+     */
+    public List<String> getAvailableCapes()
+    {
+        return this.availableCapes;
+    }
+
+    /**
+     * Gets the cape pack in bytes.
+     *
+     * @return cape pack byte array.
+     */
+    public byte[] getCapePack()
+    {
+        return this.capePack;
+    }
+
+    /**
+     * Gets player's cape from plugin database.
+     *
+     * @param player the player of whose cape to return
+     *
+     * @return the database entry of the given player's cape
+     */
+    public PlayerCape getPlayerCape(Player player)
+    {
+        return this.getDatabase().find(PlayerCape.class).where().ieq("playerName", player.getName()).findUnique();
+    }
+
+    /**
+     * Sets the player cape in the database.
+     *
+     * @param cape the database entry
+     */
+    public void setPlayerCape(PlayerCape cape)
+    {
+        this.getDatabase().save(cape);
+    }
+
+    /**
+     * Removes a player's cape from the database.
+     *
+     * @param player the player of whose cape to delete
+     *
+     * @return if the cape was deleted
+     */
+    public boolean deletePlayerCape(Player player)
+    {
+        PlayerCape cape = this.getPlayerCape(player);
+
+        if (cape != null)
+        {
+            this.getDatabase().delete(cape);
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Gets all the classes used to get data from the database.
+     *
      * @return list of classes for a table.
      */
+    @Override
     public List<Class<?>> getDatabaseClasses()
     {
         List<Class<?>> list = new ArrayList<Class<?>>();
         list.add(PlayerCape.class);
         return list;
     }
-    
-    @Override
-    /**
-     * Called when the plugin is disabled.
-     */
-    public void onDisable()
-    {
-        if(listenThread != null)
-        {
-        	listenThread.stopAllThreads();
-        	listenThread.stopThread();
-        }
-    }
-    
+
     /**
      * Disables the plugin. Also logs a message.
      */
     public void disable()
     {
-        log.info("Disabling!");
-        getServer().getPluginManager().disablePlugin(this);
-    }
-    
-    /**
-     * Validates a cape pack and returns true if it is valid.
-     * 
-     * @param pack
-     *            to validate
-     * @return boolean is valid
-     */
-    private boolean validatePack(byte[] pack)
-    {
-        try
-        {
-            if (pack == null)
-                return false;
-            
-            ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(pack));
-            ZipEntry entry = null;
-            
-            // reads the zip and finds the files. if the pack config file is not
-            // found, return false.
-            while ((entry = zipIn.getNextEntry()) != null)
-            {
-                // if the zip contains a file names "pack.mcmeta"
-                if (entry.getName().equals("pack.mcmeta"))
-                {
-                    boolean b = parseMetadata(zipIn);
-                    zipIn.close();
-                    return b;
-                }
-            }
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            log.severe("Error parsing cape pack: Could not validate cape pack!");
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Parses cape pack metadata.
-     * 
-     * @param input
-     *            zip input stream of the cape pack.
-     * @return was successful.
-     */
-    private boolean parseMetadata(ZipInputStream input)
-    {
-        try
-        {
-            //JsonRootNode root = parser.parse(new InputStreamReader(input));
-            
-            Object root = JSONValue.parse(new InputStreamReader(input));
-            JSONObject object = (JSONObject)root;
-           
-            
-            // loops through every entry in the base of the JSON file.
-            for (Object key : object.keySet())
-            {
-                if(key instanceof String)
-                {
-                    String cape = (String)key;
-                    availableCapes.add(cape);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Gets all the capes that are available to be used.
-     * 
-     * @return list of all capes.
-     */
-    public List<String> getAvailableCapes()
-    {
-        return availableCapes;
-    }
-    
-    /**
-     * Gets the cape pack in bytes.
-     * 
-     * @return cape pack byte array.
-     */
-    public byte[] getPack()
-    {
-        return capePack;
-    }
-    
-    /**
-     * Gets player's cape from plugin database.
-     * 
-     * @param player
-     *            player whose cape to lookup.
-     * @return player's cape.
-     */
-    public PlayerCape getPlayerCape(Player player)
-    {
-        return getDatabase().find(PlayerCape.class).where().ieq("playerName", player.getName()).findUnique();
-    }
-    
-    /**
-     * Gets the packet handler instance.
-     * 
-     * @return packet handler instance.
-     */
-    public PluginPacketHandler getPacketHandler()
-    {
-        return packetHandler;
-    }
-    
-    /**
-     * Gets the CapePackServerListenThread instance.
-     * 
-     * @return CapePackServerListenThread instance.
-     */
-    public CapePackServerListenThread getListenThread()
-    {
-        return listenThread;
-    }
-    
-    /**
-     * Gets the port that the cape server should be hosted on.
-     * 
-     * @return cape port.
-     */
-    public int getCapeServerPort()
-    {
-        return capeServerPort;
+        getLogger().info("Disabling!");
+        this.getServer().getPluginManager().disablePlugin(this);
     }
 }

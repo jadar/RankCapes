@@ -1,6 +1,6 @@
 /**
  * RankCapes Forge Mod
- * 
+ *
  * Copyright (c) 2013 Jacob Rhoda.
  * Released under the MIT license
  * http://github.com/jadar/RankCapes/blob/master/LICENSE
@@ -8,122 +8,126 @@
 
 package com.jadarstudios.rankcapes.forge.cape;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
+
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.texture.ITextureObject;
-
 /**
- * This class implements Animated Capes. It keeps track of which frame it's on
- * and contains all the other frames in the form of StaticCapes.
- * 
+ * This class is an Animated cape. It contains all the other frames in the form of {@link StaticCape} instances and
+ * keeps track of which frame it's on.
+ *
  * @author Jadar
  */
-public class AnimatedCape implements ICape
+public class AnimatedCape extends AbstractCape
 {
-    
+
     List<StaticCape> capeFrames;
-    
+
     int framesPerSecond = 0;
     int currentFrame = 0;
-    
-    // elapsed time in ticks.
+
+    // elapsed time in milliseconds.
     long elapsedTime = 0;
-    // time since update in ticks.
-    long lastElapsedTime = 0;
-    
-    boolean pause = false;
-    
-    protected String name;
-    
+    long previousElapsedTime = 0;
+
+    protected String name = "";
+
+    /**
+     * <u>Only</u> animate the cape when moving.
+     */
+    boolean animateWhenMoving = false;
+
     public AnimatedCape(String name)
     {
-        capeFrames = new ArrayList<StaticCape>();
+        this.capeFrames = new ArrayList<StaticCape>();
         this.name = name;
     }
-    
+
     public AnimatedCape(String name, int parFramesPerSecond)
     {
         this(name);
-        framesPerSecond = parFramesPerSecond;
+        this.framesPerSecond = parFramesPerSecond;
     }
-    
-    @Override
-    public ITextureObject getCapeTexture()
+
+    public AnimatedCape(String name, int framesPerSecond, boolean animateWhenMoving)
     {
-        return getCurrentFrame().getCapeTexture();
+        this(name, framesPerSecond);
+        this.animateWhenMoving = animateWhenMoving;
     }
-    
+
+    @Override
+    public BufferedImage getCapeTexture()
+    {
+        return this.getCurrentFrame().getCapeTexture();
+    }
+
     @Override
     public void loadTexture(AbstractClientPlayer player)
     {
-        getCurrentFrame().loadTexture(player);
+        this.getCurrentFrame().loadTexture(player);
     }
-    
-    public StaticCape getCurrentFrame()
-    {
-        return capeFrames.get(currentFrame);
-    }
-    
-    public int addFrame(StaticCape frame)
-    {
-        capeFrames.add(frame);
-        return capeFrames.size();
-    }
-    
-    public void addFrame(StaticCape frame, int position)
-    {
-        capeFrames.add(position, frame);
-    }
-    
-    public int getTotalFrames()
-    {
-        return capeFrames.size();
-    }
-    
-    public void setFPS(int parFramesPerSecond)
-    {
-        framesPerSecond = parFramesPerSecond;
-    }
-    
-    public int getFPS()
-    {
-        return framesPerSecond;
-    }
-    
+
     @Override
     public String getName()
     {
         return this.name;
     }
-    
-    public void update()
+
+    public StaticCape getCurrentFrame()
     {
-        if (pause)
-            return;
-        
+        return this.capeFrames.get(this.currentFrame);
+    }
+
+    public int addFrame(StaticCape frame)
+    {
+        this.capeFrames.add(frame);
+        return this.capeFrames.size();
+    }
+
+    public int getTotalFrames()
+    {
+        return this.capeFrames.size();
+    }
+
+    public boolean animateWhenMoving()
+    {
+        return this.animateWhenMoving;
+    }
+
+    /**
+     * Updated the cape.
+     *
+     * @return if the texture was changed.
+     */
+    public boolean update()
+    {
+        boolean flag = false;
         this.elapsedTime = Minecraft.getSystemTime();
-        
+
         // time since update is one tick + time between tick.
-        long delta = elapsedTime - lastElapsedTime;
-        
-        if (delta >= 1 / framesPerSecond)
+        long delta = this.elapsedTime - this.previousElapsedTime;
+
+        if (delta >= (1000 / this.framesPerSecond))
         {
-            currentFrame++;
-            lastElapsedTime = elapsedTime;
+            flag = true;
+            this.currentFrame++;
+            this.previousElapsedTime = this.elapsedTime;
         }
 
-        if (currentFrame > getTotalFrames() - 1)
+        if (this.currentFrame > this.getTotalFrames() - 1)
         {
-            currentFrame = 0;
+            this.currentFrame = 0;
         }
+
+        return flag;
     }
-    
+
     @Override
     public String toString()
     {
-        return String.format("Animated cape with %s frames at %s FPS.", getTotalFrames(), framesPerSecond);
+        return String.format("Animated cape with %s frames at %s FPS.", this.getTotalFrames(), this.framesPerSecond);
     }
 }
