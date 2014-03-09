@@ -8,5 +8,5 @@ branches:
 jdk:
   - oraclejdk7
 
-intall: true
 script: gradle setupCIWorkspace build --refresh-dependencies
+intall: /bin/true
