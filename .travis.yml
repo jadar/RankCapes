@@ -9,5 +9,6 @@ jdk:
   - oraclejdk7
 
 env: TERM=dumb
-before-script: chmod +x ./gradlew 
 script: gradle build --refresh-dependencies
+before_install:
+  - chmod +x gradlew
