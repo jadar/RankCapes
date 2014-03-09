@@ -1,0 +1,12 @@
+language: java
+
+branches:
+  except:
+    - gh-pages
+    - master
+
+jdk:
+  - oraclejdk7
+
+intall: true
+script: gradle setupCIWorkspace build --refresh-dependencies
