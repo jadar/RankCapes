@@ -1,0 +1,13 @@
+language: java
+
+branches:
+  except:
+    - gh-pages
+    - master
+
+jdk:
+  - oraclejdk6
+
+env: TERM=dumb
+script: gradle build --refresh-dependencies
+intall: /bin/true
