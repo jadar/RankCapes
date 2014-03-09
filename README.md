@@ -15,13 +15,13 @@ The master branch of the repository contains subtrees of the master code branche
 The RankCapes project has 2 parts. Client and server.
 
 **Server**  
-[Bukkit](./tree/bukit) - [bleeding](./tree/bukkit-bleeding)  
+[Bukkit](../../tree/bukkit) - [bleeding](../../tree/bukkit-bleeding)  
 
 **Client**  
-[Forge](./tree/forge) - [bleeding](./tree/forge-bleeding)
+[Forge](../../tree/forge) - [bleeding](../../tree/forge-bleeding)
 
 ##Usage
-For full usage and setup, see [the wiki](http://github.com/jadar/RankCapes/wiki).
+For full usage and setup, see [the wiki](../../wiki).
 
 ##Compilation
 To compile the **plugin**.
