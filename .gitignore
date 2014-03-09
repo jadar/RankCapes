@@ -1,6 +1,7 @@
 # Build and Release Folders
 target/
 build/
+bin/
 
 # Other files and folders
 .settings/
