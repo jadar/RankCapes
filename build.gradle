@@ -29,9 +29,9 @@ minecraft {
 
 //buildNumber is deprecated
 def buildnumber = 0
-if(System.getenv().BUILD_NUMBER != null)
+if(System.getenv().TRAVIS_BUILD_NUMBER != null)
 {
-	buildnumber = System.getenv().BUILD_NUMBER
+	buildnumber = System.getenv().TRAVIS_BUILD_NUMBER
 }
 
 // version and stuff
@@ -64,52 +64,5 @@ processResources
 
 uploadArchives
 {
-	repositories
-	{
-		//configuration = configurations.deployerJars
-		add(new org.apache.ivy.plugins.resolver.SFTPResolver()) {
-        	name = "sftprepo"
-        	host = ""
-        	port = 22
-        	user = ""
-        	userPassword = ""
-        	addIvyPattern "ivy/[organization]/[module]/[revision]/ivy-[revision].xml"
-        	addArtifactPattern "ivy/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-    	}
-		/*
-		pom.project {
-            name project.archivesBaseName
-			artifactId project.archivesBaseName
-            packaging 'jar'
-            description 'DeveloperCapes is a library for Minecraft that allows developers to give capes to select people.'
-            url 'https://github.com/jadar/DeveloperCapes/'
-
-            scm {
-                url 'https://github.com/jadar/DeveloperCapes/'
-                connection 'scm:git:git://github.com/jadar/DeveloperCapes.git'
-                developerConnection 'scm:git:git@github.com:jadar/DeveloperCapes.git'
-            }
-
-            issueManagement {
-                system 'github'
-                url 'https://github.com/jadar/DeveloperCapes/issues'
-            }
-
-            licenses {
-                license {
-                    name 'MIT License'
-                    url 'https://raw.github.com/jadar/DeveloperCapes/master/LICENSE'
-                    distribution 'repo'
-                }
-            }
-
-            developers {
-                developer {
-                    id 'jadar'
-                    name 'Jadar'
-                    roles { role 'developer' }
-                }
-            }
-        }*/
-	}
+	
 }
