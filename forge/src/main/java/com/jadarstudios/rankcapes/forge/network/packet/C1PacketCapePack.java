@@ -10,24 +10,23 @@ package com.jadarstudios.rankcapes.forge.network.packet;
 
 import io.netty.buffer.ByteBuf;
 
-public class S1PacketCapePack extends PacketServer
+/**
+ * This class is a packet that receives a Cape Pack from the server.
+ */
+public class C1PacketCapePack extends PacketClient
 {
 
+    /**
+     * The full pack size. (This class can be used to chunk the Cape Pack.)
+     */
     public int packSize;
     public byte[] packBytes;
 
-    public S1PacketCapePack()
-    {
-    }
-
-    public S1PacketCapePack(int packSize, byte[] packBytes)
-    {
-        this.packSize = packSize;
-        this.packBytes = packBytes;
-    }
+    // for instantiation
+    public C1PacketCapePack() {}
 
     @Override
-    public void read(ByteBuf data)
+    public void read(ByteBuf data) throws IndexOutOfBoundsException
     {
         this.packSize = data.readInt();
         int length = data.readInt();

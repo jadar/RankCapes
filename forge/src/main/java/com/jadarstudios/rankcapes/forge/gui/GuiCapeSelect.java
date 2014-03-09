@@ -12,9 +12,9 @@ import com.jadarstudios.rankcapes.forge.cape.AbstractCape;
 import com.jadarstudios.rankcapes.forge.cape.PlayerCapeProperties;
 import com.jadarstudios.rankcapes.forge.handler.CapeHandler;
 import com.jadarstudios.rankcapes.forge.handler.KeyEventHandler;
+import com.jadarstudios.rankcapes.forge.network.CapeUpdateType;
 import com.jadarstudios.rankcapes.forge.network.ClientPacketHandler;
-import com.jadarstudios.rankcapes.forge.network.packet.C4PacketUpdateCape;
-import com.jadarstudios.rankcapes.forge.network.packet.C4PacketUpdateCape.Type;
+import com.jadarstudios.rankcapes.forge.network.packet.S4PacketUpdateCape;
 import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import net.minecraft.client.Minecraft;
@@ -266,13 +266,13 @@ public class GuiCapeSelect extends GuiScreen
                 // remove cape if selected button is default.
                 if (this.selectedCapeButton.id == 3)
                 {
-                    C4PacketUpdateCape packet = new C4PacketUpdateCape(Type.REMOVE);
+                    S4PacketUpdateCape packet = new S4PacketUpdateCape(CapeUpdateType.REMOVE);
                     ClientPacketHandler.INSTANCE.sendPacketToServer(packet);
                 }
                 else
                 {
                     // send packet to server that we want to change.
-                    C4PacketUpdateCape packet = new C4PacketUpdateCape(this.selectedCapeButton.capeName);
+                    S4PacketUpdateCape packet = new S4PacketUpdateCape(this.selectedCapeButton.capeName);
                     ClientPacketHandler.INSTANCE.sendPacketToServer(packet);
                 }
 

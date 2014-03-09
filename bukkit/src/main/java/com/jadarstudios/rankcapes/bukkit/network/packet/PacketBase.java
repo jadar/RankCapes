@@ -41,7 +41,7 @@ public abstract class PacketBase
     public abstract int getSize();
 
     /**
-     * Write a string to a byte buffer.
+     * Write a string to a {@link ByteBuffer}.
      *
      * @param string the string to write
      * @param data the buffer to write to
@@ -57,7 +57,7 @@ public abstract class PacketBase
     }
 
     /**
-     * Reads a string from a byte buffer.
+     * Reads a string from a {@link ByteBuffer}.
      *
      * @param data the buffer to read from
      *

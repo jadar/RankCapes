@@ -15,6 +15,9 @@ import net.minecraft.client.renderer.IImageBuffer;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * This class makes sure the capes are the right size for binding.
+ */
 @SideOnly(Side.CLIENT)
 public class HDImageBuffer implements IImageBuffer
 {

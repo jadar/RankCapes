@@ -8,6 +8,9 @@
 
 package com.jadarstudios.rankcapes.forge;
 
+/**
+ * This class holds several Mod property constants.
+ */
 public class ModProperties
 {
     public static final String MOD_ID = "rankcapes";

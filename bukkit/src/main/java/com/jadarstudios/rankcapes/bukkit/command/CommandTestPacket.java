@@ -10,7 +10,7 @@ package com.jadarstudios.rankcapes.bukkit.command;
 
 import com.jadarstudios.rankcapes.bukkit.RankCapesBukkit;
 import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
-import com.jadarstudios.rankcapes.bukkit.network.packet.C3PacketTest;
+import com.jadarstudios.rankcapes.bukkit.network.packet.S3PacketTest;
 import com.jadarstudios.rankcapes.bukkit.network.packet.PacketBase;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -47,7 +47,7 @@ public class CommandTestPacket implements CommandExecutor
                 s += args[i] + " ";
             }
 
-            PacketBase packet = new C3PacketTest(s);
+            PacketBase packet = new S3PacketTest(s);
             PluginPacketHandler.INSTANCE.sendPacketToPlayer(player, packet);
 
             return true;

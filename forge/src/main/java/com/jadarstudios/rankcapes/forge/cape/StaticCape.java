@@ -14,6 +14,9 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * This class is a static cape. It holds the texture and loads the texture to the GPU.
+ */
 public class StaticCape extends AbstractCape
 {
 

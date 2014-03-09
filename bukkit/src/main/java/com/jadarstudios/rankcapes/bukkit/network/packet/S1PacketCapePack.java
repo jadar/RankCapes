@@ -15,7 +15,7 @@ import java.nio.ReadOnlyBufferException;
 /**
  * This class is a packet that sends a Cape Pack to a client.
  */
-public class C1PacketCapePack extends PacketClient
+public class S1PacketCapePack extends PacketServer
 {
 
     /**
@@ -24,7 +24,7 @@ public class C1PacketCapePack extends PacketClient
     public int packSize;
     public byte[] packBytes;
 
-    public C1PacketCapePack(int packSize, byte[] packBytes)
+    public S1PacketCapePack(int packSize, byte[] packBytes)
     {
         this.packSize = packSize;
         this.packBytes = packBytes;

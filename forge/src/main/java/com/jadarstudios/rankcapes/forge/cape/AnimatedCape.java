@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class implements Animated Capes. It keeps track of which frame it's on
- * and contains all the other frames in the form of StaticCapes.
+ * This class is an Animated cape. It contains all the other frames in the form of {@link StaticCape} instances and
+ * keeps track of which frame it's on.
  *
  * @author Jadar
  */
@@ -36,7 +36,10 @@ public class AnimatedCape extends AbstractCape
 
     protected String name = "";
 
-    boolean onlyAnimateWhenMoving = false;
+    /**
+     * <u>Only</u> animate the cape when moving.
+     */
+    boolean animateWhenMoving = false;
 
     public AnimatedCape(String name)
     {
@@ -50,10 +53,10 @@ public class AnimatedCape extends AbstractCape
         this.framesPerSecond = parFramesPerSecond;
     }
 
-    public AnimatedCape(String name, int framesPerSecond, boolean onlyAnimateWhenMoving)
+    public AnimatedCape(String name, int framesPerSecond, boolean animateWhenMoving)
     {
         this(name, framesPerSecond);
-        this.onlyAnimateWhenMoving = onlyAnimateWhenMoving;
+        this.animateWhenMoving = animateWhenMoving;
     }
 
     @Override
@@ -66,6 +69,12 @@ public class AnimatedCape extends AbstractCape
     public void loadTexture(AbstractClientPlayer player)
     {
         this.getCurrentFrame().loadTexture(player);
+    }
+
+    @Override
+    public String getName()
+    {
+        return this.name;
     }
 
     public StaticCape getCurrentFrame()
@@ -84,12 +93,16 @@ public class AnimatedCape extends AbstractCape
         return this.capeFrames.size();
     }
 
-    @Override
-    public String getName()
+    public boolean animateWhenMoving()
     {
-        return this.name;
+        return this.animateWhenMoving;
     }
 
+    /**
+     * Updated the cape.
+     *
+     * @return if the texture was changed.
+     */
     public boolean update()
     {
         boolean flag = false;
@@ -112,11 +125,6 @@ public class AnimatedCape extends AbstractCape
         }
 
         return flag;
-    }
-
-    public boolean onlyAnimateWhenMoving()
-    {
-        return this.onlyAnimateWhenMoving;
     }
 
     @Override

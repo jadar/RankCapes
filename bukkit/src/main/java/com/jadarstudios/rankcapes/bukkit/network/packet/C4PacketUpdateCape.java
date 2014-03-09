@@ -18,13 +18,13 @@ import java.nio.ByteBuffer;
  *
  * @author Jadar
  */
-public class S4PacketUpdateCape extends PacketServer
+public class C4PacketUpdateCape extends PacketClient
 {
     public CapeUpdateType updateType;
     public String cape;
 
     // empty constructor for instantiation
-    public S4PacketUpdateCape() {}
+    public C4PacketUpdateCape() {}
 
     @Override
     public void read(ByteBuffer data) throws BufferUnderflowException

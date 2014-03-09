@@ -14,6 +14,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
+/**
+ * This class is an event for the API and is fired when a player's cape changes.
+ */
 @SideOnly(Side.CLIENT)
 public class EventPlayerCapeChange extends PlayerEvent
 {

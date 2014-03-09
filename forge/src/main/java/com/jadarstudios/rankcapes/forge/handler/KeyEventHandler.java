@@ -12,8 +12,6 @@ import com.jadarstudios.rankcapes.forge.gui.GuiCapeSelect;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import org.lwjgl.input.Keyboard;
@@ -21,7 +19,9 @@ import org.lwjgl.input.Keyboard;
 import java.util.ArrayList;
 import java.util.List;
 
-@SideOnly(Side.CLIENT)
+/**
+ * Handles key events. Opens and closes the {@link GuiCapeSelect} gui.
+ */
 public enum KeyEventHandler
 {
     INSTANCE;

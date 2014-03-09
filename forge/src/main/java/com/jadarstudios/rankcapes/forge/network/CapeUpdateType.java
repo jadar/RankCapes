@@ -1,5 +1,5 @@
 /**
- * RankCapes Bukkit Plugin
+ * RankCapes Forge Mod
  *
  * Copyright (c) 2013 Jacob Rhoda.
  * Released under the MIT license

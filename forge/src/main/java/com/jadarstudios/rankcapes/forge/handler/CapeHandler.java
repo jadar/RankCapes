@@ -29,8 +29,7 @@ import java.util.List;
 
 @SideOnly(Side.CLIENT)
 /**
- * This class changes the capes on players.
- * It also ticks {@link AnimatedCape}s.
+ * This class changes the capes on players. It also ticks {@link AnimatedCape} instances.
  *
  * @author Jadar
  */
@@ -49,13 +48,17 @@ public enum CapeHandler
         availableCapes = new ArrayList<String>();
     }
 
+    /**
+     * Ticks Animated capes so they animate.
+     *
+     * @param event the render event
+     */
     @SubscribeEvent
     public void renderPlayerEvent(RenderPlayerEvent.Specials.Pre event)
     {
         AbstractClientPlayer player = (AbstractClientPlayer) event.entityPlayer;
 
         // cape from current player.
-        // ICape cape = currentPlayerCapes.get(player.getCommandSenderName());
         PlayerCapeProperties properties = PlayerCapeProperties.forPlayer(player);
         if (properties == null)
         {
@@ -69,7 +72,7 @@ public enum CapeHandler
             AnimatedCape animated = (AnimatedCape)cape;
             boolean flag = true;
 
-            if(animated.onlyAnimateWhenMoving())
+            if(animated.animateWhenMoving())
             {
                 flag = player.motionX != 0 || player.motionZ != 0 || Math.abs(player.motionY) > 0.09;
             }
@@ -85,6 +88,12 @@ public enum CapeHandler
         }
     }
 
+    /**
+     * Sets a player cape.
+     *
+     * @param cape the cape to set
+     * @param player the player whose cape to set
+     */
     public void setPlayerCape(AbstractCape cape, AbstractClientPlayer player)
     {
         if (cape == null)
@@ -144,16 +153,29 @@ public enum CapeHandler
         properties.setCape(null);
     }
 
+    /**
+     * Gets a cape instance from the cape pack.
+     *
+     * @param capeName the name of the cape to get
+     */
     public AbstractCape getCape(String capeName)
     {
         return this.capePack != null ? this.capePack.getCape(capeName) : null;
     }
 
+    /**
+     * Sets the current Cape Pack.
+     *
+     * @param pack the cape pack to set
+     */
     public void setPack(CapePack pack)
     {
         this.capePack = pack;
     }
 
+    /**
+     * Gets the Cape Pack.
+     */
     public CapePack getPack()
     {
         return this.capePack;

@@ -16,9 +16,17 @@ import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
 
-public class S2PacketAvailableCapes extends PacketServer
+/**
+ * This class is a packet that receives the capes that are available to a client.
+ *
+ * @author Jadar
+ */
+public class C2PacketAvailableCapes extends PacketClient
 {
 
+    /**
+     * The capes formatted in JSON.
+     */
     protected String capes;
 
     @Override
@@ -28,7 +36,7 @@ public class S2PacketAvailableCapes extends PacketServer
     }
 
     @SuppressWarnings("unchecked")
-    public List<String> getCapes()
+    public List<String> getCapes() throws IndexOutOfBoundsException
     {
         List<String> capes = null;
 

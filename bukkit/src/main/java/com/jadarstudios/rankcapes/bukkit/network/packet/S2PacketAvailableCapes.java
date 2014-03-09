@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author Jadar
  */
-public class C2PacketAvailableCapes extends PacketClient
+public class S2PacketAvailableCapes extends PacketServer
 {
 
     /**
@@ -27,7 +27,7 @@ public class C2PacketAvailableCapes extends PacketClient
      */
     protected String capes;
 
-    public C2PacketAvailableCapes(List<String> capes)
+    public S2PacketAvailableCapes(List<String> capes)
     {
         this.setCapes(capes);
     }

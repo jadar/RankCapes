@@ -23,10 +23,13 @@ import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * This is the main class for the mod.
+ */
 @Mod(modid = ModProperties.MOD_ID, name = ModProperties.MOD_NAME, version = ModProperties.MOD_VERSION)
 public class RankCapesForge
 {
-    @Instance
+    @Instance(ModProperties.MOD_ID)
     public static RankCapesForge instance;
 
     public static final Logger log = LogManager.getLogger(ModProperties.MOD_NAME);
@@ -49,7 +52,6 @@ public class RankCapesForge
         ClientPacketHandler.INSTANCE.ordinal();
 
         FMLCommonHandler.instance().bus().register(KeyEventHandler.INSTANCE);
-        FMLCommonHandler.instance().bus().register(PlayerEventHandler.INSTANCE);
 
         MinecraftForge.EVENT_BUS.register(PlayerEventHandler.INSTANCE);
         MinecraftForge.EVENT_BUS.register(CapeHandler.INSTANCE);

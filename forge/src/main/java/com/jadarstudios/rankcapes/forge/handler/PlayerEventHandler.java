@@ -10,36 +10,29 @@ package com.jadarstudios.rankcapes.forge.handler;
 
 import com.jadarstudios.rankcapes.forge.cape.PlayerCapeProperties;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.network.FMLNetworkEvent.CustomPacketRegistrationEvent;
-import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 
 /**
- * This class listens for network events. Connection opening, connection
- * received, successfully logged in, etc.
+ * This class listens for Forge events.
  *
- * @author Jadarz
+ * @author Jadar
  */
 public enum PlayerEventHandler
 {
     INSTANCE;
 
+    /**
+     * Registers extended properties with player entities when they are constructed.
+     *
+     * @param event the {@link EntityConstructing} event
+     */
     @SubscribeEvent
     public void onEntityConstruct(EntityConstructing event)
     {
         if (event.entity instanceof EntityPlayer)
         {
             event.entity.registerExtendedProperties(PlayerCapeProperties.IDENTIFIER, new PlayerCapeProperties());
-        }
-    }
-
-    @SubscribeEvent
-    public void onClientChannelRegister(CustomPacketRegistrationEvent<NetHandlerPlayClient> event)
-    {
-        for (String channel : event.registrations)
-        {
-            System.out.println("Channel Registered: " + channel);
         }
     }
 }

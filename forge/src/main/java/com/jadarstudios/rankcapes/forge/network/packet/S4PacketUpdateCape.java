@@ -8,45 +8,39 @@
 
 package com.jadarstudios.rankcapes.forge.network.packet;
 
+import com.jadarstudios.rankcapes.forge.network.CapeUpdateType;
 import io.netty.buffer.ByteBuf;
 
 /**
- * This packet is sent to the server to tell it
- * the client wants to change its cape.
+ * This packet is sent to the server to tell it a player wants to change or remove his cape.
  *
  * @author Jadar
  */
-public class C4PacketUpdateCape extends PacketClient
+public class S4PacketUpdateCape extends PacketServer
 {
-    public Type updateType;
+    public CapeUpdateType updateType;
     public String cape = "";
 
     /**
-     * Creates the packet with {@link Type#UPDATE} as the update type.
+     * Creates the packet with {@link CapeUpdateType#UPDATE} as the update type.
      *
      * @param cape
      */
-    public C4PacketUpdateCape(String cape)
+    public S4PacketUpdateCape(String cape)
     {
-        this(Type.UPDATE);
+        this(CapeUpdateType.UPDATE);
         this.cape = cape;
     }
 
-    public C4PacketUpdateCape(Type updateType)
+    public S4PacketUpdateCape(CapeUpdateType updateType)
     {
         this.updateType = updateType;
     }
 
     @Override
-    public void write(ByteBuf data)
+    public void write(ByteBuf data) throws IndexOutOfBoundsException
     {
         data.writeByte(this.updateType.ordinal());
         this.writeString(this.cape, data);
     }
-
-    public static enum Type
-    {
-        UPDATE, REMOVE
-    }
-
 }

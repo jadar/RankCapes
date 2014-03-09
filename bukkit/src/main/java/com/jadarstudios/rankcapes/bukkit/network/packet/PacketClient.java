@@ -8,21 +8,25 @@
 
 package com.jadarstudios.rankcapes.bukkit.network.packet;
 
-import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.nio.ReadOnlyBufferException;
 
 /**
- * A packet from server to client. Only meant to be written to.
+ * A packet from client to server. Only meant to be read from.
  *
  * @author Jadar
  */
 public abstract class PacketClient extends PacketBase
 {
 
+    // "implemets" this so that child classes dont need to.
+    @Override
+    public final void write(ByteBuffer data) throws BufferUnderflowException {}
+
     // "implement" this so child classes don't have to.
     @Override
-    public final void read(ByteBuffer data) throws BufferOverflowException, ReadOnlyBufferException
+    public final int getSize()
     {
+        return 0;
     }
 }

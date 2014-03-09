@@ -10,8 +10,6 @@ package com.jadarstudios.rankcapes.forge.cape;
 
 import com.google.gson.Gson;
 import com.jadarstudios.rankcapes.forge.RankCapesForge;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import joptsimple.internal.Strings;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +27,6 @@ import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-@SideOnly(Side.CLIENT)
 /**
  * This class represents a cape pack. 
  * It stores the capes, parses metadata, and assembles AnimatedCapes.
@@ -48,6 +45,7 @@ public class CapePack
      * map of filenames (no extension) to static capes.
      */
     private HashMap<String, StaticCape> unprocessedCapes;
+
     /**
      * processed capes based on the metadata.
      */
@@ -162,7 +160,7 @@ public class CapePack
     {
         Object framesObj = node.get("frames");
         Object fpsObj = node.get("fps");
-        Object onlyAnimateWhenMovingObj = node.get("onlyAnimateWhenMoving");
+        Object onlyAnimateWhenMovingObj = node.get("animateWhenMoving");
 
         if (framesObj instanceof ArrayList && fpsObj instanceof Double)
         {

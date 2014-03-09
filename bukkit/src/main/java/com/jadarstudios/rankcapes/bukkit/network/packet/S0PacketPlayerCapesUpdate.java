@@ -23,7 +23,7 @@ import java.util.Map;
  *
  * @author Jadar
  */
-public class C0PacketPlayerCapesUpdate extends PacketClient
+public class S0PacketPlayerCapesUpdate extends PacketServer
 {
     public CapeUpdateType type;
 
@@ -32,7 +32,7 @@ public class C0PacketPlayerCapesUpdate extends PacketClient
      */
     public Map<String, String> playersMap;
 
-    public C0PacketPlayerCapesUpdate(CapeUpdateType type)
+    public S0PacketPlayerCapesUpdate(CapeUpdateType type)
     {
         this.type = type;
         this.playersMap = new HashMap<String, String>();
@@ -52,9 +52,9 @@ public class C0PacketPlayerCapesUpdate extends PacketClient
      *
      * @param cape the database entry of the player to add
      *
-     * @return the resulting {@link C0PacketPlayerCapesUpdate} instance for instantiation convenience
+     * @return the resulting {@link S0PacketPlayerCapesUpdate} instance for instantiation convenience
      */
-    public C0PacketPlayerCapesUpdate addPlayer(PlayerCape cape)
+    public S0PacketPlayerCapesUpdate addPlayer(PlayerCape cape)
     {
         return this.addPlayer(cape.getPlayerName(), cape.getCapeName());
     }
@@ -64,9 +64,9 @@ public class C0PacketPlayerCapesUpdate extends PacketClient
      *
      * @param cape the database entry of the player to add
      *
-     * @return the resulting {@link C0PacketPlayerCapesUpdate} instance for instantiation convenience
+     * @return the resulting {@link S0PacketPlayerCapesUpdate} instance for instantiation convenience
      */
-    public C0PacketPlayerCapesUpdate addPlayer(String player, String cape)
+    public S0PacketPlayerCapesUpdate addPlayer(String player, String cape)
     {
         if (this.playersMap == null)
         {

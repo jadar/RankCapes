@@ -11,7 +11,6 @@ package com.jadarstudios.rankcapes.bukkit.network;
 import com.jadarstudios.rankcapes.bukkit.RankCapesBukkit;
 import com.jadarstudios.rankcapes.bukkit.database.PlayerCape;
 import com.jadarstudios.rankcapes.bukkit.network.packet.*;
-import com.jadarstudios.rankcapes.bukkit.network.packet.C0PacketPlayerCapesUpdate.Type;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -50,15 +49,15 @@ public enum PluginPacketHandler implements PluginMessageListener
             packet = PacketManager.INSTANCE.getPacketFromBytes(bytes);
 
             // handle cape change
-            if (packet instanceof S4PacketUpdateCape)
+            if (packet instanceof C4PacketUpdateCape)
             {
-                S4PacketUpdateCape updatePacket = (S4PacketUpdateCape) packet;
+                C4PacketUpdateCape updatePacket = (C4PacketUpdateCape) packet;
 
                 switch (updatePacket.updateType)
                 {
                     case UPDATE:
                     {
-                        this.handleCapeChage((S4PacketUpdateCape) packet, player);
+                        this.handleCapeChage((C4PacketUpdateCape) packet, player);
                         break;
                     }
                     case REMOVE:
@@ -68,9 +67,9 @@ public enum PluginPacketHandler implements PluginMessageListener
                     }
                 }
             }
-            else if (packet instanceof C3PacketTest)
+            else if (packet instanceof S3PacketTest)
             {
-                plugin.getLogger().info(String.format("Test packet from CLIENT: %s with PAYLOAD: %s", player.getName(), ((C3PacketTest) packet).payload));
+                plugin.getLogger().info(String.format("Test packet from CLIENT: %s with PAYLOAD: %s", player.getName(), ((S3PacketTest) packet).payload));
             }
 
         }
@@ -100,7 +99,7 @@ public enum PluginPacketHandler implements PluginMessageListener
         this.sendAvailableCapes(player);
 
         // update the other players that there is a new one.
-        this.sendCapeUpdates(player, Type.UPDATE);
+        this.sendCapeUpdates(player, CapeUpdateType.UPDATE);
     }
 
     /**
@@ -114,17 +113,17 @@ public enum PluginPacketHandler implements PluginMessageListener
         // player that changed world
         Player player = event.getPlayer();
 
-        C0PacketPlayerCapesUpdate packetRemove = new C0PacketPlayerCapesUpdate(Type.REMOVE).addPlayer(player.getName(), "");
+        S0PacketPlayerCapesUpdate packetRemove = new S0PacketPlayerCapesUpdate(CapeUpdateType.REMOVE).addPlayer(player.getName(), "");
         this.sendPacketToWorld(event.getFrom(), packetRemove);
 
         // send all player capes. only sends in same world.
         this.sendAllPlayerCapes(player);
 
         // updates players in the world that there is a new player.
-        this.sendCapeUpdates(player, Type.UPDATE);
+        this.sendCapeUpdates(player, CapeUpdateType.UPDATE);
     }
 
-    protected void handleCapeChage(S4PacketUpdateCape packet, Player player)
+    protected void handleCapeChage(C4PacketUpdateCape packet, Player player)
     {
         String capeName = packet.cape;
 
@@ -148,7 +147,7 @@ public enum PluginPacketHandler implements PluginMessageListener
             plugin.setPlayerCape(cape);
 
             // sends update to clients, including the updated player.
-            this.sendCapeUpdates(player, Type.UPDATE);
+            this.sendCapeUpdates(player, CapeUpdateType.UPDATE);
         }
         else
         {
@@ -169,12 +168,12 @@ public enum PluginPacketHandler implements PluginMessageListener
         if (flag)
         {
             // sends update to clients, including the updated player.
-            this.sendCapeUpdates(player, Type.REMOVE);
+            this.sendCapeUpdates(player, CapeUpdateType.REMOVE);
         }
     }
 
     /**
-     * Sends a {@link C1PacketCapePack} to the given player.
+     * Sends a {@link S1PacketCapePack} to the given player.
      *
      * @param player the player to send to
      */
@@ -194,13 +193,13 @@ public enum PluginPacketHandler implements PluginMessageListener
                 int toPos = pos + chunkSize > pack.length ? pack.length : pos + chunkSize;
                 byte[] chunk = Arrays.copyOfRange(pack, pos, toPos);
 
-                C1PacketCapePack packet = new C1PacketCapePack(pack.length, chunk);
+                S1PacketCapePack packet = new S1PacketCapePack(pack.length, chunk);
                 this.sendPacketToPlayer(player, packet);
             }
         }
         else
         {
-            C1PacketCapePack packet = new C1PacketCapePack(pack.length, pack);
+            S1PacketCapePack packet = new S1PacketCapePack(pack.length, pack);
             this.sendPacketToPlayer(player, packet);
         }
     }
@@ -208,11 +207,11 @@ public enum PluginPacketHandler implements PluginMessageListener
     /**
      * Sends a cape update of the given player to the world the player is in.
      */
-    public void sendCapeUpdates(Player updated, Type type)
+    public void sendCapeUpdates(Player updated, CapeUpdateType type)
     {
-        C0PacketPlayerCapesUpdate packet = new C0PacketPlayerCapesUpdate(type);
+        S0PacketPlayerCapesUpdate packet = new S0PacketPlayerCapesUpdate(type);
 
-        if (type == Type.UPDATE)
+        if (type == CapeUpdateType.UPDATE)
         {
             PlayerCape cape = plugin.getPlayerCape(updated);
             if (cape != null)
@@ -220,7 +219,7 @@ public enum PluginPacketHandler implements PluginMessageListener
                 packet.addPlayer(cape);
             }
         }
-        else if (type == Type.REMOVE)
+        else if (type == CapeUpdateType.REMOVE)
         {
             packet.addPlayer(updated.getName(), "");
         }
@@ -233,7 +232,7 @@ public enum PluginPacketHandler implements PluginMessageListener
 
     public void sendAllPlayerCapes(Player player)
     {
-        C0PacketPlayerCapesUpdate packet = new C0PacketPlayerCapesUpdate(Type.UPDATE);
+        S0PacketPlayerCapesUpdate packet = new S0PacketPlayerCapesUpdate(CapeUpdateType.UPDATE);
 
         for (Player iteratorPlayer : this.playersServing)
         {
@@ -266,7 +265,7 @@ public enum PluginPacketHandler implements PluginMessageListener
     {
         // available capes to player.
         List<String> capes = this.getAvailableCapes(player);
-        C2PacketAvailableCapes packet = new C2PacketAvailableCapes(capes);
+        S2PacketAvailableCapes packet = new S2PacketAvailableCapes(capes);
 
         // send message to player
         this.sendPacketToPlayer(player, packet);

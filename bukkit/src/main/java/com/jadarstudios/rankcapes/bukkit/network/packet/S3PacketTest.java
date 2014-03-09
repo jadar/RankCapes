@@ -15,16 +15,16 @@ import java.nio.ReadOnlyBufferException;
 /**
  * Test packet capable of being sent or received.
  */
-public class C3PacketTest extends PacketBase
+public class S3PacketTest extends PacketBase
 {
 
     public String payload = "";
 
     // for instantiation
     @SuppressWarnings("unused")
-    public C3PacketTest() {}
+    public S3PacketTest() {}
 
-    public C3PacketTest(String payload)
+    public S3PacketTest(String payload)
     {
         this.payload = payload;
     }

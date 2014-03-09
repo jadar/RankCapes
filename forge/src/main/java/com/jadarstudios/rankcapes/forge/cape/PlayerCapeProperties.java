@@ -14,6 +14,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IExtendedEntityProperties;
 
+/**
+ * This class holds a player's current cape.
+ */
 public class PlayerCapeProperties implements IExtendedEntityProperties
 {
 
@@ -21,15 +24,18 @@ public class PlayerCapeProperties implements IExtendedEntityProperties
 
     AbstractCape playerCape;
 
+    /**
+     * Gets the {@link PlayerCapeProperties} instance associated with a player.
+     *
+     * @param player the player whose {@link PlayerCapeProperties} instance to get.
+     */
     public static PlayerCapeProperties forPlayer(AbstractClientPlayer player)
     {
         return (PlayerCapeProperties) player.getExtendedProperties(IDENTIFIER);
     }
 
     @Override
-    public void init(Entity entity, World world)
-    {
-    }
+    public void init(Entity entity, World world) {}
 
     public void setCape(AbstractCape cape)
     {
@@ -41,14 +47,12 @@ public class PlayerCapeProperties implements IExtendedEntityProperties
         return this.playerCape;
     }
 
+    // not ever saved to the world
     @Override
-    public void saveNBTData(NBTTagCompound compound)
-    {
-    }
+    public void saveNBTData(NBTTagCompound compound) {}
 
+    // not ever loaded from the world.
     @Override
-    public void loadNBTData(NBTTagCompound compound)
-    {
-    }
+    public void loadNBTData(NBTTagCompound compound) {}
 
 }

@@ -39,7 +39,7 @@ public enum ClientPacketHandler
     private static boolean debug = false;
 
     private EnumMap<Side, FMLEmbeddedChannel> channels;
-    private CapePackAssembler packAssembler;
+    private ByteArrayChunkAssembler packAssembler;
 
     private ClientPacketHandler()
     {
@@ -90,21 +90,21 @@ public enum ClientPacketHandler
             {
                 ClientPacketHandler handler = ClientPacketHandler.INSTANCE;
 
-                if (packet instanceof S0PacketPlayerCapesUpdate)
+                if (packet instanceof C0PacketPlayerCapesUpdate)
                 {
-                    handler.handleS0PacketPlayerCapesUpdate((S0PacketPlayerCapesUpdate) packet);
+                    handler.handleS0PacketPlayerCapesUpdate((C0PacketPlayerCapesUpdate) packet);
                 }
-                else if (packet instanceof S1PacketCapePack)
+                else if (packet instanceof C1PacketCapePack)
                 {
-                    handler.handleS1PacketCapePack((S1PacketCapePack) packet);
+                    handler.handleS1PacketCapePack((C1PacketCapePack) packet);
                 }
-                else if (packet instanceof S2PacketAvailableCapes)
+                else if (packet instanceof C2PacketAvailableCapes)
                 {
-                    handler.handleS2PacketAvailableCapes((S2PacketAvailableCapes) packet);
+                    handler.handleS2PacketAvailableCapes((C2PacketAvailableCapes) packet);
                 }
-                else if (packet instanceof S3PacketTest)
+                else if (packet instanceof C3PacketTest)
                 {
-                    handler.handleS3PacketTest((S3PacketTest) packet);
+                    handler.handleS3PacketTest((C3PacketTest) packet);
                 }
             }
             catch (Exception e)
@@ -140,7 +140,7 @@ public enum ClientPacketHandler
         }
     }
 
-    private void handleS0PacketPlayerCapesUpdate(S0PacketPlayerCapesUpdate packet)
+    private void handleS0PacketPlayerCapesUpdate(C0PacketPlayerCapesUpdate packet)
     {
         CapePack capePack = CapeHandler.INSTANCE.getPack();
         if (capePack == null)
@@ -175,14 +175,14 @@ public enum ClientPacketHandler
         }
     }
 
-    private void handleS1PacketCapePack(S1PacketCapePack packet)
+    private void handleS1PacketCapePack(C1PacketCapePack packet)
     {
         if (this.packAssembler == null || this.packAssembler.fullSize != packet.packSize)
         {
-            this.packAssembler = new CapePackAssembler(packet.packSize);
+            this.packAssembler = new ByteArrayChunkAssembler(packet.packSize);
         }
 
-        boolean flag = this.packAssembler.addChunk(packet);
+        boolean flag = this.packAssembler.addChunk(packet.packBytes);
         if (!flag)
         {
             RankCapesForge.log.warn("Pack Assembler Failed!");
@@ -190,9 +190,9 @@ public enum ClientPacketHandler
             return;
         }
 
-        if (this.packAssembler.getFullPack() != null)
+        if (this.packAssembler.getFullArray() != null)
         {
-            CapePack capePack = new CapePack(this.packAssembler.getFullPack());
+            CapePack capePack = new CapePack(this.packAssembler.getFullArray());
             CapeHandler.INSTANCE.setPack(capePack);
 
             // deallocate so we can receive new pack later
@@ -200,12 +200,12 @@ public enum ClientPacketHandler
         }
     }
 
-    private void handleS2PacketAvailableCapes(S2PacketAvailableCapes packet)
+    private void handleS2PacketAvailableCapes(C2PacketAvailableCapes packet)
     {
         CapeHandler.INSTANCE.availableCapes = packet.getCapes();
     }
 
-    private void handleS3PacketTest(S3PacketTest packet)
+    private void handleS3PacketTest(C3PacketTest packet)
     {
         if (debug)
         {

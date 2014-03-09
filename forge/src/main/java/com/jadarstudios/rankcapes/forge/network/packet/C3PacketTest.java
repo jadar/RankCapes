@@ -10,16 +10,19 @@ package com.jadarstudios.rankcapes.forge.network.packet;
 
 import io.netty.buffer.ByteBuf;
 
-public class S3PacketTest extends PacketBase
+/**
+ * Test packet capable of being sent or received.
+ */
+public class C3PacketTest extends PacketBase
 {
 
     public String payload = "";
 
-    public S3PacketTest()
+    public C3PacketTest()
     {
     }
 
-    public S3PacketTest(String payload)
+    public C3PacketTest(String payload)
     {
         this.payload = payload;
     }
