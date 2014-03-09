@@ -296,7 +296,7 @@ public enum PluginPacketHandler implements PluginMessageListener
     /**
      * Sends a packet to all in a world.
      *
-     * @param world the world to send to
+     * @param world  the world to send to
      * @param packet the packet to send
      */
     public void sendPacketToWorld(World world, PacketBase packet)

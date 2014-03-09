@@ -72,7 +72,7 @@ public class RankCapesBukkit extends JavaPlugin
         {
             this.loadCapePack();
         }
-        catch(IOException e)
+        catch (IOException e)
         {
             this.getLogger().severe("Cape Pack not found! It is either an invalid ZIP file or does not exist!");
             this.disable();
@@ -83,14 +83,14 @@ public class RankCapesBukkit extends JavaPlugin
         {
             this.validatePack(this.capePack);
         }
-        catch(IOException e)
+        catch (IOException e)
         {
             getLogger().severe("Error while validating Cape Pack! The file may be corrupt.");
             e.printStackTrace();
             this.disable();
             return;
         }
-        catch(InvalidCapePackException e)
+        catch (InvalidCapePackException e)
         {
             getLogger().severe("Error while validating Cape Pack!");
             e.printStackTrace();
@@ -110,7 +110,7 @@ public class RankCapesBukkit extends JavaPlugin
 
         PluginPacketHandler packetHandler = PluginPacketHandler.INSTANCE;
 
-        for(Player p : packetHandler.getPlayersServing())
+        for (Player p : packetHandler.getPlayersServing())
         {
             packetHandler.sendCapePack(p);
             packetHandler.sendAvailableCapes(p);
@@ -149,8 +149,12 @@ public class RankCapesBukkit extends JavaPlugin
             MetricsLite metrics = new MetricsLite(this);
             metrics.start();
         }
-        catch (IOException ignored) {}
-        catch (NoClassDefFoundError ignored) {}
+        catch (IOException ignored)
+        {
+        }
+        catch (NoClassDefFoundError ignored)
+        {
+        }
     }
 
     /**
@@ -236,7 +240,7 @@ public class RankCapesBukkit extends JavaPlugin
             throw new InvalidCapePackException("The cape pack was null");
         }
 
-        if(!CapePackValidator.isZipFile(pack))
+        if (!CapePackValidator.isZipFile(pack))
         {
             throw new InvalidCapePackException("The cape pack is not a ZIP file.");
         }
@@ -264,7 +268,7 @@ public class RankCapesBukkit extends JavaPlugin
             }
         }
 
-        if(!foundMetadata)
+        if (!foundMetadata)
         {
             throw new InvalidCapePackException("The Cape Pack metadata was not found.");
         }
@@ -282,11 +286,11 @@ public class RankCapesBukkit extends JavaPlugin
 
         CapePackValidator.validatePack(object);
 
-        for (Object key: object.keySet())
+        for (Object key : object.keySet())
         {
             if (key instanceof String)
             {
-                this.availableCapes.add((String)key);
+                this.availableCapes.add((String) key);
             }
         }
     }
@@ -315,6 +319,7 @@ public class RankCapesBukkit extends JavaPlugin
      * Gets player's cape from plugin database.
      *
      * @param player the player of whose cape to return
+     *
      * @return the database entry of the given player's cape
      */
     public PlayerCape getPlayerCape(Player player)
@@ -336,13 +341,14 @@ public class RankCapesBukkit extends JavaPlugin
      * Removes a player's cape from the database.
      *
      * @param player the player of whose cape to delete
+     *
      * @return if the cape was deleted
      */
     public boolean deletePlayerCape(Player player)
     {
         PlayerCape cape = this.getPlayerCape(player);
 
-        if(cape != null)
+        if (cape != null)
         {
             this.getDatabase().delete(cape);
             return true;
@@ -350,6 +356,7 @@ public class RankCapesBukkit extends JavaPlugin
 
         return false;
     }
+
     /**
      * Gets all the classes used to get data from the database.
      *

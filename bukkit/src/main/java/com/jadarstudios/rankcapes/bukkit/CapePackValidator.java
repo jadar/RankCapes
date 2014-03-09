@@ -33,6 +33,7 @@ public class CapePackValidator
      * Validates the pack metadata.
      *
      * @param object the root json object
+     *
      * @throws InvalidCapePackException thrown if the cape pack is invalid
      */
     public static void validatePack(JSONObject object) throws InvalidCapePackException
@@ -40,17 +41,17 @@ public class CapePackValidator
         // loops through every entry in the base of the JSON file.
         for (Object entryObj : object.entrySet())
         {
-            if(entryObj instanceof Map.Entry)
+            if (entryObj instanceof Map.Entry)
             {
                 Object key = ((Map.Entry) entryObj).getKey();
                 Object value = ((Map.Entry) entryObj).getValue();
 
-                if(!(key instanceof String))
+                if (!(key instanceof String))
                 {
                     throw new InvalidCapePackException(String.format("The key \"%s\" is not a string.", key));
                 }
 
-                if(value instanceof Map)
+                if (value instanceof Map)
                 {
                     try
                     {
@@ -84,11 +85,12 @@ public class CapePackValidator
      * Validates an Animated cape node.
      *
      * @param node the node thought to be an Animated cape node
+     *
      * @throws InvalidCapePackException thrown if the node is invalid.
      */
     public static void validateAnimatedCapeNode(Map node) throws InvalidCapePackException
     {
-        for(Map.Entry<String, Class<?>> possibleField : ANIMATED_FIELDS.entrySet())
+        for (Map.Entry<String, Class<?>> possibleField : ANIMATED_FIELDS.entrySet())
         {
             Object jsonField = node.get(possibleField.getKey());
             Class field = possibleField.getValue();
@@ -103,11 +105,12 @@ public class CapePackValidator
      * Validates a Static cape node.
      *
      * @param node the node thought to be a Static cape
+     *
      * @throws InvalidCapePackException thrown if the node is invalid.
      */
     public static void validateStaticCapeNode(Object node) throws InvalidCapePackException
     {
-        if(!(node instanceof String))
+        if (!(node instanceof String))
         {
             throw new InvalidCapePackException(String.format("The value \"%s\" is not a string.", node));
         }
@@ -117,6 +120,7 @@ public class CapePackValidator
      * Utility method to detect if the bytes given are a zip file.
      *
      * @param bytes the bytes of the file
+     *
      * @return if it is a zip file
      */
     public static boolean isZipFile(byte[] bytes)

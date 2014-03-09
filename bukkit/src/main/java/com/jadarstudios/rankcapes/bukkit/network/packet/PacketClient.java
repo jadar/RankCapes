@@ -21,7 +21,9 @@ public abstract class PacketClient extends PacketBase
 
     // "implemets" this so that child classes dont need to.
     @Override
-    public final void write(ByteBuffer data) throws BufferUnderflowException {}
+    public final void write(ByteBuffer data) throws BufferUnderflowException
+    {
+    }
 
     // "implement" this so child classes don't have to.
     @Override

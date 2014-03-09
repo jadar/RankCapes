@@ -44,7 +44,7 @@ public abstract class PacketBase
      * Write a string to a {@link ByteBuffer}.
      *
      * @param string the string to write
-     * @param data the buffer to write to
+     * @param data   the buffer to write to
      *
      * @throws BufferOverflowException thrown if the buffer is too small for the data
      * @throws ReadOnlyBufferException thrown if the buffer is read only

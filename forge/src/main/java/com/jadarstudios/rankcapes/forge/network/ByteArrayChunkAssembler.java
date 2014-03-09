@@ -38,6 +38,7 @@ public class ByteArrayChunkAssembler
      * Appends a chunk onto the buffer.
      *
      * @param chunk the chunk to append
+     *
      * @return if the chunk was successfully appended
      */
     public boolean addChunk(byte[] chunk) //C1PacketCapePack packet)

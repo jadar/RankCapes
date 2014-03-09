@@ -24,7 +24,9 @@ public class C4PacketUpdateCape extends PacketClient
     public String cape;
 
     // empty constructor for instantiation
-    public C4PacketUpdateCape() {}
+    public C4PacketUpdateCape()
+    {
+    }
 
     @Override
     public void read(ByteBuffer data) throws BufferUnderflowException

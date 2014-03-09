@@ -28,7 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * This class represents a cape pack. 
+ * This class represents a cape pack.
  * It stores the capes, parses metadata, and assembles AnimatedCapes.
  *
  * @author Jadar
@@ -169,7 +169,7 @@ public class CapePack
             int fps = ((Double) fpsObj).intValue();
             boolean onlyAnimateWhenMoving = false;
 
-            if(onlyAnimateWhenMovingObj instanceof Boolean)
+            if (onlyAnimateWhenMovingObj instanceof Boolean)
             {
                 onlyAnimateWhenMoving = (Boolean) onlyAnimateWhenMovingObj;
             }

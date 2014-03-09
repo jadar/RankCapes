@@ -35,7 +35,9 @@ public class PlayerCapeProperties implements IExtendedEntityProperties
     }
 
     @Override
-    public void init(Entity entity, World world) {}
+    public void init(Entity entity, World world)
+    {
+    }
 
     public void setCape(AbstractCape cape)
     {
@@ -49,10 +51,14 @@ public class PlayerCapeProperties implements IExtendedEntityProperties
 
     // not ever saved to the world
     @Override
-    public void saveNBTData(NBTTagCompound compound) {}
+    public void saveNBTData(NBTTagCompound compound)
+    {
+    }
 
     // not ever loaded from the world.
     @Override
-    public void loadNBTData(NBTTagCompound compound) {}
+    public void loadNBTData(NBTTagCompound compound)
+    {
+    }
 
 }

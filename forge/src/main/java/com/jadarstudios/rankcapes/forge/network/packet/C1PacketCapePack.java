@@ -23,7 +23,9 @@ public class C1PacketCapePack extends PacketClient
     public byte[] packBytes;
 
     // for instantiation
-    public C1PacketCapePack() {}
+    public C1PacketCapePack()
+    {
+    }
 
     @Override
     public void read(ByteBuf data) throws IndexOutOfBoundsException

@@ -69,15 +69,15 @@ public enum CapeHandler
 
         if (cape != null && cape instanceof AnimatedCape)
         {
-            AnimatedCape animated = (AnimatedCape)cape;
+            AnimatedCape animated = (AnimatedCape) cape;
             boolean flag = true;
 
-            if(animated.animateWhenMoving())
+            if (animated.animateWhenMoving())
             {
                 flag = player.motionX != 0 || player.motionZ != 0 || Math.abs(player.motionY) > 0.09;
             }
 
-            if(flag)
+            if (flag)
             {
                 boolean updated = animated.update();
                 if (updated)
@@ -91,7 +91,7 @@ public enum CapeHandler
     /**
      * Sets a player cape.
      *
-     * @param cape the cape to set
+     * @param cape   the cape to set
      * @param player the player whose cape to set
      */
     public void setPlayerCape(AbstractCape cape, AbstractClientPlayer player)

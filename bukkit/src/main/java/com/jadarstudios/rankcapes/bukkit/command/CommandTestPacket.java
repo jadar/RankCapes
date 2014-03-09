@@ -10,8 +10,8 @@ package com.jadarstudios.rankcapes.bukkit.command;
 
 import com.jadarstudios.rankcapes.bukkit.RankCapesBukkit;
 import com.jadarstudios.rankcapes.bukkit.network.PluginPacketHandler;
-import com.jadarstudios.rankcapes.bukkit.network.packet.S3PacketTest;
 import com.jadarstudios.rankcapes.bukkit.network.packet.PacketBase;
+import com.jadarstudios.rankcapes.bukkit.network.packet.S3PacketTest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

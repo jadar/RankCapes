@@ -54,7 +54,7 @@ public enum PacketManager
      * Adds a discriminator to the maps.
      *
      * @param discriminator the discriminator to add
-     * @param clazz the class to add
+     * @param clazz         the class to add
      */
     public void addDiscriminator(byte discriminator, Class<? extends PacketBase> clazz)
     {
@@ -69,6 +69,7 @@ public enum PacketManager
      * Gets the discriminator of a class.
      *
      * @param clazz the class of whose discriminator to get
+     *
      * @return the discriminator of the given class
      */
     public byte getDiscriminator(Class<? extends PacketBase> clazz)
@@ -78,7 +79,9 @@ public enum PacketManager
 
     /**
      * Gets the class of the given discriminator
+     *
      * @param discriminator the discriminator
+     *
      * @return the class of the discriminator
      */
     public Class<? extends PacketBase> getDiscriminatorClass(byte discriminator)
@@ -94,8 +97,8 @@ public enum PacketManager
      * @return an instance of a child class of {@link PacketBase}
      *
      * @throws BufferUnderflowException thrown if there is not enough data to fill the packet
-     * @throws InstantiationException thrown if the packet class can not be instantiated
-     * @throws IllegalAccessException thrown if the packet class' constructor cannot be called
+     * @throws InstantiationException   thrown if the packet class can not be instantiated
+     * @throws IllegalAccessException   thrown if the packet class' constructor cannot be called
      */
     public PacketBase getPacketFromBytes(byte[] bytes) throws BufferUnderflowException, InstantiationException, IllegalAccessException
     {

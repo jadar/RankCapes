@@ -22,7 +22,9 @@ public class S3PacketTest extends PacketBase
 
     // for instantiation
     @SuppressWarnings("unused")
-    public S3PacketTest() {}
+    public S3PacketTest()
+    {
+    }
 
     public S3PacketTest(String payload)
     {

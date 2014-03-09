@@ -18,7 +18,9 @@ import io.netty.buffer.ByteBuf;
 public abstract class PacketBase
 {
 
-    public PacketBase() {}
+    public PacketBase()
+    {
+    }
 
     /**
      * Writes the packet to the given {@link ByteBuf}.
@@ -38,7 +40,7 @@ public abstract class PacketBase
      * Write a string to a {@link ByteBuf}
      *
      * @param string the string to write
-     * @param data the buffer to write to
+     * @param data   the buffer to write to
      *
      * @throws IndexOutOfBoundsException thrown if the buffer is too small for the data
      */
