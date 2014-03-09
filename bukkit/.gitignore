@@ -1,0 +1,20 @@
+# Build and Release Folders
+target/
+build/
+
+# Other files and folders
+.settings/
+.project
+.classpath
+.metadata
+MANIFEST.MF
+RankCapes.jardesc
+.gradle
+eclipse/
+
+# IDEA files and folders
+.idea/
+out/
+*.iml
+*.ipr
+*.iws

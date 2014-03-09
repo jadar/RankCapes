@@ -1,0 +1,56 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "bukkit-central"
+        url = "http://repo.bukkit.org/content/groups/public/"
+    }
+	maven {
+        name = "plugin-metrics"
+        url = "http://repo.mcstats.org/content/repositories/public"
+    }
+}
+
+compileJava {
+	sourceCompatibility '1.6'
+	targetCompatibility '1.6'
+}
+
+dependencies {
+	compile 'org.bukkit:bukkit:1.7.2-R0.4-SNAPSHOT'
+	compile 'org.mcstats.bukkit:metrics-lite:R6'
+}
+
+
+//buildNumber is deprecated
+def buildnumber = 0
+if(System.getenv().BUILD_NUMBER != null)
+{
+	buildnumber = System.getenv().BUILD_NUMBER
+}
+
+// version and stuff
+version = "1.0-BETA-${buildnumber}"
+ext.minecraftVersion = "1.7.2"
+group = "com.jadarstudios.rankcapes.bukkit"
+archivesBaseName = "RankCapes-bukkit"
+
+// jar naming
+jar
+{
+    appendix = "${project.ext.minecraftVersion}"
+}
+
+// fix mcmod.info and include resources
+processResources
+{
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+                
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.ext.minecraftVersion
+    }
+}
