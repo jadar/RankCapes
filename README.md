@@ -1,7 +1,7 @@
-RankCapes
+RankCapes Bukkit
 ===============
 
-RankCapes is a Bukkit plugin and Minecraft client mod combo that allows server owners to give their players custom capes based on permissions. RankCapes is easy to setup and use. It supports regular, animated, and HD capes! 
+This branch is the code for the Bukkit server plugin.
 
 ##Usage
 For full usage and setup, see [the wiki](http://github.com/jadar/RankCapesBukkit/wiki).
@@ -9,12 +9,7 @@ For full usage and setup, see [the wiki](http://github.com/jadar/RankCapesBukkit
 ##Compilation
 To compile the **plugin**.
 
-1. Install Apache Maven
-2. Obtain the source from GitHub
-4. Open a command prompt window and `cd` to the bukkit/ directory.
-5. Run `mvn clean package`
+1. Open a command line window in the root of the branch
+2. Run `./gradlew build`.
 
-To compile the **mod**.
-
-1. Install Gradle
-2. Run ``
+The artifacts are in `./build/libs/`.
