@@ -67,7 +67,7 @@ uploadArchives
 	{
 		repository(url: "http://repo.jadarstudios.com/content/repositories/public/")
 		{
-			authentication(userName = System.getenv().MVN_USER, password = System.getenv().MVN_PASS)
+			authentication(userName: System.getenv().MVN_USER, password: System.getenv().MVN_PASS)
 		}
 	}
 }
