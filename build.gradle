@@ -82,9 +82,34 @@ uploadArchives
 				}
 			}
 			
+			developers
+			{
+				developer
+				{
+					id 'jadar'
+					name 'Jadar'
+					roles { role 'developer' }
+				}
+			}
+			
+			scm 
+			{
+                url 'https://github.com/jadar/RankCapes'
+                connection 'scm:git:git://github.com/jadar/RankCapes.git'
+                developerConnection 'scm:git:git@github.com:jadar/RankCapes.git'
+            }
+
+            issueManagement 
+            {
+                system 'github'
+                url 'https://github.com/jadar/RankCapes/issues'
+            }
+            
 			artifactId = project.archivesBaseName
 			name = project.archivesBaseName
 			packaging = 'jar'
+			version = "${minecraft.version}-${project.version}"
+			description 'RankCapes is a Bukkit plugin and Minecraft client mod combo that allows server owners to give their players custom capes based on permissions.'
 		}
 	}
 }
