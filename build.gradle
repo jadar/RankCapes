@@ -94,7 +94,7 @@ uploadArchives
 			
 			scm 
 			{
-                url 'https://github.com/jadar/RankCapes'
+                url 'https://github.com/jadar/RankCapes/tree/forge'
                 connection 'scm:git:git://github.com/jadar/RankCapes.git'
                 developerConnection 'scm:git:git@github.com:jadar/RankCapes.git'
             }
