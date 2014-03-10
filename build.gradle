@@ -72,11 +72,14 @@ uploadArchives
 		
 		pom.project
 		{
-			licenses.license
+			licenses
 			{
-				name 'The MIT License'
-				url 'https://raw2.github.com/jadar/RankCapes/master/LICENSE'
-				distribution 'repo'
+				license
+				{
+					name 'The MIT License'
+					url 'https://raw2.github.com/jadar/RankCapes/master/LICENSE'
+					distribution 'repo'
+				}
 			}
 			
 			artifactId: project.archivesBaseName
