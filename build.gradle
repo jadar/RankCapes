@@ -20,7 +20,6 @@ buildscript {
 
 // apply plugin to this project
 apply plugin: 'forge'
-apply plugin: 'ivy-publish'
 
 // minecraft properteis
 minecraft {
@@ -64,16 +63,11 @@ processResources
 
 uploadArchives
 {
-	repositories
+	repositories.mavenDeployer
 	{
-		maven
+		repository(url: "http://repo.jadarstudios.com/content/repositories/public/")
 		{
-			credentials
-			{
-				username = System.getenv().MVN_USER
-				password = System.getenv().MVN_PASS
-			}
-			url 'http://repo.jadarstudios.com/content/repositories/public/'
+			authentication(userName = System.getenv().MVN_USER, password = System.getenv().MVN_PASS)
 		}
 	}
 }
