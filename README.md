@@ -15,10 +15,10 @@ The master branch of the repository contains subtrees of the master code branche
 The RankCapes project has 2 parts. Client and server.
 
 **Server**  
-[Bukkit](../../tree/bukkit) - [bleeding](../../tree/bukkit-bleeding)  
+[Bukkit](../../tree/bukkit) [![Build Status](https://travis-ci.org/jadar/RankCapes.png?branch=bukkit)](https://travis-ci.org/jadar/RankCapes) - [bleeding](../../tree/bukkit-bleeding) [![Build Status](https://travis-ci.org/jadar/RankCapes.png?branch=bukkit-bleeding)](https://travis-ci.org/jadar/RankCapes)  
 
 **Client**  
-[Forge](../../tree/forge) - [bleeding](../../tree/forge-bleeding)
+[Forge](../../tree/forge) [![Build Status](https://travis-ci.org/jadar/RankCapes.png?branch=forge)](https://travis-ci.org/jadar/RankCapes) - [bleeding](../../tree/forge-bleeding) [![Build Status](https://travis-ci.org/jadar/RankCapes.png?branch=forge-bleeding)](https://travis-ci.org/jadar/RankCapes)
 
 ##Usage
 For full usage and setup, see [the wiki](../../wiki).
