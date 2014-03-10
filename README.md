@@ -12,7 +12,7 @@ The code on this repository is sorted by branches. The different version of the 
 The master branch of the repository contains subtrees of the master code branches.
 
 ##Platforms
-The RankCapes project has 2 parts. Client and server.
+The RankCapes project has 2 parts. Client and server..
 
 **Server**  
 [Bukkit](../../tree/bukkit) [![Build Status](https://travis-ci.org/jadar/RankCapes.png?branch=bukkit)](https://travis-ci.org/jadar/RankCapes) - [bleeding](../../tree/bukkit-bleeding) [![Build Status](https://travis-ci.org/jadar/RankCapes.png?branch=bukkit-bleeding)](https://travis-ci.org/jadar/RankCapes)  
