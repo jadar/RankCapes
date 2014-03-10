@@ -64,5 +64,13 @@ processResources
 
 uploadArchives
 {
-	
+	repositories
+	{
+		authentication
+		{
+			username: System.getenv().MVN_USER
+			password: System.getenv().MVN_PASS
+		}
+		url 'http://repo.jadarstudios.com/content/repositories/public/'
+	}
 }
