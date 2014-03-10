@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'maven'
 
 repositories {
     mavenCentral()
@@ -53,4 +54,32 @@ processResources
         // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.ext.minecraftVersion
     }
+}
+
+uploadArchives
+{
+	repositories.mavenDeployer
+	{
+		repository(url: "http://repo.jadarstudios.com/content/repositories/public/")
+		{
+			authentication(userName: System.getenv().MVN_USER, password: System.getenv().MVN_PASS)
+		}
+		
+		pom.project
+		{
+			licenses
+			{
+				license
+				{
+					name 'The MIT License'
+					url 'https://raw2.github.com/jadar/RankCapes/master/LICENSE'
+					distribution 'repo'
+				}
+			}
+			
+			artifactId = project.archivesBaseName
+			name = project.archivesBaseName
+			packaging = 'jar'
+		}
+	}
 }

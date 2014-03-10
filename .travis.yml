@@ -8,7 +8,12 @@ branches:
 jdk:
   - oraclejdk7
 
-env: TERM=dumb
-script: gradle build --refresh-dependencies
+env: 
+  global:
+    - TERM=dumb
+    - secure: "lKOR+gJjezzuy71v5o6yM9L5TkA6ng3IiNjUg8KaRWHg0aL2A9pz610nujxuQ3Gjn4Xa+PqG827/5pm3Vc4glrhzdyngYNM0Ebx81oW9zLbtCxHMNbTmUrWLvGkxWFUqyCaSEdlmVGQPNGLNISQ790yYRfToAJhBlU9MO36WYW4="
+    - secure: "YFfRf+nrgNWhuKWPJnVndgoyislwQbnp61MIuyfKcbWo/fbri8NxONH++Lwc3u5d/NLfXaX7xvkVJboVhcV3ikM2EjcMxr9FiBDjycMCIudI6XIH6JWyxw/8ZzGT2Ja8bjxDxyBHjwhRJ+DdIPFdmABUsIA1mlgMBz73EdN+fSY="
+script: ./gradlew build --refresh-dependencies
+after_success: ./gradlew uploadArchives
 before_install:
   - chmod +x gradlew
