@@ -36,7 +36,7 @@ if(System.getenv().TRAVIS_BUILD_NUMBER != null)
 // version and stuff
 version = "2.0.0.${buildnumber}"
 group = "com.jadarstudios.rankcapes.forge"
-archivesBaseName = "RankCapes-client-forge-${minecraft.version}"
+archivesBaseName = "RankCapes-client-forge"
 
 // jar naming
 jar
@@ -68,6 +68,19 @@ uploadArchives
 		repository(url: "http://repo.jadarstudios.com/content/repositories/public/")
 		{
 			authentication(userName: System.getenv().MVN_USER, password: System.getenv().MVN_PASS)
+		}
+		
+		pom.project
+		{
+			licenses.license
+			{
+				name 'The MIT License'
+				url 'https://raw2.github.com/jadar/RankCapes/master/LICENSE'
+				distribution 'repo'
+			}
+			
+			artifactId: project.archivesBaseName
+			packaging: 'jar'
 		}
 	}
 }
