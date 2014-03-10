@@ -82,8 +82,9 @@ uploadArchives
 				}
 			}
 			
-			artifactId: project.archivesBaseName
-			packaging: 'jar'
+			artifactId = project.archivesBaseName
+			name = project.archivesBaseName
+			packaging = 'jar'
 		}
 	}
 }
