@@ -66,11 +66,14 @@ uploadArchives
 {
 	repositories
 	{
-		credentials
+		maven
 		{
-			username: System.getenv().MVN_USER
-			password: System.getenv().MVN_PASS
+			credentials
+			{
+				username = System.getenv().MVN_USER
+				password = System.getenv().MVN_PASS
+			}
+			url 'http://repo.jadarstudios.com/content/repositories/public/'
 		}
-		url 'http://repo.jadarstudios.com/content/repositories/public/'
 	}
 }
