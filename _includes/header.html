@@ -1,0 +1,27 @@
+<div class="github-fork-ribbon-wrapper right">
+    <div class="github-fork-ribbon">
+        <a href="{{ site.github_url }}">Star me on GitHub</a>
+    </div>
+</div>
+
+<header>
+    <h1 class="header">Rankcapes</h1>
+    
+    <ul>
+		{% for itPage in site.pages %}
+
+		{% if itPage.title == page.title %}
+		<li><a class="selected" href="{{ itPage.url }}">{{ itPage.title }}</a></li>
+		{% else %}
+		<li><a href="{{ itPage.url }}">{{ itPage.title }}</a></li>
+		{% endif %}
+		
+		{% endfor %}
+    </ul>
+    
+    <ul>
+        <li><a class="buttons github" href="https://github.com/jadar/RankCapes">View On GitHub</a></li>
+    </ul>
+
+    <p class="header">This project is maintained by <a class="header name" href="https://github.com/jadar">jadar</a></p>
+</header>

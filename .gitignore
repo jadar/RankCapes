@@ -1,13 +1,2 @@
-# Build and Release Folders
-target/
-build/
-
-# Other files and folders
-.settings/
-.project
-.classpath
-.metadata
-MANIFEST.MF
-RankCapes.jardesc
-.gradle
-eclipse/
+.DS_Store
+._*
