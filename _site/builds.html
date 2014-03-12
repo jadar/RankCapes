@@ -103,22 +103,18 @@
       <section>
         
         <p><form id='builds-properties'>
-    <input name='repo-url' type='hidden' value='{"repo-url":"http://repo.jadarstudios.com"}' />
+    <input name='config' type='hidden' value='{"repo-url":"http://repo.jadarstudios.com","test":"test-me"}' />
 </form></p>
 
 <p><form id='builds-artifacts'>
-    
-    <input name='RankCapes-client-forge' type='hidden' value='{"artifactId":"RankCapes-client-forge","groupId":"com.jadarstudios.rankcapes.forge","displayName":"Forge","repo":"public"}' />
-    
-    <input name='RankCapes-bukkit' type='hidden' value='{"artifactId":"RankCapes-bukkit","groupId":"com.jadarstudios.rankcapes.bukkit","displayName":"bukkit","repo":"public"}' />
-    
+    <input name='builds-artifacts' type='hidden' value='[{"artifactId":"RankCapes-client-forge","groupId":"com.jadarstudios.rankcapes.forge","displayName":"Forge","repo":"public"},{"artifactId":"RankCapes-bukkit","groupId":"com.jadarstudios.rankcapes.bukkit","displayName":"bukkit","repo":"public"}]' />
 </form></p>
 
 <h1 id="latest_builds">Latest Builds</h1>
 
-<p>These are the very latest builds built by <a href="https://travis-ci.org/Jadar/RankCapes">Travis</a>. There is a build every time that a change is pushed to <a href="">GitHub</a>. For this reason, even though a build might have succeeded, there might still be a bad bug in it. I try not to push bad code but it happens every once and a while. Only builds that have succeeded are shown below.</p>
+<p>These are the very latest builds built by <a href="https://travis-ci.org/Jadar/RankCapes">Travis</a>. There is a build every time that a change is pushed to <a href="">GitHub</a>. For this reason, <strong>even though a build might have succeeded, there most likely will still be bugs in it.</strong> I try not to push bad code but it happens every once and a while. Only builds that have succeeded are shown below.</p>
 
-<p><strong>Bukkit Build Status</strong>: <a href="https://travis-ci.org/jadar/RankCapes"><img src="https://travis-ci.org/jadar/RankCapes.png?branch=bukkit-bleeding" alt="Build Status" /></a><br /><strong>Forge Build Status</strong>: <a href="https://travis-ci.org/jadar/RankCapes"><img src="https://travis-ci.org/jadar/RankCapes.png?branch=forge-bleeding" alt="Build Status" /></a></p>
+<p><strong>Bukkit (bleeding edge) build status</strong>: <a href="https://travis-ci.org/jadar/RankCapes"><img src="https://travis-ci.org/jadar/RankCapes.png?branch=bukkit-bleeding" alt="Build Status" /></a><br /><strong>Forge (bleeding edge) build status</strong>: <a href="https://travis-ci.org/jadar/RankCapes"><img src="https://travis-ci.org/jadar/RankCapes.png?branch=forge-bleeding" alt="Build Status" /></a></p>
 
 <h2 id="builds">Builds</h2>
 <div id='builds'>

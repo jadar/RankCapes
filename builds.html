@@ -8,22 +8,20 @@ custom_header_tags: <script src='../javascripts/build-page.js' type='text/javasc
 ---
 
 <form id='builds-properties'>
-    <input type='hidden' name='repo-url' value='{{ site.data.builds-properties | jsonify }}'/>
+    <input type='hidden' name='config' value='{{ site.data.builds-properties | jsonify }}'/>
 </form>
 
 <form id='builds-artifacts'>
-    {% for node in site.data.builds-artifacts %}
-    <input type='hidden' name='{{node.artifactId}}' value='{{node | jsonify}}'/>
-    {% endfor %}
+    <input type='hidden' name='builds-artifacts' value='{{site.data.builds-artifacts | jsonify}}'/>
 </form>
 
 Latest Builds
 =============
 
-These are the very latest builds built by [Travis](https://travis-ci.org/Jadar/RankCapes). There is a build every time that a change is pushed to [GitHub]({{ site.github-project }}). For this reason, even though a build might have succeeded, there might still be a bad bug in it. I try not to push bad code but it happens every once and a while. Only builds that have succeeded are shown below.
+These are the very latest builds built by [Travis](https://travis-ci.org/Jadar/RankCapes). There is a build every time that a change is pushed to [GitHub]({{ site.github-project }}). For this reason, **even though a build might have succeeded, there most likely will still be bugs in it.** I try not to push bad code but it happens every once and a while. Only builds that have succeeded are shown below.
 
-**Bukkit Build Status**: [![Build Status](https://travis-ci.org/jadar/RankCapes.png?branch=bukkit-bleeding)](https://travis-ci.org/jadar/RankCapes)  
-**Forge Build Status**: [![Build Status](https://travis-ci.org/jadar/RankCapes.png?branch=forge-bleeding)](https://travis-ci.org/jadar/RankCapes)  
+**Bukkit (bleeding edge) build status**: [![Build Status](https://travis-ci.org/jadar/RankCapes.png?branch=bukkit-bleeding)](https://travis-ci.org/jadar/RankCapes)  
+**Forge (bleeding edge) build status**: [![Build Status](https://travis-ci.org/jadar/RankCapes.png?branch=forge-bleeding)](https://travis-ci.org/jadar/RankCapes)  
 
 Builds
 ------
