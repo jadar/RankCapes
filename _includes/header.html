@@ -7,15 +7,15 @@
 <header>
     <h1 class="header">Rankcapes</h1>
     
-    <ul>
-		{% for itPage in site.pages %}
+    {% assign pagesSize = site.pages | size %}
 
-		{% if itPage.title == page.title %}
-		<li><a class="{{ itPage.id }} buttons selected" href="{{ itPage.url }}">{{ itPage.title }}</a></li>
-		{% else %}
-		<li><a class="{{ itPage.id }} buttons" href="{{ itPage.url }}">{{ itPage.title }}</a></li>
-		{% endif %}
-		
+    <ul>
+        {% for order in (1..{pagesSize}) %}
+		    {% for node in site.pages %}
+		        {% if node.order == order %}
+		        <li><a class="{{ node.id }} buttons {% if node.title == page.title %}selected{% endif %}" href="{{ node.url }}">{{ node.title }}</a></li>
+		        {% endif %}
+		    {% endfor %}
 		{% endfor %}
     </ul>
     
