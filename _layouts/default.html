@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  
+  {% include htmlhead.html %}
+  
+  <body>
+
+    <div class="wrapper">
+      
+      {% include header.html %}
+      
+      
+      <section>
+        
+        {{ page.content | markdownify }}
+        
+      </section>
+      {% include footer.html %}
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>

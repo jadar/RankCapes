@@ -11,15 +11,16 @@
 		{% for itPage in site.pages %}
 
 		{% if itPage.title == page.title %}
-		<li><a class="selected" href="{{ itPage.url }}">{{ itPage.title }}</a></li>
+		<li><a class="{{ itPage.id }} buttons selected" href="{{ itPage.url }}">{{ itPage.title }}</a></li>
 		{% else %}
-		<li><a href="{{ itPage.url }}">{{ itPage.title }}</a></li>
+		<li><a class="{{ itPage.id }} buttons" href="{{ itPage.url }}">{{ itPage.title }}</a></li>
 		{% endif %}
 		
 		{% endfor %}
     </ul>
     
     <ul>
+    	<li><a class="buttons wiki" href="https://github.com/jadar/RankCapes/wiki">Documentation</a></li>
         <li><a class="buttons github" href="https://github.com/jadar/RankCapes">View On GitHub</a></li>
     </ul>
 
