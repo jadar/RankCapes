@@ -12,7 +12,7 @@
       
       <section>
         
-        {{ page.content | markdownify }}
+        {{ content || markdownify }}
         
       </section>
       {% include footer.html %}

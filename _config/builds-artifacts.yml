@@ -1,9 +1,0 @@
-- artifactId: RankCapes-client-forge
-  groupId: com.jadarstudios.rankcapes.forge
-  displayName: Forge
-  repo: public
-  
-- artifactId: RankCapes-bukkit
-  groupId: com.jadarstudios.rankcapes.bukkit
-  displayName: bukkit
-  repo: public
