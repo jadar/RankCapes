@@ -18,29 +18,24 @@ function getConfiguredArtifacts()
 
 function getIndexContents(repoUrl, repositoryId, groupId, artifactId)
 {
+    repoUrl = repoUrl.replace(/http/g, '');
+    repoUrl = repoUrl.replace(/https/g, '');
+    repoUrl = repoUrl.replace(/\:\/\//g, '');
     repoUrl = repoUrl + '/service/local/repositories/' + repositoryId + '/index_content/' + (groupId.replace(/\./g, "/")) + '/';
-    $.ajax({
-        type: 'GET',
-        url: repoUrl,
-        processData: true,
-        data: {},
-        dataType: "json",
-        success: 
-            function(data) {
-                processData(data);
-            }
+    repoUrl = "http://www.corsproxy.com/" + repoUrl;
+
+    $.getJSON(
+    repoUrl, 
+    function(data)
+    {
+        indexContentsCallback(data);
     });
-    
-//    $.getJSON(repoUrl, function(data)
-//    {
-//        console.log("success!");
-//        console.loc(data);
-//    });
 }
 
-function processData(data)
+var artifact_index = {};
+function indexContentsCallback(data)
 {
-    console.log(data);
+    artifact_index[artifact_index.length] = data;
 }
 
 function onPageLoad()
@@ -50,13 +45,11 @@ function onPageLoad()
     if(config == null || artifacts == null) 
         return;
     
-    var index = {};
     var i = 0;
     for(var artifact in artifacts)
     {
         artifact = artifacts[artifact];
-        index[i] = getIndexContents(config["repo-url"], artifact["repo"], artifact["groupId"], artifact["artifactId"]);
-        i++;
+        getIndexContents(config["repo-url"], artifact["repo"], artifact["groupId"], artifact["artifactId"]);
     }
     
 }
