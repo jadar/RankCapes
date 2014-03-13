@@ -13,7 +13,7 @@
         {% for order in (1..{pagesSize}) %}
 		    {% for node in site.pages %}
 		        {% if node.order == order %}
-		        <li><a class="{{ node.id }} buttons {% if node.title == page.title %}selected{% endif %}" href="{{ node.url }}">{{ node.title }}</a></li>
+		        <li><a class="{{ node.id }} buttons {% if node.title == page.title %}selected{% endif %}" href="{{ site.baseurl }}{{ node.url }}">{{ node.title }}</a></li>
 		        {% endif %}
 		    {% endfor %}
 		{% endfor %}
