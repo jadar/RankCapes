@@ -126,9 +126,15 @@
 
 <p>On the server there is a <a href="./wiki/Cape-Pack">Cape Pack</a> that contains all the textures as well as a file that associates images and cape names. Capes are given with this permission node: <code>rankcapes.cape.use.$CAPE_NAME</code>. When clients with the RankCapes mod installed connect to the server, they can change their cape to whatever they have permissions for in the cape change GUI. All other players with the mod installed can see theirs, and other player’s capes.</p>
 
+<h3 id="versioning">Versioning</h3>
+
+<p>RankCapes uses the <a href="http://semver.org/">Semantic Versioning 2.0.0</a> system with an added BUILD version. Every time an incompatible API change is made, including SERVER&lt;-&gt;CLIENT protocol, the MAJOR version is incremented. Every time Minecraft is updated, the MINOR version is incremented. Every time a backwards-compatible change is made, the PATCH/REVISION version is incremented. Also, whenever the MAJOR or MINOR version is incremented, the PATCH/REVISION version is reset to 0. Every time <a href="https://travis-ci.org/jadar/RankCapes">Travis</a> does a build, the BUILD version increments.</p>
+
+<p>Complicated? Maybe. Just remember to only use server and client versions that have the same MAJOR.MINOR versions.</p>
+
 <h3 id="support">Support</h3>
 
-<p>If you have any problem with the RankCapes plugin or mod, you may <a href="./issues">create an issue on GitHub</a>, or post a comment on the <a href="http://dev.bukkit.org/bukkit-plugins/rankcapes/">plugin page</a>.</p>
+<p>If you have any problem with the RankCapes plugin or mod, you may <a href="https://github.com/jadar/RankCapes/issues">create an issue on GitHub</a>, or post a comment on the <a href="http://dev.bukkit.org/bukkit-plugins/rankcapes/">plugin page</a>.</p>
 
 <h3 id="donations">Donations</h3>
 

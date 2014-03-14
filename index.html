@@ -20,8 +20,13 @@ RankCapes was made for servers that would like to offer something more to their 
 ###How it Works
 On the server there is a [Cape Pack](./wiki/Cape-Pack) that contains all the textures as well as a file that associates images and cape names. Capes are given with this permission node: `rankcapes.cape.use.$CAPE_NAME`. When clients with the RankCapes mod installed connect to the server, they can change their cape to whatever they have permissions for in the cape change GUI. All other players with the mod installed can see theirs, and other player's capes.
 
+###Versioning
+RankCapes uses the [Semantic Versioning 2.0.0](http://semver.org/) system with an added BUILD version. Every time an incompatible API change is made, including SERVER<->CLIENT protocol, the MAJOR version is incremented. Every time Minecraft is updated, the MINOR version is incremented. Every time a backwards-compatible change is made, the PATCH/REVISION version is incremented. Also, whenever the MAJOR or MINOR version is incremented, the PATCH/REVISION version is reset to 0. Every time [Travis](https://travis-ci.org/jadar/RankCapes) does a build, the BUILD version increments. 
+
+Complicated? Maybe. Just remember to only use server and client versions that have the same MAJOR.MINOR versions. 
+
 ###Support
-If you have any problem with the RankCapes plugin or mod, you may [create an issue on GitHub](./issues), or post a comment on the [plugin page](http://dev.bukkit.org/bukkit-plugins/rankcapes/). 
+If you have any problem with the RankCapes plugin or mod, you may [create an issue on GitHub]({{ site.github_url }}/issues), or post a comment on the [plugin page](http://dev.bukkit.org/bukkit-plugins/rankcapes/). 
 
 ###Donations
 If you appreciate this plugin and all the hard work put into it, buy me a Coke!  
