@@ -60,3 +60,42 @@ code {
 th {
     width: 10%;
 }
+
+@media screen and (max-width: 960px) and (min-width: 920px) {
+
+    header ul {
+        width: 477px;
+    }
+
+    header li {
+        float: left;
+        display: inline;
+        margin-left: 12px;
+    }
+
+
+}
+
+@media screen and (max-width: 920px) and (min-width: 721px) {
+
+    header ul {
+        width: 437px;
+        right: 0px;
+        top: 63px;
+    }
+    
+    header li {
+        float: left;
+        display: inline;
+        margin-left: 12px;
+    }
+}
+
+@media print {
+    .github-fork-ribbon-wrapper {
+        display: none;
+    }
+    header li {
+        font-size: 11px;
+    }
+}
