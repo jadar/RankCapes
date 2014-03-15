@@ -100,10 +100,15 @@ th {
     }
 }
 
-.build-artifact-group {
+.build-artifact-group-container {
     width: 47%;
     float: left;
     margin: 0 5px 0 5px;
+}
+
+/* Automatically hidden until script shows it. */
+.build-artifact-group {
+    display: none;
 }
 
 .build-artifact-group th {

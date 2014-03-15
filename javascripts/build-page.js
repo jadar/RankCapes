@@ -24,11 +24,14 @@ function getIndexContents(repoUrl, repositoryId, groupId, artifactId)
     repoUrl = repoUrl + '/service/local/repositories/' + repositoryId + '/index_content/' + (groupId.replace(/\./g, "/")) + '/';
     repoUrl = "http://www.corsproxy.com/" + repoUrl;
 
-    $.getJSON(
-    repoUrl, 
-    function(data)
-    {
-        indexContentsCallback(data);
+    $.ajax({
+        url: repoUrl,
+        async: true,
+        dataType: 'json',
+        success: function(data)
+        {
+            indexContentsCallback(data);
+        }
     });
 }
 
@@ -38,20 +41,19 @@ function indexContentsCallback(data)
     var configuredArtifacts = getConfiguredArtifacts();
 
     data = data.data;
-
+    console.log(data);
     artifact_index[artifact_index.length] = data;
     var node = data.nodeName;
 
     for (var artifact in data.children)
     {
         artifact = data.children[artifact];
-        var versions = artifact.children;
+        var versions = artifact.children.reverse();
 
         for (var version in versions)
         {
             version = versions[version];
             
-            //console.log("version");
             var compiledArtifacts = {};
             var versionNum = version["version"];
             var versionArtifacts = version.children;
@@ -92,7 +94,7 @@ function addBuildToPage(artifactId, version, minecraft, versionArtifacts)
         {
             title = "Src";
         }
-        else if(stringContains(artifact, "deobj"))
+        else if(stringContains(artifact, "deobf"))
         {
             title = "Deobfuscated";
         }
@@ -104,6 +106,9 @@ function addBuildToPage(artifactId, version, minecraft, versionArtifacts)
     
     html += "</tr>";
     table.append(html);
+    
+    table.parent().parent().find("#loader").hide({effect: "slide", queue: false});
+    table.parent().show({effect: "blind", queue: false});
 }
 
 function onPageLoad()
