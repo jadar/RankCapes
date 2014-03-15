@@ -60,3 +60,75 @@ code {
 th {
     width: 10%;
 }
+
+@media screen and (max-width: 960px) and (min-width: 920px) {
+
+    header ul {
+        width: 477px;
+    }
+
+    header li {
+        float: left;
+        display: inline;
+        margin-left: 12px;
+    }
+
+
+}
+
+@media screen and (max-width: 920px) and (min-width: 721px) {
+
+    header ul {
+        width: 437px;
+        right: 0px;
+        top: 63px;
+    }
+    
+    header li {
+        float: left;
+        display: inline;
+        margin-left: 12px;
+    }
+}
+
+@media print {
+    .github-fork-ribbon-wrapper {
+        display: none;
+    }
+    header li {
+        font-size: 11px;
+    }
+}
+
+.build-artifact-group {
+    width: 47%;
+    float: left;
+    margin: 0 5px 0 5px;
+}
+
+.build-artifact-group th {
+    padding: 6px;
+}
+
+.build-artifact-group h1, h2, h3, h4 {
+    margin-top: 10px;
+}
+
+@media screen and (max-width: 830px) {
+
+    .build-artifact-group {
+        float: initial;
+        width: 100%;
+    }
+}
+
+@media screen and (max-height: 600px) and (min-width: 960px){
+    
+    footer {
+        border-top: 1px solid #ccc;
+        margin: 0 84px 0 320px;
+        padding: 0;
+        position: static;
+        width: auto;
+    }
+}
