@@ -26,8 +26,6 @@ public enum KeyEventHandler
 {
     INSTANCE;
 
-    private static final Minecraft mc = Minecraft.getMinecraft();
-
     private List<KeyBinding> keyBindings;
 
     private KeyEventHandler()
@@ -44,6 +42,7 @@ public enum KeyEventHandler
     @SubscribeEvent
     public void key(KeyInputEvent event)
     {
+        Minecraft mc = Minecraft.getMinecraft();
         int key = Keyboard.getEventCharacter();
 
         for (KeyBinding binding : this.keyBindings)
