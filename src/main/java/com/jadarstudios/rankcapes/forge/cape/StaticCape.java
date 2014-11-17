@@ -8,6 +8,7 @@
 
 package com.jadarstudios.rankcapes.forge.cape;
 
+import com.jadarstudios.rankcapes.forge.handler.CapeHandler;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.TextureUtil;
@@ -44,7 +45,7 @@ public class StaticCape extends AbstractCape
             this.texture = readImageData(capeImage);
         }
 
-        ThreadDownloadImageData data = player.getTextureCape();
+        ThreadDownloadImageData data = (ThreadDownloadImageData) CapeHandler.getPlayerCapeTexture(player);
         data.setBufferedImage(this.capeImage);
         TextureUtil.uploadTexture(data.getGlTextureId(), this.texture, capeImage.getWidth(), capeImage.getHeight());
     }
