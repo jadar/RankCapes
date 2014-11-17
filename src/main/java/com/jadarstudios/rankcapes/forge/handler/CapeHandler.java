@@ -20,6 +20,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
+import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -121,7 +123,7 @@ public enum CapeHandler
      */
     public void resetPlayerCape(AbstractClientPlayer player)
     {
-        ThreadDownloadImageData texture = player.getTextureCape();
+        ThreadDownloadImageData texture = (ThreadDownloadImageData) CapeHandler.getPlayerCapeTexture(player);
         texture.deleteGlTexture();
         texture.setBufferedImage(null);
         for (Field f : texture.getClass().getDeclaredFields())
@@ -179,5 +181,9 @@ public enum CapeHandler
     public CapePack getPack()
     {
         return this.capePack;
+    }
+
+    public static ITextureObject getPlayerCapeTexture(AbstractClientPlayer player) {
+        return Minecraft.getMinecraft().getTextureManager().getTexture(player.getLocationCape());
     }
 }
