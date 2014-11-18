@@ -34,7 +34,7 @@ if(System.getenv().TRAVIS_BUILD_NUMBER != null)
 }
 
 // version and stuff
-version = "2.0.0.${buildnumber}"
+version = "2.0.1.${buildnumber}"
 group = "com.jadarstudios.rankcapes.forge"
 archivesBaseName = "RankCapes-client-forge"
 
