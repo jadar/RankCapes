@@ -47,9 +47,9 @@ public class MyCapeCommand implements CommandExecutor
         else
         {
             sender.sendMessage("You have the " + p.getCapeName() + " cape.");
+            this.instance.getDatabase().save(p);
         }
 
-        this.instance.getDatabase().save(p);
         return true;
     }
 
